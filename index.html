@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mailroom · Mail a photo for less than a stamp</title>
+<meta name="description" content="Send real photo postcards to your friends, starting at less than a stamp. For the fridge, not the feed.">
+<meta property="og:title" content="Mailroom · For the fridge, not the feed">
+<meta property="og:description" content="Mail a photo for less than a stamp. Real postcards, sent in 30 seconds.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..900,0..100,0..1&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --cream: #f4ede0;
+    --cream-deep: #ebe1cd;
+    --ink: #1a1612;
+    --ink-soft: #3d342a;
+    --postal-red: #c8362a;
+    --postal-red-deep: #9c2a20;
+    --olive: #6b6a3a;
+    --paper: #faf6ed;
+    --rule: #c9bfa8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    background: var(--cream);
+  }
+
+  body {
+    font-family: 'Inter Tight', -apple-system, sans-serif;
+    color: var(--ink);
+    background: var(--cream);
+    line-height: 1.5;
+    font-feature-settings: "ss01", "ss02";
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Paper noise texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.4;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.05 0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+
+  .container {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 32px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ============ NAV ============ */
+  nav {
+    padding: 28px 0;
+    position: sticky;
+    top: 0;
+    background: rgba(244, 237, 224, 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 100;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s ease;
+  }
+
+  nav.scrolled {
+    border-bottom-color: var(--rule);
+  }
+
+  nav .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 24px;
+    letter-spacing: -0.02em;
+    font-variation-settings: "SOFT" 50, "WONK" 1;
+    color: var(--ink);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-stamp {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    background: var(--postal-red);
+    border-radius: 2px;
+    position: relative;
+    transform: rotate(-3deg);
+    box-shadow: 1px 1px 0 var(--ink-soft);
+  }
+
+  .logo-stamp::before {
+    content: 'M';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--cream);
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .nav-links a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .nav-links a:hover { color: var(--postal-red); }
+
+  .nav-cta {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 10px 18px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .nav-cta:hover {
+    background: var(--postal-red);
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 640px) {
+    .nav-links a:not(.nav-cta) { display: none; }
+  }
+
+  /* ============ HERO ============ */
+  .hero {
+    padding: 80px 0 100px;
+    position: relative;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  @media (max-width: 900px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 60px; }
+    .hero { padding: 60px 0 80px; }
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--postal-red);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .eyebrow::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--postal-red);
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(48px, 7vw, 96px);
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    font-weight: 400;
+    color: var(--ink);
+    margin-bottom: 32px;
+    font-variation-settings: "SOFT" 100, "WONK" 0;
+  }
+
+  h1 em {
+    font-style: italic;
+    font-variation-settings: "SOFT" 100, "WONK" 1;
+    color: var(--postal-red);
+  }
+
+  .hero-subhead {
+    font-size: 20px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    max-width: 480px;
+    margin-bottom: 40px;
+  }
+
+  .hero-cta-row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .btn-primary {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 16px 28px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+    border: 1px solid var(--ink);
+  }
+
+  .btn-primary:hover {
+    background: var(--postal-red);
+    border-color: var(--postal-red);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(200, 54, 42, 0.25);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--ink);
+    padding: 16px 24px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    border: 1px solid var(--ink);
+  }
+
+  .btn-secondary:hover {
+    background: var(--ink);
+    color: var(--cream);
+  }
+
+  .hero-meta {
+    margin-top: 32px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .hero-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hero-meta-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--postal-red);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+  }
+
+  /* ============ POSTCARD MOCKUP ============ */
+  .postcard-stack {
+    position: relative;
+    perspective: 1200px;
+    transform-style: preserve-3d;
+    aspect-ratio: 1 / 1;
+    max-width: 520px;
+    margin-left: auto;
+  }
+
+  .postcard {
+    position: absolute;
+    width: 90%;
+    aspect-ratio: 1.5 / 1;
+    background: var(--paper);
+    border-radius: 4px;
+    box-shadow:
+      0 1px 2px rgba(26, 22, 18, 0.1),
+      0 8px 24px rgba(26, 22, 18, 0.15),
+      0 24px 48px rgba(26, 22, 18, 0.12);
+    overflow: hidden;
+    transform-origin: center center;
+  }
+
+  .postcard-1 {
+    top: 20%;
+    left: 5%;
+    transform: rotate(-8deg);
+    z-index: 1;
+    background: linear-gradient(135deg, #d4a574 0%, #b8895a 40%, #8b6543 100%);
+  }
+
+  .postcard-2 {
+    top: 12%;
+    left: 12%;
+    transform: rotate(2deg);
+    z-index: 2;
+    background: linear-gradient(160deg, #6b8e85 0%, #4a6b62 50%, #2d4942 100%);
+  }
+
+  .postcard-3 {
+    top: 5%;
+    left: 18%;
+    transform: rotate(-2deg);
+    z-index: 3;
+    background: linear-gradient(180deg, #c4a8c8 0%, #9078a3 50%, #5d4470 100%);
+  }
+
+  .postcard-3::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 30% 40%, rgba(255, 200, 150, 0.3), transparent 50%),
+      radial-gradient(circle at 70% 70%, rgba(180, 100, 80, 0.3), transparent 60%);
+  }
+
+  .postcard-stamp {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 48px;
+    height: 56px;
+    background: var(--postal-red);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    z-index: 10;
+  }
+
+  .postcard-stamp::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    background: var(--postal-red);
+    clip-path: polygon(
+      0% 3px, 3px 3px, 3px 0%,
+      9px 0%, 9px 3px, 15px 3px, 15px 0%,
+      21px 0%, 21px 3px, 27px 3px, 27px 0%,
+      33px 0%, 33px 3px, 39px 3px, 39px 0%,
+      45px 0%, 45px 3px, 51px 3px, 51px 0%,
+      54px 0%, 54px 6px, 51px 6px, 51px 12px,
+      54px 12px, 54px 18px, 51px 18px, 51px 24px,
+      54px 24px, 54px 30px, 51px 30px, 51px 36px,
+      54px 36px, 54px 42px, 51px 42px, 51px 48px,
+      54px 48px, 54px 54px, 54px 56px,
+      51px 56px, 51px 59px, 45px 59px, 45px 56px,
+      39px 56px, 39px 59px, 33px 59px, 33px 56px,
+      27px 56px, 27px 59px, 21px 59px, 21px 56px,
+      15px 56px, 15px 59px, 9px 59px, 9px 56px,
+      3px 56px, 3px 59px, 0% 59px,
+      0% 56px, 3px 56px, 3px 50px, 0% 50px,
+      0% 44px, 3px 44px, 3px 38px, 0% 38px,
+      0% 32px, 3px 32px, 3px 26px, 0% 26px,
+      0% 20px, 3px 20px, 3px 14px, 0% 14px,
+      0% 8px, 3px 8px, 3px 3px
+    );
+  }
+
+  .postcard-stamp-inner {
+    position: absolute;
+    inset: 4px;
+    background: var(--postal-red-deep);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: var(--cream);
+    font-family: 'Fraunces', serif;
+    font-size: 9px;
+    line-height: 1;
+    text-align: center;
+    padding: 4px;
+  }
+
+  .postcard-stamp-inner strong {
+    font-size: 16px;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .postmark {
+    position: absolute;
+    bottom: 18px;
+    right: 18px;
+    width: 110px;
+    height: 110px;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    opacity: 0.45;
+    transform: rotate(-12deg);
+    color: var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.3;
+    padding: 8px;
+  }
+
+  .postmark::before, .postmark::after {
+    content: '';
+    position: absolute;
+    background: var(--ink);
+  }
+
+  .postmark::before {
+    width: 80%;
+    height: 1px;
+    top: 28%;
+    left: 10%;
+  }
+
+  .postmark::after {
+    width: 80%;
+    height: 1px;
+    bottom: 28%;
+    left: 10%;
+  }
+
+  /* Floating animation */
+  .postcard-1 { animation: float-1 6s ease-in-out infinite; }
+  .postcard-2 { animation: float-2 7s ease-in-out infinite; }
+  .postcard-3 { animation: float-3 5.5s ease-in-out infinite; }
+
+  @keyframes float-1 {
+    0%, 100% { transform: rotate(-8deg) translateY(0); }
+    50% { transform: rotate(-7deg) translateY(-8px); }
+  }
+  @keyframes float-2 {
+    0%, 100% { transform: rotate(2deg) translateY(0); }
+    50% { transform: rotate(3deg) translateY(-12px); }
+  }
+  @keyframes float-3 {
+    0%, 100% { transform: rotate(-2deg) translateY(0); }
+    50% { transform: rotate(-1deg) translateY(-6px); }
+  }
+
+  /* ============ SECTION COMMON ============ */
+  section {
+    padding: 120px 0;
+    position: relative;
+  }
+
+  @media (max-width: 900px) {
+    section { padding: 80px 0; }
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--postal-red);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--postal-red);
+  }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(40px, 5.5vw, 72px);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-weight: 400;
+    color: var(--ink);
+    margin-bottom: 24px;
+    font-variation-settings: "SOFT" 50, "WONK" 0;
+  }
+
+  h2 em {
+    font-style: italic;
+    font-variation-settings: "SOFT" 100, "WONK" 1;
+    color: var(--postal-red);
+  }
+
+  .section-lede {
+    font-size: 19px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    max-width: 560px;
+    margin-bottom: 64px;
+  }
+
+  /* ============ HOW IT WORKS ============ */
+  .how-it-works {
+    background: var(--paper);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 32px;
+    counter-reset: step;
+  }
+
+  @media (max-width: 900px) {
+    .steps { grid-template-columns: 1fr; gap: 24px; }
+  }
+
+  .step {
+    padding: 40px 32px;
+    background: var(--cream);
+    border-radius: 8px;
+    position: relative;
+    counter-increment: step;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+  }
+
+  .step:hover {
+    border-color: var(--rule);
+    transform: translateY(-4px);
+  }
+
+  .step::before {
+    content: counter(step, decimal-leading-zero);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--postal-red);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    margin-bottom: 32px;
+    display: block;
+  }
+
+  .step-icon {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 24px;
+    color: var(--ink);
+    opacity: 0.85;
+  }
+
+  .step h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 12px;
+    color: var(--ink);
+  }
+
+  .step p {
+    font-size: 16px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+
+  /* ============ THE PHILOSOPHY (manifesto-ish) ============ */
+  .manifesto {
+    text-align: center;
+    padding: 140px 0;
+  }
+
+  .manifesto-text {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(28px, 4vw, 48px);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    max-width: 880px;
+    margin: 0 auto;
+    font-weight: 400;
+    font-variation-settings: "SOFT" 50;
+  }
+
+  .manifesto-text em {
+    font-style: italic;
+    color: var(--postal-red);
+    font-variation-settings: "SOFT" 100, "WONK" 1;
+  }
+
+  .manifesto-divider {
+    width: 60px;
+    height: 1px;
+    background: var(--rule);
+    margin: 64px auto;
+  }
+
+  /* ============ PRICING ============ */
+  .pricing {
+    background: var(--ink);
+    color: var(--cream);
+    border-top: 1px solid var(--ink);
+  }
+
+  .pricing .section-label { color: #f4be8a; }
+  .pricing .section-label::before { background: #f4be8a; }
+
+  .pricing h2 { color: var(--cream); }
+  .pricing h2 em { color: #f4be8a; }
+  .pricing .section-lede { color: rgba(244, 237, 224, 0.7); }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 48px;
+  }
+
+  .pricing-grid.two-cols {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  @media (max-width: 900px) {
+    .pricing-grid,
+    .pricing-grid.two-cols { grid-template-columns: 1fr; }
+  }
+
+  .price-card {
+    background: rgba(244, 237, 224, 0.05);
+    border: 1px solid rgba(244, 237, 224, 0.12);
+    border-radius: 8px;
+    padding: 40px 32px;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .price-card:hover {
+    border-color: #f4be8a;
+    transform: translateY(-4px);
+  }
+
+  .price-card.featured {
+    background: rgba(244, 190, 138, 0.08);
+    border-color: #f4be8a;
+  }
+
+  .price-card.featured::before {
+    content: 'Cheaper than a stamp';
+    position: absolute;
+    top: -1px;
+    right: 24px;
+    background: #f4be8a;
+    color: var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 0 0 4px 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .price-card-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: rgba(244, 237, 224, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 16px;
+  }
+
+  .price-amount {
+    font-family: 'Fraunces', serif;
+    font-size: 72px;
+    font-weight: 400;
+    line-height: 1;
+    color: var(--cream);
+    margin-bottom: 4px;
+    font-variation-settings: "SOFT" 50, "WONK" 1;
+  }
+
+  .price-unit {
+    font-size: 16px;
+    color: rgba(244, 237, 224, 0.6);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 32px;
+  }
+
+  .price-per {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #f4be8a;
+    margin-bottom: 24px;
+  }
+
+  .price-features {
+    list-style: none;
+  }
+
+  .price-features li {
+    padding: 8px 0;
+    font-size: 15px;
+    color: rgba(244, 237, 224, 0.85);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .price-features li::before {
+    content: '→';
+    color: #f4be8a;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+
+  .pricing-note {
+    text-align: center;
+    margin-top: 64px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: rgba(244, 237, 224, 0.5);
+    letter-spacing: 0.05em;
+  }
+
+  /* ============ FAQ ============ */
+  .faq-grid {
+    max-width: 820px;
+    margin: 0 auto;
+  }
+
+  .faq-item {
+    border-bottom: 1px solid var(--rule);
+    padding: 28px 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .faq-item:first-child { border-top: 1px solid var(--rule); }
+
+  .faq-question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+
+  .faq-toggle {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border: 1px solid var(--ink);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    transition: all 0.3s ease;
+  }
+
+  .faq-item.open .faq-toggle {
+    transform: rotate(45deg);
+    background: var(--postal-red);
+    border-color: var(--postal-red);
+    color: var(--cream);
+  }
+
+  .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, margin 0.4s ease;
+  }
+
+  .faq-item.open .faq-answer {
+    max-height: 400px;
+    margin-top: 16px;
+  }
+
+  .faq-answer p {
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    max-width: 680px;
+  }
+
+  /* ============ CTA SECTION ============ */
+  .cta-section {
+    text-align: center;
+    padding: 140px 0;
+    background: var(--cream-deep);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .cta-section h2 {
+    margin-bottom: 24px;
+  }
+
+  .cta-section .section-lede {
+    margin: 0 auto 48px;
+  }
+
+  .cta-buttons {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* ============ FOOTER ============ */
+  footer {
+    background: var(--ink);
+    color: rgba(244, 237, 224, 0.6);
+    padding: 80px 0 40px;
+    font-size: 14px;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 48px;
+    margin-bottom: 64px;
+  }
+
+  @media (max-width: 700px) {
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+  }
+
+  .footer-brand {
+    font-family: 'Fraunces', serif;
+    font-size: 32px;
+    color: var(--cream);
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
+  }
+
+  .footer-tagline {
+    color: rgba(244, 237, 224, 0.6);
+    line-height: 1.5;
+    max-width: 280px;
+  }
+
+  .footer-col h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(244, 237, 224, 0.5);
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+
+  .footer-col a {
+    display: block;
+    color: rgba(244, 237, 224, 0.75);
+    text-decoration: none;
+    padding: 6px 0;
+    transition: color 0.2s ease;
+  }
+
+  .footer-col a:hover { color: var(--cream); }
+
+  .footer-bottom {
+    border-top: 1px solid rgba(244, 237, 224, 0.1);
+    padding-top: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: rgba(244, 237, 224, 0.4);
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  /* ============ ANIMATIONS on scroll ============ */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ============ Mobile adjustments ============ */
+  @media (max-width: 640px) {
+    .container { padding: 0 20px; }
+    .postcard-stack { max-width: 360px; }
+    .hero-meta { flex-direction: column; align-items: flex-start; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="mainNav">
+  <div class="container">
+    <a href="#" class="logo">
+      <span class="logo-stamp"></span>
+      <span>Mailroom</span>
+    </a>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a href="#download" class="nav-cta">Get the app</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">Real postcards · Real friends</div>
+        <h1>Mail a photo for less than <em>a stamp.</em></h1>
+        <p class="hero-subhead">
+          Send real photos to your real friends. In their mailbox within a week. <strong style="color: var(--ink); font-weight: 600;">Your first 3 cards are free.</strong>
+        </p>
+        <div class="hero-cta-row">
+          <a href="#download" class="btn-primary">
+            Get 3 free cards
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M3 7H11M11 7L7 3M11 7L7 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+          <a href="#how" class="btn-secondary">See how it works</a>
+        </div>
+        <div class="hero-meta">
+          <div class="hero-meta-item">
+            <span class="hero-meta-dot"></span>
+            <span>3 free cards to start</span>
+          </div>
+          <div class="hero-meta-item">
+            <span>Arrives in a week</span>
+          </div>
+          <div class="hero-meta-item">
+            <span>Anywhere in the US</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="postcard-stack">
+        <div class="postcard postcard-1">
+          <div class="postcard-stamp">
+            <div class="postcard-stamp-inner">
+              <strong>$1</strong>
+              USA
+            </div>
+          </div>
+          <div class="postmark">MAY 12<br>2026<br>DENVER</div>
+        </div>
+        <div class="postcard postcard-2">
+          <div class="postcard-stamp">
+            <div class="postcard-stamp-inner">
+              <strong>$1</strong>
+              USA
+            </div>
+          </div>
+          <div class="postmark">JUNE 03<br>2026<br>BROOKLYN</div>
+        </div>
+        <div class="postcard postcard-3">
+          <div class="postcard-stamp">
+            <div class="postcard-stamp-inner">
+              <strong>$1</strong>
+              USA
+            </div>
+          </div>
+          <div class="postmark">JULY 18<br>2026<br>AUSTIN</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="how-it-works" id="how">
+  <div class="container">
+    <div class="section-label">How it works</div>
+    <h2>Pick. Write. <em>Send.</em></h2>
+    <p class="section-lede">
+      Pick a photo. Pick a friend. Write a note. We print it, stamp it, and drop it in the mail. It arrives at their door in about a week.
+    </p>
+
+    <div class="steps">
+      <div class="step fade-up">
+        <svg class="step-icon" viewBox="0 0 56 56" fill="none">
+          <rect x="8" y="14" width="40" height="32" rx="2" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="20" cy="24" r="3" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M8 38L20 28L32 36L48 22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h3>Pick your photo</h3>
+        <p>The one from that trip you almost didn't take. The blurry one she'll laugh at. The one that's been sitting in your camera roll waiting to mean something.</p>
+      </div>
+
+      <div class="step fade-up">
+        <svg class="step-icon" viewBox="0 0 56 56" fill="none">
+          <path d="M10 14H46V38L36 46H10V14Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M16 22H40M16 28H40M16 34H32" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M36 46V38H46" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+        <h3>Write something real</h3>
+        <p>A line, a paragraph, a memory, a joke. Whatever you'd say if you ran into them tomorrow.</p>
+      </div>
+
+      <div class="step fade-up">
+        <svg class="step-icon" viewBox="0 0 56 56" fill="none">
+          <path d="M8 16L28 30L48 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="8" y="14" width="40" height="28" rx="2" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="44" cy="42" r="6" stroke="currentColor" stroke-width="1.5" fill="var(--cream)"/>
+          <path d="M41 42L43 44L47 40" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h3>We mail it</h3>
+        <p>Printed on real cardstock, stamped with real USPS postage, in the mail within two business days. It lands in their mailbox about a week later.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="manifesto">
+  <div class="container">
+    <p class="manifesto-text">
+      The more connected we got, the less we <em>felt it.</em>
+    </p>
+    <div class="manifesto-divider"></div>
+    <p class="manifesto-text">
+      A photo on the fridge does more than a hundred likes ever did.
+    </p>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="section-label">Pricing</div>
+    <h2>Pay <em>per pack.</em><br>No subscription.</h2>
+    <p class="section-lede">
+      Credits never expire. Buy a pack, send when you feel like it. The bigger the pack, the cheaper the card.
+    </p>
+
+    <div class="pricing-grid two-cols">
+      <div class="price-card">
+        <div class="price-card-label">Starter pack</div>
+        <div class="price-amount">$5</div>
+        <div class="price-unit">for 5 cards</div>
+        <div class="price-per">$1.00 / card</div>
+        <ul class="price-features">
+          <li>5 photo postcards</li>
+          <li>Mailed anywhere in the US</li>
+          <li>Credits never expire</li>
+        </ul>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-card-label">Big pack</div>
+        <div class="price-amount">$20</div>
+        <div class="price-unit">for 25 cards</div>
+        <div class="price-per">$0.80 / card</div>
+        <ul class="price-features">
+          <li>25 photo postcards</li>
+          <li>Mailed anywhere in the US</li>
+          <li>Credits never expire</li>
+          <li>Less than the price of postage<sup style="font-size: 10px; opacity: 0.7;">*</sup></li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="pricing-note">
+      <sup>*</sup> A First-Class Forever stamp rises to $0.82 on July 12, 2026. At our bulk rate, we charge $0.80 per card. Postage, printing, and card stock included.
+    </p>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="container">
+    <div class="section-label">Frequently asked</div>
+    <h2>The <em>obvious</em> questions.</h2>
+    <p class="section-lede">
+      The ones you'd ask before downloading. The ones we ask ourselves.
+    </p>
+
+    <div class="faq-grid">
+      <div class="faq-item">
+        <div class="faq-question">
+          How is this cheaper than a stamp?
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>The USPS sells stamps to individuals at retail. We mail at bulk rates and print at scale, which together come in under retail postage. We pass that on. The math works because we're sending thousands of cards a day from one place. You'd never get that rate buying stamps at the post office.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          Do I really get 3 free cards?
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>Yes. Three free photo postcards when you download the app. Printed, stamped, and mailed on us. Send them to your three best friends, your parents, whoever. No credit card required to claim them. After that, packs start at $5.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          Is this actually a real postcard or a digital thing?
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>Real. Physical. Printed on cardstock, stamped with USPS postage, delivered by your mail carrier. It shows up in your friend's actual mailbox, addressed by name. You can stick it on a fridge. You can tear it. You can frame it. It exists.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          How long does it take to arrive?
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>A week, end-to-end. We print and drop in the mail within 1-2 business days of you sending. USPS First-Class delivery takes another 3-5 business days from there. Faster if you're in a major metro, slower for rural addresses.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          What happens when a friend gets a postcard from me?
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>Every Mailroom postcard has a small QR code on the back. When your friend scans it, they're invited to download the app, and we'll give them a free card to send back to you. No subscription, no commitment, just a way for the magic to keep going in both directions. The going-back-and-forth is the whole point.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          Can I send to multiple people at once?
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>Yes. Pick a photo, write a note, and send to as many friends as you want. One credit per recipient. Great for party invites, birth announcements, "I miss you" sends to your whole crew, or just sharing a moment with everyone who was there.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          Do I need my friend's address?
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>No. Send your friend a link from the app and they can share their address with you privately. They fill it in once, you never see it directly, and we use it to mail the card. Their address stays theirs. (You can also enter an address yourself if you already have one.)</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          What happens if it doesn't get delivered?
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>If a card comes back as undeliverable, we let you know and credit you for another send. If you have the address right and it just gets lost in the mail (rare but happens), email us and we'll resend.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          Who's behind this?
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>A small team that misses getting mail from people they love. We think a photo on someone's wall is the strongest signal of friendship there is, and we want to make it preposterously easy to send one. Get in touch. We read everything.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section" id="download">
+  <div class="container">
+    <div class="section-label" style="justify-content: center;">Get the app</div>
+    <h2>Your first 3 cards are <em>on us.</em></h2>
+    <p class="section-lede">
+      Download Mailroom and we'll mail three real photo postcards to anyone you want. No credit card, no catch. Available on iOS.
+    </p>
+    <div class="cta-buttons">
+      <a href="#" class="btn-primary">
+        Download for iOS
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M3 7H11M11 7L7 3M11 7L7 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">Mailroom</div>
+        <p class="footer-tagline">For the fridge, not the feed. Real postcards to real friends, for less than a stamp.</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="#how">How it works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a href="#download">Download</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="mailto:hello@mailroomclub.io">Contact</a>
+        <a href="mailto:hello@mailroomclub.io">Email us</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>© 2026 Mailroom Club, Inc.</div>
+      <div>Made with paper and ink</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Nav scroll state
+  const nav = document.getElementById('mainNav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  // FAQ accordion
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.addEventListener('click', () => {
+      item.classList.toggle('open');
+    });
+  });
+
+  // Fade-up on scroll
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, observerOptions);
+
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
