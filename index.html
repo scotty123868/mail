@@ -936,11 +936,66 @@
     transform: translateY(0);
   }
 
+  /* ============ WAITLIST FORM ============ */
+  .waitlist-form {
+    display: flex;
+    gap: 12px;
+    max-width: 480px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .waitlist-input {
+    flex: 1;
+    min-width: 240px;
+    padding: 16px 20px;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--paper);
+    font-family: 'Inter Tight', -apple-system, sans-serif;
+    font-size: 16px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .waitlist-input:focus { border-color: var(--ink); }
+  .waitlist-input::placeholder { color: rgba(26, 22, 18, 0.4); }
+
+  .waitlist-form button.btn-primary {
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .waitlist-success {
+    display: none;
+    margin-top: 24px;
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-style: italic;
+    color: var(--ink);
+  }
+
+  .waitlist-success.visible { display: block; }
+  .waitlist-form.submitted { display: none; }
+
+  .waitlist-meta {
+    margin-top: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
   /* ============ Mobile adjustments ============ */
   @media (max-width: 640px) {
     .container { padding: 0 20px; }
     .postcard-stack { max-width: 360px; }
     .hero-meta { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .waitlist-form { flex-direction: column; }
+    .waitlist-form .btn-primary { justify-content: center; }
   }
 </style>
 </head>
@@ -956,7 +1011,7 @@
       <a href="#how">How it works</a>
       <a href="#pricing">Pricing</a>
       <a href="#faq">FAQ</a>
-      <a href="#download" class="nav-cta">Get the app</a>
+      <a href="#waitlist" class="nav-cta">Join waitlist</a>
     </div>
   </div>
 </nav>
@@ -971,8 +1026,8 @@
           Send real photos to your real friends. In their mailbox within a week. <strong style="color: var(--ink); font-weight: 600;">Your first 3 cards are free.</strong>
         </p>
         <div class="hero-cta-row">
-          <a href="#download" class="btn-primary">
-            Get 3 free cards
+          <a href="#waitlist" class="btn-primary">
+            Join the waitlist
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path d="M3 7H11M11 7L7 3M11 7L7 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -1224,21 +1279,26 @@
   </div>
 </section>
 
-<section class="cta-section" id="download">
+<section class="cta-section" id="waitlist">
   <div class="container">
-    <div class="section-label" style="justify-content: center;">Get the app</div>
-    <h2>Your first 3 cards are <em>on us.</em></h2>
+    <div class="section-label" style="justify-content: center;">Waitlist</div>
+    <h2>Be <em>first in line.</em></h2>
     <p class="section-lede">
-      Download Mailroom and we'll mail three real photo postcards to anyone you want. No credit card, no catch. Available on iOS.
+      Mailroom is launching on iOS soon. Drop your email and we'll let you know the day it's ready. Your first 3 cards are on us when you're in.
     </p>
-    <div class="cta-buttons">
-      <a href="#" class="btn-primary">
-        Download for iOS
+    <form class="waitlist-form" id="waitlistForm" onsubmit="handleWaitlist(event)">
+      <input type="email" required placeholder="you@example.com" name="email" class="waitlist-input" autocomplete="email" />
+      <button type="submit" class="btn-primary">
+        Join waitlist
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
           <path d="M3 7H11M11 7L7 3M11 7L7 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-      </a>
-    </div>
+      </button>
+    </form>
+    <p class="waitlist-success" id="waitlistSuccess">
+      You're on the list. We'll be in touch.
+    </p>
+    <p class="waitlist-meta">No spam · Unsubscribe anytime</p>
   </div>
 </section>
 
@@ -1255,7 +1315,7 @@
         <a href="#how">How it works</a>
         <a href="#pricing">Pricing</a>
         <a href="#faq">FAQ</a>
-        <a href="#download">Download</a>
+        <a href="#waitlist">Waitlist</a>
       </div>
 
       <div class="footer-col">
@@ -1307,6 +1367,17 @@
   }, observerOptions);
 
   document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // Waitlist form
+  function handleWaitlist(event) {
+    event.preventDefault();
+    const form = document.getElementById('waitlistForm');
+    const success = document.getElementById('waitlistSuccess');
+    const email = form.querySelector('input[name="email"]').value;
+    try { localStorage.setItem('mailroom_waitlist_email', email); } catch (e) {}
+    form.classList.add('submitted');
+    success.classList.add('visible');
+  }
 </script>
 
 </body>
