@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mailroom · Real postcards for 70¢</title>
-<meta name="description" content="Real postcards for 70¢. To the people you love. For the fridge, not the feed.">
+<title>Mailroom · Real postcards from $0.70</title>
+<meta name="description" content="Real postcards from $0.70. To the people you love. For the fridge, not the feed.">
 <meta property="og:title" content="Mailroom · For the fridge, not the feed">
-<meta property="og:description" content="Real postcards for 70¢. To the people you love.">
+<meta property="og:description" content="Real postcards from $0.70. To the people you love.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -758,6 +758,22 @@
     flex-shrink: 0;
   }
 
+  .price-features li.limited {
+    color: #f4be8a;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding-bottom: 16px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(244, 190, 138, 0.2);
+  }
+
+  .price-features li.limited::before {
+    content: '◆';
+  }
+
   .pricing-note {
     text-align: center;
     margin-top: 64px;
@@ -1021,7 +1037,7 @@
     <div class="hero-grid">
       <div>
         <div class="eyebrow">Real postcards · Real friends</div>
-        <h1>Real postcards for <em>70¢.</em></h1>
+        <h1>Real postcards from <em>$0.70.</em></h1>
         <p class="hero-subhead">
           Send real photos to your real friends. In their mailbox within a week. <strong style="color: var(--ink); font-weight: 600;">Your first card is free.</strong>
         </p>
@@ -1173,8 +1189,9 @@
         <div class="price-card-label">Founder pack</div>
         <div class="price-amount">$35</div>
         <div class="price-unit">for 50 cards</div>
-        <div class="price-per">70¢ / card</div>
+        <div class="price-per">$0.70 / card</div>
         <ul class="price-features">
+          <li class="limited">Limited · one per user</li>
           <li>50 photo postcards</li>
           <li>Mailed anywhere in the US</li>
           <li>Credits never expire</li>
@@ -1184,7 +1201,7 @@
     </div>
 
     <p class="pricing-note">
-      <sup>*</sup> A First-Class Forever stamp will be 82¢ on July 12, 2026. The Founder Pack works out to 70¢ per card, postage included.
+      <sup>*</sup> A First-Class Forever stamp will be $0.82 on July 12, 2026. The Founder Pack works out to $0.70 per card, postage included.
     </p>
   </div>
 </section>
@@ -1204,7 +1221,7 @@
           <span class="faq-toggle">+</span>
         </div>
         <div class="faq-answer">
-          <p>We price postcard packs at cost because the point is to make sending feel casual. Over time, Mailroom can make money from larger packs, gift add-ons, and other ways people keep in touch.</p>
+          <p>We price postcard packs close to cost because the point is to make sending feel casual. Over time, Mailroom can make money from larger packs, gift add-ons, and other ways people keep in touch.</p>
         </div>
       </div>
 
