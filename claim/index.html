@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>You have mail — Mailroom</title>
+  <meta name="description" content="Someone sent you a postcard. Enter your address and we'll mail it." />
+  <link rel="icon" href="/favicon.ico" />
+  <style>
+    :root {
+      --ink: #11141c;
+      --muted-ink: #696969;
+      --postal-red: #b8483a;
+      --postal-blue: #3c6e8f;
+      --line: #d4c9b1;
+      --paper: #F8F1E3;
+      --white: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--paper);
+      font-family: ui-serif, Georgia, "Times New Roman", serif;
+      color: var(--ink);
+      min-height: 100%;
+      -webkit-font-smoothing: antialiased;
+    }
+    main {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 40px 16px;
+    }
+    .card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+    .kicker {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.6px;
+      color: var(--postal-red);
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 8px 0 8px 0;
+      line-height: 1.15;
+    }
+    .body {
+      font-size: 14px;
+      color: var(--muted-ink);
+      font-style: italic;
+      margin: 0 0 20px 0;
+    }
+    .field { margin-top: 14px; }
+    .field-row { display: flex; gap: 12px; }
+    label {
+      display: block;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: var(--muted-ink);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+      font-family: ui-serif, Georgia, serif;
+      color: var(--ink);
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--postal-blue);
+    }
+    button {
+      width: 100%;
+      padding: 16px;
+      margin-top: 20px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: ui-serif, Georgia, serif;
+      background: var(--ink);
+      color: var(--white);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .error {
+      font-size: 13px;
+      color: var(--postal-red);
+      margin-top: 12px;
+      font-style: italic;
+    }
+    .footer {
+      font-size: 12px;
+      color: var(--muted-ink);
+      font-style: italic;
+      margin-top: 16px;
+      text-align: center;
+    }
+    .footer a { color: var(--postal-blue); text-decoration: none; }
+    .success {
+      text-align: center;
+    }
+    .success .emoji { font-size: 60px; margin-bottom: 16px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="card" id="no-token-state" class="hidden" style="display:none">
+      <h1>No claim link found</h1>
+      <p class="body">
+        Tap the link from your iMessage or email — it has the postcard's
+        claim token attached.
+      </p>
+    </div>
+
+    <div class="card" id="success-state" class="hidden" style="display:none">
+      <div class="success">
+        <div class="emoji">🎉</div>
+        <h1>Your postcard is on its way</h1>
+        <p class="body">
+          USPS time is 4–7 days. We mailed it from our printer.
+        </p>
+      </div>
+      <p class="footer">
+        Want to send your own?
+        <a href="https://apps.apple.com/app/mailroom/id6768460855">Get Mailroom on the App Store</a>.
+      </p>
+    </div>
+
+    <div class="card" id="form-state">
+      <div class="kicker">YOU HAVE MAIL</div>
+      <h1>Someone sent you a postcard.</h1>
+      <p class="body">
+        Share your mailing address and we'll print + ship it. Your address
+        stays private.
+      </p>
+
+      <form id="claim-form" novalidate>
+        <div class="field">
+          <label for="name">Your name</label>
+          <input id="name" type="text" placeholder="Maya Chen" autocomplete="name" required />
+        </div>
+        <div class="field">
+          <label for="line1">Street address</label>
+          <input id="line1" type="text" placeholder="123 Main St" autocomplete="address-line1" required />
+        </div>
+        <div class="field">
+          <label for="line2">Apt, suite (optional)</label>
+          <input id="line2" type="text" placeholder="Apt 4B" autocomplete="address-line2" />
+        </div>
+        <div class="field-row">
+          <div class="field" style="flex:1">
+            <label for="city">City</label>
+            <input id="city" type="text" placeholder="Denver" autocomplete="address-level2" required />
+          </div>
+          <div class="field" style="width:90px">
+            <label for="state">State</label>
+            <input id="state" type="text" placeholder="CO" autocomplete="address-level1" maxlength="2" required />
+          </div>
+        </div>
+        <div class="field">
+          <label for="zip">ZIP</label>
+          <input id="zip" type="text" placeholder="80218" autocomplete="postal-code" inputmode="numeric" required />
+        </div>
+
+        <div id="error" class="error hidden"></div>
+
+        <button type="submit" id="submit-btn">Send my address →</button>
+      </form>
+
+      <p class="footer">
+        Want to send your own?
+        <a href="https://apps.apple.com/app/mailroom/id6768460855">Get Mailroom on the App Store</a>.
+      </p>
+    </div>
+  </main>
+
+  <script>
+    /**
+     * Mailroom claim flow — web fallback.
+     *
+     * iOS 14+ with the App Clip available: tapping a /claim?t=TOKEN
+     * link triggers the Universal Link, which (because the AASA file
+     * at /.well-known/apple-app-site-association advertises this URL
+     * for our App Clip) launches the native SwiftUI form instead of
+     * this page. This page is the fallback for Android, desktop,
+     * iOS pre-14, or any case where Universal Links don't fire.
+     *
+     * Same form, same Supabase endpoint, same outcome.
+     */
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var token = params.get('t') || params.get('token');
+
+      var formEl = document.getElementById('form-state');
+      var noTokenEl = document.getElementById('no-token-state');
+      var successEl = document.getElementById('success-state');
+
+      if (!token) {
+        formEl.style.display = 'none';
+        noTokenEl.style.display = 'block';
+        return;
+      }
+
+      var formNode = document.getElementById('claim-form');
+      var submitBtn = document.getElementById('submit-btn');
+      var errorEl = document.getElementById('error');
+
+      formNode.addEventListener('submit', function (e) {
+        e.preventDefault();
+        submit();
+      });
+
+      function val(id) {
+        return (document.getElementById(id).value || '').trim();
+      }
+
+      function showError(msg) {
+        errorEl.textContent = msg;
+        errorEl.style.display = 'block';
+      }
+      function clearError() {
+        errorEl.textContent = '';
+        errorEl.style.display = 'none';
+      }
+
+      function submit() {
+        var name = val('name');
+        var line1 = val('line1');
+        var line2 = val('line2');
+        var city = val('city');
+        var state = val('state').toUpperCase();
+        var zip = val('zip');
+
+        clearError();
+
+        if (!name || !line1 || !city || !state || !zip) {
+          showError('Fill in every field above (apt/suite is optional).');
+          return;
+        }
+        if (state.length !== 2) {
+          showError('State should be two letters, e.g. CO, NY, CA.');
+          return;
+        }
+        if (!/^\d{5}(-\d{4})?$/.test(zip)) {
+          showError('ZIP should be 5 digits, e.g. 80218.');
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+
+        fetch('https://nlwnmgwylmmnaemdnzlq.functions.supabase.co/claim', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            token: token,
+            name: name,
+            line1: line1,
+            line2: line2 || undefined,
+            city: city,
+            state: state,
+            zip: zip,
+          }),
+        })
+        .then(function (res) {
+          if (!res.ok) {
+            return res.text().then(function (body) { throw new Error(body || ('HTTP ' + res.status)); });
+          }
+          return res.json();
+        })
+        .then(function () {
+          formEl.style.display = 'none';
+          successEl.style.display = 'block';
+        })
+        .catch(function (err) {
+          showError(err.message || "Couldn't save your address. Try again.");
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send my address →';
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
