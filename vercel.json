@@ -8,6 +8,7 @@
     }
   ],
   "rewrites": [
-    { "source": "/claim", "destination": "/claim/index.html" }
+    { "source": "/claim", "destination": "/claim/index.html" },
+    { "source": "/welcome-mail/(.*)", "destination": "/welcome-mail/index.html" }
   ]
 }
