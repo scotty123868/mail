@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>You have mail — Mailroom</title>
+  <meta name="description" content="Someone sent you a real paper postcard through Mailroom. Install the app to see who and send one back." />
+  <link rel="icon" href="/favicon.ico" />
+  <style>
+    :root {
+      --ink: #11141c;
+      --muted-ink: #696969;
+      --postal-red: #b8483a;
+      --postal-blue: #3c6e8f;
+      --line: #d4c9b1;
+      --paper: #F8F1E3;
+      --white: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--paper);
+      font-family: ui-serif, Georgia, "Times New Roman", serif;
+      color: var(--ink);
+      min-height: 100%;
+      -webkit-font-smoothing: antialiased;
+    }
+    main {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 40px 16px;
+    }
+    .card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      text-align: center;
+    }
+    .stamp {
+      display: inline-block;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.6px;
+      color: var(--postal-red);
+      padding: 4px 10px;
+      border: 1px solid var(--postal-red);
+      border-radius: 2px;
+      margin-bottom: 20px;
+      transform: rotate(-2deg);
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0 0 8px 0;
+      line-height: 1.15;
+    }
+    .subtitle {
+      font-family: ui-serif, Georgia, serif;
+      font-style: italic;
+      font-size: 17px;
+      color: var(--muted-ink);
+      margin: 0 0 20px 0;
+    }
+    .body {
+      font-size: 15px;
+      color: var(--ink);
+      line-height: 1.5;
+      margin: 0 0 24px 0;
+    }
+    .cta {
+      display: inline-block;
+      padding: 16px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: ui-serif, Georgia, serif;
+      background: var(--ink);
+      color: var(--white);
+      border: none;
+      border-radius: 12px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .footnote {
+      font-family: ui-serif, Georgia, serif;
+      font-style: italic;
+      font-size: 13px;
+      color: var(--muted-ink);
+      margin: 20px 0 0 0;
+    }
+    .privacy {
+      font-size: 12px;
+      color: var(--muted-ink);
+      line-height: 1.5;
+      margin: 28px 0 0 0;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+    .footer {
+      text-align: center;
+      margin-top: 24px;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: var(--muted-ink);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="card" id="card">
+      <div class="stamp">✉ YOU HAVE MAIL</div>
+      <h1 id="h1">Someone sent you a postcard.</h1>
+      <p class="subtitle">via Mailroom · real paper, real USPS</p>
+      <p class="body">
+        Install the Mailroom app to see who it's from and send a reply
+        back. The link works for 5 years, so no rush.
+      </p>
+      <a class="cta" href="https://apps.apple.com/app/mailroom/id6768460855">
+        Get Mailroom on the App Store
+      </a>
+      <p class="footnote">
+        Already have the app? Open it on your iPhone and re-scan the QR
+        on the back of your postcard.
+      </p>
+      <p class="privacy">
+        Mailroom prints &amp; mails real paper postcards via USPS. We
+        never share addresses or use them for marketing.
+      </p>
+    </div>
+    <p class="footer">MAILROOM · REAL MAIL · 2026</p>
+  </main>
+  <script>
+    // Extract the token from the URL path. Format: /welcome-mail/TOKEN
+    // We don't redeem in this page — the app handles reciprocation via
+    // Universal Link interception when installed, or via App Clip when
+    // not installed (when App Store Connect's URL prefix is widened to
+    // include /welcome-mail/*). For now, this is a CTA-only landing.
+    var match = window.location.pathname.match(/\/welcome-mail\/([^\/?#]+)/);
+    var token = match ? match[1] : null;
+    if (!token) {
+      document.getElementById('h1').textContent = 'No token found';
+      document.querySelector('.subtitle').style.display = 'none';
+      document.querySelector('.body').textContent =
+        "The QR didn't scan cleanly. Open the Mailroom app and try again, or ask the sender for a fresh link.";
+      document.querySelector('.cta').style.display = 'none';
+      document.querySelector('.footnote').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
