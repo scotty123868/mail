@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Add to Mailroom</title>
+  <meta name="description" content="A friend wants to share their Mailroom card with you. Open the app or get Mailroom to add them and start sending real postcards." />
+  <link rel="icon" href="/favicon.ico" />
+  <!-- Smart App Banner: tells iOS Safari "this URL has a corresponding app" — Safari shows a top banner offering to open in app or install. -->
+  <meta name="apple-itunes-app" content="app-id=6747802432, app-clip-bundle-id=com.mailrooms.app.Clip" />
+  <style>
+    :root {
+      --ink: #11141c;
+      --muted-ink: #696969;
+      --postal-red: #b8483a;
+      --postal-blue: #3c6e8f;
+      --gold: #c8a65c;
+      --line: #d4c9b1;
+      --paper: #F8F1E3;
+      --paper-cream: #FBF4DA;
+      --white: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--paper);
+      font-family: ui-serif, Georgia, "Times New Roman", serif;
+      color: var(--ink);
+      min-height: 100%;
+      -webkit-font-smoothing: antialiased;
+    }
+    main {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 40px 16px;
+    }
+    .stamp {
+      display: inline-block;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.6px;
+      color: var(--postal-red);
+      padding: 4px 10px;
+      border: 1px solid var(--postal-red);
+      border-radius: 2px;
+      margin-bottom: 16px;
+      transform: rotate(-2deg);
+    }
+    .card {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 32px 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      text-align: center;
+    }
+    .avatar {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: var(--paper-cream);
+      border: 2px solid var(--ink);
+      margin: 0 auto 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 52px;
+      line-height: 1;
+    }
+    h1 {
+      font-size: 30px;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0 0 6px 0;
+      line-height: 1.15;
+    }
+    .city {
+      font-family: ui-serif, Georgia, serif;
+      font-style: italic;
+      font-size: 16px;
+      color: var(--postal-blue);
+      margin: 0 0 24px 0;
+    }
+    .body {
+      font-size: 15px;
+      color: var(--muted-ink);
+      line-height: 1.55;
+      font-style: italic;
+      margin: 0 0 28px 0;
+    }
+    .cta-primary {
+      display: block;
+      width: 100%;
+      padding: 16px 20px;
+      font-size: 17px;
+      font-weight: 600;
+      font-family: ui-serif, Georgia, serif;
+      background: var(--ink);
+      color: var(--white);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      letter-spacing: 0.3px;
+      margin-bottom: 10px;
+    }
+    .cta-primary:active { opacity: 0.85; }
+    .cta-secondary {
+      display: block;
+      width: 100%;
+      padding: 14px 20px;
+      font-size: 15px;
+      font-weight: 500;
+      font-family: ui-serif, Georgia, serif;
+      background: var(--paper);
+      color: var(--ink);
+      border: 1.5px solid var(--ink);
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      margin-bottom: 16px;
+    }
+    .cta-secondary:active { opacity: 0.85; }
+    .hint {
+      font-size: 12px;
+      color: var(--muted-ink);
+      text-align: center;
+      font-style: italic;
+      line-height: 1.5;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 36px;
+      font-size: 12px;
+      color: var(--muted-ink);
+      font-style: italic;
+    }
+    .footer a { color: var(--muted-ink); }
+    .pitch {
+      margin-top: 28px;
+      padding: 20px;
+      background: rgba(60, 110, 143, 0.06);
+      border: 1px solid rgba(60, 110, 143, 0.18);
+      border-radius: 12px;
+      text-align: center;
+    }
+    .pitch h2 {
+      font-size: 17px;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+    }
+    .pitch p {
+      font-size: 13.5px;
+      color: var(--muted-ink);
+      margin: 0;
+      font-style: italic;
+      line-height: 1.45;
+    }
+    .ribbon {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--ink);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 10px;
+      letter-spacing: 1.4px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 99px;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+<main>
+  <div class="card">
+    <div class="stamp" id="stamp">SHARED MAIL CARD</div>
+    <div class="avatar" id="avatar">📮</div>
+    <h1 id="name">Mailroom member</h1>
+    <p class="city" id="city">Somewhere</p>
+    <p class="body">
+      They've shared their Mailroom card with you. Open the app to add them
+      to your rolodex — then you can send real paper postcards to their door
+      without ever seeing their address.
+    </p>
+
+    <a id="openAppBtn" class="cta-primary" href="#">Open in Mailroom</a>
+    <a id="getAppBtn" class="cta-secondary" href="https://apps.apple.com/app/mailroom/id6747802432">Get Mailroom</a>
+
+    <p class="hint">
+      Don't have the app yet? Tap "Get Mailroom." We'll add this person
+      automatically once you sign in.
+    </p>
+  </div>
+
+  <div class="pitch">
+    <span class="ribbon">FOR THE FRIDGE, NOT THE FEED</span>
+    <h2>Real postcards. 70 cents.</h2>
+    <p>
+      Mailroom turns the people you love into actual mail. Pick a photo or
+      handwriting style, we print + ship, USPS delivers.
+    </p>
+  </div>
+
+  <div class="footer">
+    <a href="/">themailroom.club</a> · <a href="/privacy.html">privacy</a>
+  </div>
+</main>
+
+<script>
+  // Parse path + query: /u/{userId}?n=Name&c=City&s=State
+  (function () {
+    const path = window.location.pathname; // "/u/abc-123"
+    const m = path.match(/^\/u\/([^/?]+)/);
+    const userId = m ? decodeURIComponent(m[1]) : "";
+    const params = new URLSearchParams(window.location.search);
+    const name = (params.get("n") || "").trim();
+    const city = (params.get("c") || "").trim();
+    const state = (params.get("s") || "").trim();
+    const fullCity = state ? city + (city ? ", " : "") + state : city;
+
+    if (name) document.getElementById("name").textContent = name;
+    if (fullCity) document.getElementById("city").textContent = fullCity;
+
+    // Pick a deterministic emoji from a small pool for the preview avatar.
+    // (Mirrors the in-app emoji-per-friend feature so the card feels consistent.)
+    const POOL = [
+      "🐶", "🐱", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯", "🦁", "🐮",
+      "🐷", "🐵", "🐺", "🐴", "🦄", "🦔", "🐰", "🦉", "🐧", "🦜",
+      "🌹", "🌻", "🌷", "🌸", "🌼", "🌺", "🌵", "🌳", "🍀", "🌾",
+      "🌊", "🌅", "🌈", "⭐", "✉️", "📮", "🎈", "🎁", "🖋️", "📚"
+    ];
+    function hash(s) {
+      let h = 5381;
+      for (let i = 0; i < s.length; i++) {
+        h = ((h << 5) + h + s.charCodeAt(i)) & 0xffffffff;
+      }
+      return Math.abs(h);
+    }
+    if (userId) {
+      document.getElementById("avatar").textContent = POOL[hash(userId) % POOL.length];
+    }
+
+    // "Open in Mailroom" — uses the current URL. iOS will intercept via
+    // Universal Links (AASA covers /u/*) when the app is installed.
+    // We rebuild the URL to preserve query params so the in-app handler
+    // gets name/city for the confirm screen.
+    const here = window.location.href;
+    document.getElementById("openAppBtn").href = here;
+
+    // "Get Mailroom" passes the same URL through to the App Store as a
+    // referrer hint. Apple's Smart App Banner (meta tag in <head>) also
+    // handles this automatically on iOS Safari.
+    document.getElementById("getAppBtn").href =
+      "https://apps.apple.com/app/mailroom/id6747802432" +
+      (userId ? "?u=" + encodeURIComponent(userId) : "");
+  })();
+</script>
+</body>
+</html>
