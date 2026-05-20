@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Mailroom · App Icon Options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..900,0..100,0..1&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f4ede0;
+    --cream-deep: #ebe1cd;
+    --ink: #1a1612;
+    --ink-soft: #3d342a;
+    --postal-red: #c8362a;
+    --paper: #faf6ed;
+    --rule: #c9bfa8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter Tight', -apple-system, sans-serif;
+    color: var(--ink);
+    background: var(--cream);
+    line-height: 1.5;
+    padding: 60px 32px 120px;
+  }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--postal-red);
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-variation-settings: "SOFT" 50, "WONK" 1;
+    font-size: clamp(36px, 6vw, 56px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  h1 em { color: var(--postal-red); font-style: italic; }
+  .intro {
+    font-size: 18px;
+    color: var(--ink-soft);
+    max-width: 640px;
+    margin-bottom: 60px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+  @media (max-width: 720px) {
+    .grid { grid-template-columns: 1fr; }
+    body { padding: 36px 20px 80px; }
+  }
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .letter {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 48px;
+    line-height: 1;
+    color: var(--postal-red);
+  }
+  .label {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--ink);
+    text-align: right;
+  }
+  .big {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 22%;
+    overflow: hidden;
+    background: var(--cream);
+    box-shadow: 0 4px 16px rgba(26,22,18,0.08);
+  }
+  .big img {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .sizes {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    padding: 12px 0 4px;
+  }
+  .size {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .size-img {
+    border-radius: 22%;
+    overflow: hidden;
+    background: var(--cream);
+    box-shadow: 0 1px 4px rgba(26,22,18,0.12);
+  }
+  .size img { display: block; width: 100%; height: 100%; }
+  .size-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .blurb {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  .pick {
+    margin-top: 8px;
+    align-self: flex-start;
+    background: var(--ink);
+    color: var(--cream);
+    text-decoration: none;
+    padding: 12px 18px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s ease;
+  }
+  .pick:hover { background: var(--postal-red); }
+  .pick small {
+    opacity: 0.7;
+    font-weight: 400;
+    margin-left: 6px;
+  }
+  .home {
+    display: inline-block;
+    margin-top: 40px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 14px;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 2px;
+  }
+  .home:hover { color: var(--postal-red); border-color: var(--postal-red); }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="eyebrow">Internal · App icon review</div>
+  <h1>Pick the <em>icon</em>.</h1>
+  <p class="intro">Four directions for the Mailroom app icon. Tap one to text scotty@lasolasvc.com your pick. All are 1024×1024 PNG — the same source iOS will scale down for every home-screen size.</p>
+
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-head">
+        <span class="letter">A</span>
+        <span class="label">Refined stamp</span>
+      </div>
+      <div class="big"><img src="A.png" alt="Icon A — refined stamp" /></div>
+      <div class="sizes">
+        <div class="size"><div class="size-img" style="width:120px;height:120px"><img src="A.png" /></div><div class="size-label">120</div></div>
+        <div class="size"><div class="size-img" style="width:80px;height:80px"><img src="A.png" /></div><div class="size-label">80</div></div>
+        <div class="size"><div class="size-img" style="width:40px;height:40px"><img src="A.png" /></div><div class="size-label">40</div></div>
+        <div class="size"><div class="size-img" style="width:24px;height:24px"><img src="A.png" /></div><div class="size-label">24</div></div>
+      </div>
+      <p class="blurb">Cleaner version of the current icon. Red stamp with cream Fraunces M, slight tilt, inner border line, drop shadow. Safe evolution.</p>
+      <a class="pick" href="mailto:scotty@lasolasvc.com?subject=Pick%20A%20%E2%80%94%20Refined%20Stamp">Pick A <small>refined stamp</small></a>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <span class="letter">B</span>
+        <span class="label">Postcard</span>
+      </div>
+      <div class="big"><img src="B.png" alt="Icon B — postcard with handwriting" /></div>
+      <div class="sizes">
+        <div class="size"><div class="size-img" style="width:120px;height:120px"><img src="B.png" /></div><div class="size-label">120</div></div>
+        <div class="size"><div class="size-img" style="width:80px;height:80px"><img src="B.png" /></div><div class="size-label">80</div></div>
+        <div class="size"><div class="size-img" style="width:40px;height:40px"><img src="B.png" /></div><div class="size-label">40</div></div>
+        <div class="size"><div class="size-img" style="width:24px;height:24px"><img src="B.png" /></div><div class="size-label">24</div></div>
+      </div>
+      <p class="blurb">Illustrative postcard with handwritten lines, small M stamp, postmark ring. Tells the whole story — but loses detail at small sizes.</p>
+      <a class="pick" href="mailto:scotty@lasolasvc.com?subject=Pick%20B%20%E2%80%94%20Postcard">Pick B <small>postcard</small></a>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <span class="letter">C</span>
+        <span class="label">Perforated stamp</span>
+      </div>
+      <div class="big"><img src="C.png" alt="Icon C — perforated stamp with MAIL ROOM microtext" /></div>
+      <div class="sizes">
+        <div class="size"><div class="size-img" style="width:120px;height:120px"><img src="C.png" /></div><div class="size-label">120</div></div>
+        <div class="size"><div class="size-img" style="width:80px;height:80px"><img src="C.png" /></div><div class="size-label">80</div></div>
+        <div class="size"><div class="size-img" style="width:40px;height:40px"><img src="C.png" /></div><div class="size-label">40</div></div>
+        <div class="size"><div class="size-img" style="width:24px;height:24px"><img src="C.png" /></div><div class="size-label">24</div></div>
+      </div>
+      <p class="blurb">Authentic postage stamp with cream perforated edges, MAIL · ROOM microtext, Fraunces M. Most distinctive — instantly reads as "real mail."</p>
+      <a class="pick" href="mailto:scotty@lasolasvc.com?subject=Pick%20C%20%E2%80%94%20Perforated%20Stamp">Pick C <small>perforated</small></a>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <span class="letter">D</span>
+        <span class="label">Monogram</span>
+      </div>
+      <div class="big"><img src="D.png" alt="Icon D — full-bleed Fraunces M monogram" /></div>
+      <div class="sizes">
+        <div class="size"><div class="size-img" style="width:120px;height:120px"><img src="D.png" /></div><div class="size-label">120</div></div>
+        <div class="size"><div class="size-img" style="width:80px;height:80px"><img src="D.png" /></div><div class="size-label">80</div></div>
+        <div class="size"><div class="size-img" style="width:40px;height:40px"><img src="D.png" /></div><div class="size-label">40</div></div>
+        <div class="size"><div class="size-img" style="width:24px;height:24px"><img src="D.png" /></div><div class="size-label">24</div></div>
+      </div>
+      <p class="blurb">Full-bleed red with a single huge Fraunces M. Boldest, most "brand." Scales perfectly to favicon and tiny home-screen sizes.</p>
+      <a class="pick" href="mailto:scotty@lasolasvc.com?subject=Pick%20D%20%E2%80%94%20Monogram">Pick D <small>monogram</small></a>
+    </div>
+
+  </div>
+
+  <a href="/" class="home">← Back to mailroom.club</a>
+</div>
+</body>
+</html>

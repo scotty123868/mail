@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mailroom · Real photo postcards from 70 cents</title>
-<meta name="description" content="Real photo postcards from 70 cents. No address needed. To the people you love. For the fridge, not the feed.">
+<title>Mailroom · Real postcards for 70 cents</title>
+<meta name="description" content="Real postcards for 70 cents. No address needed. To the people you love. For the fridge, not the feed.">
 <meta property="og:title" content="Mailroom · For the fridge, not the feed">
-<meta property="og:description" content="Real photo postcards from 70 cents. To the people you love.">
+<meta property="og:description" content="Real postcards for 70 cents. To the people you love.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -546,18 +546,21 @@
 
   .steps {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 8px;
     margin-top: 32px;
     counter-reset: step;
   }
 
-  @media (max-width: 900px) {
-    .steps { grid-template-columns: 1fr; gap: 24px; }
+  @media (max-width: 1100px) {
+    .steps { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  }
+  @media (max-width: 640px) {
+    .steps { grid-template-columns: 1fr; gap: 16px; }
   }
 
   .step {
-    padding: 40px 32px;
+    padding: 36px 26px;
     background: var(--cream);
     border-radius: 8px;
     position: relative;
@@ -1102,9 +1105,9 @@
     <div class="hero-grid">
       <div>
         <div class="eyebrow">Real postcards · Real friends</div>
-        <h1>Real photo postcards <em>from 70 cents.</em></h1>
+        <h1>Real postcards for <em>70 cents.</em></h1>
         <p class="hero-subhead">
-          Pick a photo. Write a note. Send a private address link. <strong style="color: var(--ink); font-weight: 600;">No address needed. Your first card is free.</strong>
+          Pick a photo. Write a note. <strong style="color: var(--ink); font-weight: 600;">No address needed. Your first card is free.</strong>
         </p>
         <form class="hero-waitlist-form" id="heroWaitlistForm" onsubmit="handleWaitlist(event)">
           <input type="email" required placeholder="you@example.com" name="email" class="hero-waitlist-input" autocomplete="email" aria-label="Email address" />
@@ -1211,6 +1214,15 @@
         </svg>
         <h3>Write something real</h3>
         <p>A line, a paragraph, a memory, a joke. Whatever you'd say if you ran into them tomorrow.</p>
+      </div>
+
+      <div class="step fade-up">
+        <svg class="step-icon" viewBox="0 0 56 56" fill="none">
+          <path d="M16 28C16 21.4 21.4 16 28 16C34.6 16 40 21.4 40 28C40 34.6 34.6 40 28 40H22L16 44V28Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M24 28H32M28 24V32" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <h3>Send a private link</h3>
+        <p>Don't have your friend's address? Send them a Mailroom link by text or DM. They fill it in once, privately. You never see it. We use it to mail their card.</p>
       </div>
 
       <div class="step fade-up">
