@@ -318,16 +318,21 @@
       0 36px 64px -10px rgba(26, 22, 18, 0.22);
   }
 
-  /* Paper grain — subtle noise overlay on top of all card content */
+  /* Paper grain — fiber noise overlay on top of all card content */
   .paper-grain {
     position: absolute;
     inset: 0;
     pointer-events: none;
     z-index: 20;
-    opacity: 0.45;
+    opacity: 0.85;
     mix-blend-mode: multiply;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.08 0 0 0 0 0.07 0 0 0 0 0.06 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    background-size: 180px 180px;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 320 320' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.06 0 0 0 0.18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 260px 260px;
+  }
+  /* Photo card grain has slightly different character — print emulsion, not paper fiber */
+  .postcard-front .paper-grain {
+    opacity: 0.4;
+    mix-blend-mode: overlay;
   }
   /* Subtle directional edge — suggests cardstock thickness on top + left */
   .paper-edge {
@@ -465,6 +470,26 @@
     transform: rotate(-0.8deg);
     margin-bottom: 6px;
     color: #1a1612;
+    position: relative;
+    display: inline-block;
+  }
+  /* Hand-drawn underline beneath the salutation — looks like ink stroke */
+  .handwriting .line-a::after {
+    content: '';
+    position: absolute;
+    left: 4%;
+    right: 10%;
+    bottom: -2px;
+    height: 2px;
+    background:
+      radial-gradient(ellipse at left, rgba(26, 22, 18, 0.7) 30%, transparent 80%),
+      linear-gradient(90deg,
+        rgba(26, 22, 18, 0.85) 0%,
+        rgba(26, 22, 18, 0.6) 40%,
+        rgba(26, 22, 18, 0.3) 75%,
+        transparent 100%);
+    transform: rotate(-0.5deg) translateY(1px);
+    border-radius: 50%;
   }
   .handwriting .line-b {
     transform: rotate(0.4deg) translateX(2px);
@@ -1186,7 +1211,7 @@
         <div class="eyebrow">Send photos for less than a stamp</div>
         <h1>Real postcards for <em>70 cents.</em></h1>
         <p class="hero-subhead">
-          Pick a photo. Write a note. No address needed. Your first card is free.
+          Pick a photo. Write a note. No address needed. <strong style="color: var(--ink); font-weight: 600;">Your first card is free.</strong>
         </p>
         <form class="hero-waitlist-form" id="heroWaitlistForm" onsubmit="handleWaitlist(event)">
           <input type="email" required placeholder="you@example.com" name="email" class="hero-waitlist-input" autocomplete="email" aria-label="Email address" />
@@ -1219,11 +1244,10 @@
           </div>
           <div class="back-left">
             <div class="handwriting">
-              <span class="line-a">Miss you.</span>
-              <span class="line-b">The light here at 7pm</span>
-              <span class="line-c">made me think of</span>
-              <span class="line-d">your kitchen.</span>
-              <span class="line-sign">&mdash; S</span>
+              <span class="line-a">Sarah &mdash;</span>
+              <span class="line-b">Saw this and</span>
+              <span class="line-c">thought of you.</span>
+              <span class="line-sign">xo S</span>
             </div>
           </div>
           <div class="back-right">
@@ -1377,7 +1401,7 @@
     <div class="section-label">Frequently asked</div>
     <h2>The <em>obvious</em> questions.</h2>
     <p class="section-lede">
-      The ones you'd ask before downloading. The ones we ask ourselves.
+      And honest answers.
     </p>
 
     <div class="faq-grid">
