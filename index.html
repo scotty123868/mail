@@ -292,18 +292,21 @@
     50% { opacity: 0.5; transform: scale(1.2); }
   }
 
-  /* ============ POSTCARD MOCKUP (v2: photo front + handwritten back) ============ */
+  /* ============ POSTCARD MOCKUP (v3: solo back, hero element) ============ */
   .postcard-stack {
     position: relative;
     width: 100%;
-    max-width: 600px;
-    aspect-ratio: 1.05 / 1;
+    max-width: 560px;
+    aspect-ratio: 1.5 / 1;
     margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .postcard {
-    position: absolute;
-    width: 84%;
+    position: relative;
+    width: 100%;
     aspect-ratio: 1.5 / 1;
     background: var(--paper);
     border-radius: 3px;
@@ -314,8 +317,8 @@
     box-shadow:
       0 0 0 1px rgba(60, 50, 35, 0.07),
       0 1px 1px rgba(26, 22, 18, 0.10),
-      0 8px 18px -4px rgba(26, 22, 18, 0.16),
-      0 36px 64px -10px rgba(26, 22, 18, 0.22);
+      0 10px 22px -6px rgba(26, 22, 18, 0.16),
+      0 44px 80px -14px rgba(26, 22, 18, 0.24);
   }
 
   /* Paper grain — fiber noise overlay on top of all card content */
@@ -348,58 +351,16 @@
     border-radius: inherit;
   }
 
-  /* === Photo front (left, behind) === */
-  .postcard-front {
-    bottom: 10%;
-    left: 0;
-    transform: rotate(-4.5deg);
-    z-index: 1;
-    background:
-      /* paper-yellow color cast (printed photo, not raw JPEG) */
-      linear-gradient(180deg, rgba(255, 240, 200, 0.08), rgba(180, 140, 80, 0.04)),
-      url('/images/postcard-3.jpg') center/cover no-repeat #4a6b62;
-    /* Inset white border: subtle, suggests "printed on cardstock with margin" */
-    padding: 0;
-  }
-  .postcard-front::before {
-    /* Inner highlight on photo — bottom-left subtle light, mimics printed glossy stock */
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(circle at 25% 80%, rgba(255, 240, 200, 0.12), transparent 50%),
-      radial-gradient(circle at 85% 15%, rgba(255, 250, 230, 0.08), transparent 45%);
-    pointer-events: none;
-    z-index: 4;
-    mix-blend-mode: screen;
-  }
-  .postcard-front::after {
-    /* Vignette + cardstock inner stroke */
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 28%, transparent 72%, rgba(0,0,0,0.22) 100%);
-    box-shadow:
-      inset 0 0 0 1px rgba(250, 245, 230, 0.12),
-      inset 0 0 30px rgba(20, 14, 8, 0.25);
-    pointer-events: none;
-    z-index: 5;
-  }
-
-  /* === Postcard back (right, in front) === */
+  /* === Postcard back — solo hero === */
   .postcard-back {
-    top: 0;
-    right: -2%;
-    transform: rotate(3.5deg);
-    z-index: 2;
+    transform: rotate(-2.2deg);
     background:
-      radial-gradient(ellipse at 22% 28%, rgba(180, 160, 110, 0.06), transparent 55%),
-      radial-gradient(ellipse at 78% 72%, rgba(120, 95, 60, 0.08), transparent 55%),
+      radial-gradient(ellipse at 22% 28%, rgba(180, 160, 110, 0.05), transparent 55%),
+      radial-gradient(ellipse at 78% 72%, rgba(120, 95, 60, 0.07), transparent 55%),
       linear-gradient(180deg, #fbf7ee 0%, #f4ecdb 100%);
     display: flex;
-    padding: 26px 26px 22px;
-    gap: 18px;
+    padding: 32px 32px 28px;
+    gap: 20px;
   }
   .postcard-back .center-divider {
     position: absolute;
@@ -452,67 +413,45 @@
     letter-spacing: 0.12em;
   }
 
-  /* === Handwriting === */
+  /* === Handwriting (solo hero) === */
   .handwriting {
     font-family: 'Caveat', cursive;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--ink);
-    font-size: 22px;
-    line-height: 1.32;
+    font-size: 44px;
+    line-height: 1.05;
   }
   .handwriting span {
     display: block;
   }
-  /* Per-line variation: real handwriting drifts in slope, weight, and ink density */
   .handwriting .line-a {
-    font-size: 26px;
-    font-weight: 600;
-    transform: rotate(-0.8deg);
-    margin-bottom: 6px;
+    transform: rotate(-1.2deg);
+    margin-bottom: 2px;
     color: #1a1612;
+  }
+  .handwriting .line-b {
+    transform: rotate(0.6deg) translateX(6px);
+    color: #1f1a16;
     position: relative;
     display: inline-block;
   }
-  /* Hand-drawn underline beneath the salutation — looks like ink stroke */
-  .handwriting .line-a::after {
+  /* Hand-drawn underline beneath the closer — natural ink stroke */
+  .handwriting .line-b::after {
     content: '';
     position: absolute;
-    left: 4%;
-    right: 10%;
-    bottom: -2px;
-    height: 2px;
+    left: 0;
+    right: 18%;
+    bottom: -4px;
+    height: 2.5px;
     background:
-      radial-gradient(ellipse at left, rgba(26, 22, 18, 0.7) 30%, transparent 80%),
+      radial-gradient(ellipse at left, rgba(26, 22, 18, 0.65) 30%, transparent 80%),
       linear-gradient(90deg,
-        rgba(26, 22, 18, 0.85) 0%,
-        rgba(26, 22, 18, 0.6) 40%,
-        rgba(26, 22, 18, 0.3) 75%,
+        rgba(26, 22, 18, 0.82) 0%,
+        rgba(26, 22, 18, 0.55) 45%,
+        rgba(26, 22, 18, 0.25) 80%,
         transparent 100%);
-    transform: rotate(-0.5deg) translateY(1px);
+    transform: rotate(-0.6deg) translateY(2px);
     border-radius: 50%;
-  }
-  .handwriting .line-b {
-    transform: rotate(0.4deg) translateX(2px);
-    color: #221d18;
-    font-weight: 500;
-  }
-  .handwriting .line-c {
-    transform: rotate(-0.3deg);
-    color: #1f1a16;
-    font-weight: 500;
-  }
-  .handwriting .line-d {
-    transform: rotate(0.6deg) translateX(-1px);
-    color: #1a1612;
-    font-weight: 600;
-  }
-  .handwriting .line-sign {
-    margin-top: 12px;
-    font-size: 20px;
-    transform: rotate(-1.5deg) translateX(8px);
-    color: rgba(26, 22, 18, 0.75);
-    font-weight: 500;
-    font-style: italic;
   }
 
   /* === Stamp + postmark cancellation === */
@@ -571,19 +510,14 @@
     margin-top: 5px;
   }
 
-  /* === Float animation (subtle, just to remind the eye these are paper) === */
-  .postcard-front { animation: float-a 7s ease-in-out infinite; }
-  .postcard-back  { animation: float-b 6s ease-in-out infinite; }
-  @keyframes float-a {
-    0%, 100% { transform: rotate(-4deg) translateY(0); }
-    50%      { transform: rotate(-3.4deg) translateY(-4px); }
-  }
-  @keyframes float-b {
-    0%, 100% { transform: rotate(3deg) translateY(0); }
-    50%      { transform: rotate(2.4deg) translateY(-6px); }
+  /* === Float animation — solo card breathes === */
+  .postcard-back { animation: float-solo 8s ease-in-out infinite; }
+  @keyframes float-solo {
+    0%, 100% { transform: rotate(-2.2deg) translateY(0); }
+    50%      { transform: rotate(-1.7deg) translateY(-6px); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .postcard-front, .postcard-back { animation: none; }
+    .postcard-back { animation: none; }
   }
 
   /* ============ SECTION COMMON ============ */
@@ -1228,12 +1162,6 @@
       </div>
 
       <div class="postcard-stack">
-        <!-- Bottom: photo front (the moment captured) -->
-        <div class="postcard postcard-front">
-          <div class="paper-grain"></div>
-          <div class="paper-edge"></div>
-        </div>
-        <!-- Top: postcard back (the magic — handwriting + address + cancelled stamp) -->
         <div class="postcard postcard-back">
           <div class="paper-grain"></div>
           <div class="paper-edge"></div>
@@ -1244,10 +1172,8 @@
           </div>
           <div class="back-left">
             <div class="handwriting">
-              <span class="line-a">Sarah &mdash;</span>
-              <span class="line-b">Saw this and</span>
-              <span class="line-c">thought of you.</span>
-              <span class="line-sign">xo S</span>
+              <span class="line-a">Wish you</span>
+              <span class="line-b">were here.</span>
             </div>
           </div>
           <div class="back-right">
