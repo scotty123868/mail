@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mailroom · Real postcards for 70 cents</title>
-<meta name="description" content="Real postcards for 70 cents. To the people you love. For the fridge, not the feed.">
+<title>Mailroom · Real photo postcards from 70 cents</title>
+<meta name="description" content="Real photo postcards from 70 cents. No address needed. To the people you love. For the fridge, not the feed.">
 <meta property="og:title" content="Mailroom · For the fridge, not the feed">
-<meta property="og:description" content="Real postcards for 70 cents. To the people you love.">
+<meta property="og:description" content="Real photo postcards from 70 cents. To the people you love.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1005,6 +1005,68 @@
     letter-spacing: 0.1em;
   }
 
+  /* ============ Hero inline waitlist form ============ */
+  .hero-waitlist-form {
+    display: flex;
+    gap: 10px;
+    margin-top: 28px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    max-width: 520px;
+  }
+  .hero-waitlist-input {
+    flex: 1;
+    min-width: 220px;
+    padding: 16px 18px;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--paper);
+    font-family: 'Inter Tight', -apple-system, sans-serif;
+    font-size: 16px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  .hero-waitlist-input:focus { border-color: var(--ink); }
+  .hero-waitlist-input::placeholder { color: rgba(26, 22, 18, 0.4); }
+  .hero-waitlist-btn { cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .hero-waitlist-success {
+    display: none;
+    margin-top: 20px;
+    margin-bottom: 28px;
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-style: italic;
+    color: var(--ink);
+  }
+  .hero-waitlist-success.visible { display: block; }
+  .hero-waitlist-form.submitted { display: none; }
+
+  /* ============ Trust proof row ============ */
+  .trust-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px 56px;
+    justify-content: center;
+    padding: 56px 0 24px;
+    border-top: 1px solid var(--rule);
+    margin-top: 80px;
+  }
+  .trust-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+  }
+  .trust-item svg {
+    flex-shrink: 0;
+    color: var(--postal-red);
+  }
+
   /* ============ Mobile adjustments ============ */
   @media (max-width: 640px) {
     .container { padding: 0 20px; }
@@ -1012,6 +1074,9 @@
     .hero-meta { flex-direction: column; align-items: flex-start; gap: 12px; }
     .waitlist-form { flex-direction: column; }
     .waitlist-form .btn-primary { justify-content: center; }
+    .hero-waitlist-form { flex-direction: column; }
+    .hero-waitlist-btn { justify-content: center; }
+    .trust-row { gap: 20px; padding: 36px 0 16px; }
   }
 </style>
 </head>
@@ -1037,29 +1102,32 @@
     <div class="hero-grid">
       <div>
         <div class="eyebrow">Real postcards · Real friends</div>
-        <h1>Real postcards for <em>70 cents.</em></h1>
+        <h1>Real photo postcards <em>from 70 cents.</em></h1>
         <p class="hero-subhead">
-          Send real photos to your real friends. In their mailbox within a week. <strong style="color: var(--ink); font-weight: 600;">Your first card is free.</strong>
+          Pick a photo. Write a note. Send a private address link. <strong style="color: var(--ink); font-weight: 600;">No address needed. Your first card is free.</strong>
         </p>
-        <div class="hero-cta-row">
-          <a href="#waitlist" class="btn-primary">
-            Join the waitlist
+        <form class="hero-waitlist-form" id="heroWaitlistForm" onsubmit="handleWaitlist(event)">
+          <input type="email" required placeholder="you@example.com" name="email" class="hero-waitlist-input" autocomplete="email" aria-label="Email address" />
+          <button type="submit" class="btn-primary hero-waitlist-btn">
+            Get your first card free
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path d="M3 7H11M11 7L7 3M11 7L7 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-          </a>
-          <a href="#how" class="btn-secondary">See how it works</a>
-        </div>
+          </button>
+        </form>
+        <p class="hero-waitlist-success" id="heroWaitlistSuccess">
+          You're on the list. Your free card is waiting when we launch.
+        </p>
         <div class="hero-meta">
           <div class="hero-meta-item">
             <span class="hero-meta-dot"></span>
             <span>First card free</span>
           </div>
           <div class="hero-meta-item">
-            <span>Arrives in a week</span>
+            <span>Arrives in about a week</span>
           </div>
           <div class="hero-meta-item">
-            <span>Anywhere in the US</span>
+            <span>Printed &amp; mailed in the US</span>
           </div>
         </div>
       </div>
@@ -1092,6 +1160,25 @@
           </div>
           <div class="postmark">JULY 18<br>2026<br>AUSTIN</div>
         </div>
+      </div>
+    </div>
+
+    <div class="trust-row">
+      <div class="trust-item">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 1L11.5 6.5L17 7L13 11L14 17L9 14L4 17L5 11L1 7L6.5 6.5L9 1Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        Printed &amp; mailed in the US
+      </div>
+      <div class="trust-item">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 1L2 4V8.5C2 12.5 5 15.5 9 17C13 15.5 16 12.5 16 8.5V4L9 1Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M6.5 9L8 10.5L11.5 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Addresses stay private
+      </div>
+      <div class="trust-item">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="1.5" y="4" width="15" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 4L9 10L16.5 4" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        Postage included
+      </div>
+      <div class="trust-item">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7.5" stroke="currentColor" stroke-width="1.5"/><path d="M11 7.5C10.7 6.7 10 6 9 6C7.5 6 7 7 7 7.5C7 8.5 8 8.8 9 9C10 9.2 11 9.5 11 10.5C11 11 10.5 12 9 12C8 12 7.3 11.3 7 10.5M9 5V6M9 12V13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Credit if undeliverable
       </div>
     </div>
   </div>
@@ -1195,13 +1282,13 @@
           <li>50 photo postcards</li>
           <li>Mailed anywhere in the US</li>
           <li>Credits never expire</li>
-          <li>Less than a First-Class stamp<sup style="font-size: 10px; opacity: 0.7;">*</sup></li>
+          <li>Less than a First-Class Forever stamp<sup style="font-size: 10px; opacity: 0.7;">*</sup></li>
         </ul>
       </div>
     </div>
 
     <p class="pricing-note">
-      <sup>*</sup> A First-Class Forever stamp will be $0.82 on July 12, 2026. The Founder Pack works out to $0.70 per card, postage included.
+      <sup>*</sup> USPS has proposed raising the First-Class Forever stamp to $0.82 on July 12, 2026, pending regulatory review. The Founder Pack works out to $0.70 per card, postage included.
     </p>
   </div>
 </section>
@@ -1221,7 +1308,7 @@
           <span class="faq-toggle">+</span>
         </div>
         <div class="faq-answer">
-          <p>We price postcard packs close to cost because the point is to make sending feel casual. Over time, Mailroom can make money from larger packs, gift add-ons, and other ways people keep in touch.</p>
+          <p>Founder pricing is intentionally close to cost — we want sending a postcard to feel as casual as sending a text. The business gets sustainable as people send more: larger packs, gift add-ons, premium card finishes, and other ways friends keep in touch. Pricing covers printing, paper, USPS postage, and a small margin to keep the lights on.</p>
         </div>
       </div>
 
@@ -1336,7 +1423,7 @@
     <div class="footer-grid">
       <div>
         <div class="footer-brand">Mailroom</div>
-        <p class="footer-tagline">For the fridge, not the feed. Real postcards to real friends, for less than a stamp.</p>
+        <p class="footer-tagline">For the fridge, not the feed. Real photo postcards to real friends, for less than a First-Class Forever stamp.</p>
       </div>
 
       <div class="footer-col">
@@ -1397,15 +1484,28 @@
 
   document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-  // Waitlist form
+  // Waitlist form — handles both the hero inline form and the bottom CTA form
   function handleWaitlist(event) {
     event.preventDefault();
-    const form = document.getElementById('waitlistForm');
-    const success = document.getElementById('waitlistSuccess');
+    const form = event.currentTarget;
     const email = form.querySelector('input[name="email"]').value;
     try { localStorage.setItem('mailroom_waitlist_email', email); } catch (e) {}
+    // Map form id to corresponding success element id
+    const successMap = {
+      'waitlistForm': 'waitlistSuccess',
+      'heroWaitlistForm': 'heroWaitlistSuccess',
+    };
+    const successId = successMap[form.id];
+    const success = successId ? document.getElementById(successId) : null;
     form.classList.add('submitted');
-    success.classList.add('visible');
+    if (success) success.classList.add('visible');
+    // Also collapse the other form so the user knows they're signed up
+    Object.keys(successMap).forEach(fid => {
+      if (fid !== form.id) {
+        const other = document.getElementById(fid);
+        if (other) other.classList.add('submitted');
+      }
+    });
   }
 </script>
 
