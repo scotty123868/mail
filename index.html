@@ -102,26 +102,13 @@
 
   .logo-stamp {
     display: inline-block;
-    width: 28px;
-    height: 28px;
-    background: var(--postal-red);
-    border-radius: 2px;
+    width: 36px;
+    height: 36px;
+    background-image: url('/icons/C.png');
+    background-size: cover;
+    background-position: center;
+    border-radius: 4px;
     position: relative;
-    transform: rotate(-3deg);
-    box-shadow: 1px 1px 0 var(--ink-soft);
-  }
-
-  .logo-stamp::before {
-    content: 'M';
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--cream);
-    font-family: 'Fraunces', serif;
-    font-weight: 700;
-    font-size: 18px;
   }
 
   .nav-links {
@@ -331,100 +318,82 @@
   }
 
   .postcard-1 {
-    top: 20%;
-    left: 5%;
-    transform: rotate(-8deg);
+    top: 22%;
+    left: 4%;
+    transform: rotate(-9deg);
     z-index: 1;
-    background: linear-gradient(135deg, #d4a574 0%, #b8895a 40%, #8b6543 100%);
+    background:
+      radial-gradient(ellipse at 75% 30%, rgba(255,210,140,0.55), transparent 60%),
+      radial-gradient(ellipse at 25% 75%, rgba(120,70,40,0.4), transparent 50%),
+      linear-gradient(135deg, #e0b27e 0%, #b8895a 45%, #7a5436 100%);
+  }
+  .postcard-1::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 70% 25%, rgba(255,235,180,0.5) 0%, transparent 30%),
+      linear-gradient(180deg, transparent 50%, rgba(80,40,20,0.15) 100%);
+    pointer-events: none;
   }
 
   .postcard-2 {
     top: 12%;
-    left: 12%;
+    left: 13%;
     transform: rotate(2deg);
     z-index: 2;
-    background: linear-gradient(160deg, #6b8e85 0%, #4a6b62 50%, #2d4942 100%);
+    background:
+      radial-gradient(ellipse at 50% 20%, rgba(180,200,180,0.5), transparent 55%),
+      radial-gradient(ellipse at 20% 80%, rgba(40,80,70,0.5), transparent 60%),
+      linear-gradient(160deg, #7ea295 0%, #4a6b62 55%, #243934 100%);
+  }
+  .postcard-2::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 50% 35%, rgba(255,250,220,0.3) 0%, transparent 40%),
+      linear-gradient(180deg, transparent 60%, rgba(0,20,15,0.2) 100%);
+    pointer-events: none;
   }
 
   .postcard-3 {
-    top: 5%;
-    left: 18%;
-    transform: rotate(-2deg);
+    top: 4%;
+    left: 19%;
+    transform: rotate(-2.5deg);
     z-index: 3;
-    background: linear-gradient(180deg, #c4a8c8 0%, #9078a3 50%, #5d4470 100%);
+    background:
+      radial-gradient(ellipse at 35% 25%, rgba(255,210,180,0.55), transparent 55%),
+      radial-gradient(ellipse at 75% 75%, rgba(80,50,90,0.45), transparent 55%),
+      linear-gradient(180deg, #d4b5d6 0%, #9078a3 50%, #4d3760 100%);
   }
-
   .postcard-3::after {
     content: '';
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(circle at 30% 40%, rgba(255, 200, 150, 0.3), transparent 50%),
-      radial-gradient(circle at 70% 70%, rgba(180, 100, 80, 0.3), transparent 60%);
+      radial-gradient(circle at 30% 40%, rgba(255, 210, 170, 0.45), transparent 45%),
+      radial-gradient(circle at 70% 60%, rgba(150, 80, 100, 0.3), transparent 50%),
+      linear-gradient(180deg, transparent 55%, rgba(30,15,40,0.25) 100%);
+    pointer-events: none;
   }
 
   .postcard-stamp {
     position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 48px;
-    height: 56px;
-    background: var(--postal-red);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    top: 14px;
+    right: 14px;
+    width: 60px;
+    height: 60px;
+    background-image: url('/icons/C.png');
+    background-size: cover;
+    background-position: center;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
     z-index: 10;
+    transform: rotate(2deg);
   }
 
-  .postcard-stamp::before {
-    content: '';
-    position: absolute;
-    inset: -3px;
-    background: var(--postal-red);
-    clip-path: polygon(
-      0% 3px, 3px 3px, 3px 0%,
-      9px 0%, 9px 3px, 15px 3px, 15px 0%,
-      21px 0%, 21px 3px, 27px 3px, 27px 0%,
-      33px 0%, 33px 3px, 39px 3px, 39px 0%,
-      45px 0%, 45px 3px, 51px 3px, 51px 0%,
-      54px 0%, 54px 6px, 51px 6px, 51px 12px,
-      54px 12px, 54px 18px, 51px 18px, 51px 24px,
-      54px 24px, 54px 30px, 51px 30px, 51px 36px,
-      54px 36px, 54px 42px, 51px 42px, 51px 48px,
-      54px 48px, 54px 54px, 54px 56px,
-      51px 56px, 51px 59px, 45px 59px, 45px 56px,
-      39px 56px, 39px 59px, 33px 59px, 33px 56px,
-      27px 56px, 27px 59px, 21px 59px, 21px 56px,
-      15px 56px, 15px 59px, 9px 59px, 9px 56px,
-      3px 56px, 3px 59px, 0% 59px,
-      0% 56px, 3px 56px, 3px 50px, 0% 50px,
-      0% 44px, 3px 44px, 3px 38px, 0% 38px,
-      0% 32px, 3px 32px, 3px 26px, 0% 26px,
-      0% 20px, 3px 20px, 3px 14px, 0% 14px,
-      0% 8px, 3px 8px, 3px 3px
-    );
-  }
-
-  .postcard-stamp-inner {
-    position: absolute;
-    inset: 4px;
-    background: var(--postal-red-deep);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    color: var(--cream);
-    font-family: 'Fraunces', serif;
-    font-size: 9px;
-    line-height: 1;
-    text-align: center;
-    padding: 4px;
-  }
-
-  .postcard-stamp-inner strong {
-    font-size: 16px;
-    font-weight: 700;
-    display: block;
-    margin-bottom: 2px;
-  }
+  .postcard-stamp-inner { display: none; }
 
   .postmark {
     position: absolute;
@@ -1110,7 +1079,7 @@
         <div class="eyebrow">Send photos for less than a stamp</div>
         <h1>Real postcards for <em>70 cents.</em></h1>
         <p class="hero-subhead">
-          Pick a photo. Write a note. <strong style="color: var(--ink); font-weight: 600;">No address needed. Your first card is free.</strong>
+          Pick a photo. Write a note. No address needed. Your first card is free.
         </p>
         <form class="hero-waitlist-form" id="heroWaitlistForm" onsubmit="handleWaitlist(event)">
           <input type="email" required placeholder="you@example.com" name="email" class="hero-waitlist-input" autocomplete="email" aria-label="Email address" />
@@ -1323,7 +1292,7 @@
           <span class="faq-toggle">+</span>
         </div>
         <div class="faq-answer">
-          <p>We aren't. It costs us more than 70 cents per card to print, stamp, and mail. We charge 70 because we want sending a postcard to feel as easy as sending a text. No investors, no subscription, no growth-hacking. We're funding this ourselves while it's small.</p>
+          <p>We aren't. It costs us a little more than 70 cents per card to print, stamp, and mail. We charge 70 because we want sending a postcard to feel as easy as sending a text. We don't have any investors. We just want to get rid of the friction of keeping in touch.</p>
         </div>
       </div>
 
