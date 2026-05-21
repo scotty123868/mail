@@ -57,7 +57,30 @@
       font-style: italic;
       margin: 0 0 20px 0;
     }
-    .field { margin-top: 14px; }
+    .preview {
+      background: #fdfaf1;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-family: "Caveat", "Bradley Hand", cursive;
+      font-size: 17px;
+      line-height: 1.45;
+      color: var(--ink);
+      margin: 0 0 20px 0;
+      transform: rotate(-0.4deg);
+    }
+    .self-warn {
+      background: #fff6dc;
+      border: 1px solid #d8c587;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #6c5418;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      margin: 0 0 18px 0;
+      display: none;
+    }
+    .field { margin-top: 14px; position: relative; }
     .field-row { display: flex; gap: 12px; }
     label {
       display: block;
@@ -84,6 +107,34 @@
       outline: none;
       border-color: var(--postal-blue);
     }
+    /* Autocomplete dropdown */
+    .ac-dropdown {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% + 4px);
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+      z-index: 10;
+      max-height: 240px;
+      overflow-y: auto;
+      display: none;
+    }
+    .ac-dropdown.open { display: block; }
+    .ac-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 14px;
+      color: var(--ink);
+      border-bottom: 1px solid #f1eadb;
+    }
+    .ac-item:last-child { border-bottom: none; }
+    .ac-item:hover, .ac-item.active { background: #faf3e0; }
+    .ac-item .ac-main { font-weight: 600; }
+    .ac-item .ac-sec { color: var(--muted-ink); font-size: 12px; margin-top: 2px; }
     button {
       width: 100%;
       padding: 16px;
@@ -115,29 +166,87 @@
       text-align: center;
     }
     .footer a { color: var(--postal-blue); text-decoration: none; }
-    .success {
-      text-align: center;
-    }
+    .success { text-align: center; }
     .success .emoji { font-size: 60px; margin-bottom: 16px; }
-    .hidden { display: none; }
+    .hidden { display: none !important; }
+    .center { text-align: center; }
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid #e6dfcc;
+      border-top-color: var(--postal-red);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
   <main>
-    <div class="card" id="no-token-state" class="hidden" style="display:none">
+    <!-- Initial loading -->
+    <div class="card center" id="loading-state">
+      <div class="spinner" aria-label="Checking your link"></div>
+      <p class="body" style="margin-top: 16px;">Checking your link...</p>
+    </div>
+
+    <!-- No token in URL -->
+    <div class="card hidden" id="no-token-state">
       <h1>No claim link found</h1>
       <p class="body">
-        Tap the link from your iMessage or email — it has the postcard's
+        Tap the link from your iMessage or email &mdash; it has the postcard's
         claim token attached.
       </p>
     </div>
 
-    <div class="card" id="success-state" class="hidden" style="display:none">
+    <!-- Link already used -->
+    <div class="card hidden" id="claimed-state">
+      <div class="kicker">ALREADY ON ITS WAY</div>
+      <h1>This card has already been claimed.</h1>
+      <p class="body">
+        You only need to claim a Mailroom link once. If you're expecting
+        another postcard, ask the sender for a fresh link.
+      </p>
+      <p class="footer">
+        Want to send your own?
+        <a href="https://apps.apple.com/app/mailroom/id6768460855">Get Mailroom on the App Store</a>.
+      </p>
+    </div>
+
+    <!-- Link expired -->
+    <div class="card hidden" id="expired-state">
+      <h1>This link has expired.</h1>
+      <p class="body">
+        Mailroom links stay good for 30 days. Ask the sender for a fresh one.
+      </p>
+      <p class="footer">
+        Want to send your own?
+        <a href="https://apps.apple.com/app/mailroom/id6768460855">Get Mailroom on the App Store</a>.
+      </p>
+    </div>
+
+    <!-- Link not found / invalid -->
+    <div class="card hidden" id="invalid-state">
+      <h1>That link doesn't look right.</h1>
+      <p class="body">
+        Double-check the message you got &mdash; the claim token might be cut
+        off, or this card may have been canceled.
+      </p>
+    </div>
+
+    <!-- Server error -->
+    <div class="card hidden" id="server-error-state">
+      <h1>Couldn't reach Mailroom.</h1>
+      <p class="body">Try again in a moment. If this keeps happening, let us know.</p>
+    </div>
+
+    <!-- Success -->
+    <div class="card hidden" id="success-state">
       <div class="success">
         <div class="emoji">🎉</div>
         <h1>Your postcard is on its way</h1>
         <p class="body">
-          USPS time is 4–7 days. We mailed it from our printer.
+          USPS time is 4&ndash;7 days. We mailed it from our printer.
         </p>
       </div>
       <p class="footer">
@@ -146,22 +255,32 @@
       </p>
     </div>
 
-    <div class="card" id="form-state">
+    <!-- Main form -->
+    <div class="card hidden" id="form-state">
       <div class="kicker">YOU HAVE MAIL</div>
-      <h1>Someone sent you a postcard.</h1>
-      <p class="body">
+      <h1 id="form-title">Someone sent you a postcard.</h1>
+      <p class="body" id="form-sub">
         Share your mailing address and we'll print + ship it. Your address
-        stays private.
+        stays private to Mailroom.
       </p>
 
-      <form id="claim-form" novalidate>
+      <div class="preview hidden" id="form-preview"></div>
+
+      <div class="self-warn" id="self-warn">
+        Heads up &mdash; this link looks like one you sent yourself. If you
+        want to mail something to your own address, do it from the Mailroom
+        app instead. Submitting here will use this claim link up.
+      </div>
+
+      <form id="claim-form" novalidate autocomplete="on">
         <div class="field">
           <label for="name">Your name</label>
           <input id="name" type="text" placeholder="Maya Chen" autocomplete="name" required />
         </div>
         <div class="field">
           <label for="line1">Street address</label>
-          <input id="line1" type="text" placeholder="123 Main St" autocomplete="address-line1" required />
+          <input id="line1" type="text" placeholder="Start typing your address..." autocomplete="address-line1" required />
+          <div class="ac-dropdown" id="ac-dropdown" role="listbox" aria-label="Address suggestions"></div>
         </div>
         <div class="field">
           <label for="line2">Apt, suite (optional)</label>
@@ -184,7 +303,7 @@
 
         <div id="error" class="error hidden"></div>
 
-        <button type="submit" id="submit-btn">Send my address →</button>
+        <button type="submit" id="submit-btn">Send my address &rarr;</button>
       </form>
 
       <p class="footer">
@@ -198,104 +317,420 @@
     /**
      * Mailroom claim flow — web fallback.
      *
-     * iOS 14+ with the App Clip available: tapping a /claim?t=TOKEN
-     * link triggers the Universal Link, which (because the AASA file
-     * at /.well-known/apple-app-site-association advertises this URL
-     * for our App Clip) launches the native SwiftUI form instead of
-     * this page. This page is the fallback for Android, desktop,
-     * iOS pre-14, or any case where Universal Links don't fire.
+     * Flow:
+     *   1. Page loads, shows spinner.
+     *   2. GET /claim?t=TOKEN with Accept: application/json — checks token
+     *      state BEFORE showing the form. If it's already claimed,
+     *      expired, or not found, we show the appropriate state instead
+     *      of letting the user fill out the form and fail.
+     *   3. If valid: show the form with sender name + message preview.
+     *   4. Google Places autocomplete on Street Address — matches the app.
+     *   5. Submit POSTs to the same /claim endpoint and shows success.
      *
-     * Same form, same Supabase endpoint, same outcome.
+     * iOS 14+ with the App Clip available: tapping a /claim?t=TOKEN link
+     * triggers the Universal Link before this page even loads, opening
+     * the native SwiftUI form instead. This page is the fallback for
+     * Android, desktop, iOS pre-14, or any case where Universal Links
+     * don't fire.
      */
     (function () {
+      var CLAIM_FN_URL = 'https://nlwnmgwylmmnaemdnzlq.functions.supabase.co/claim';
+      // Google Places API key. Restricted in Google Cloud Console to:
+      //   - HTTP referrers: *.themailroom.club, themailroom.club
+      //   - APIs: Places API (New)
+      // Same key the iOS app uses; the iOS bundle restriction lives
+      // alongside the web referrer restriction.
+      var GOOGLE_PLACES_KEY = 'AIzaSyCHeEI7jSErR4tdtCzaZfkCcy_2F43c9Ak';
+      var PLACES_AUTOCOMPLETE_URL = 'https://places.googleapis.com/v1/places:autocomplete';
+      var PLACES_DETAILS_BASE = 'https://places.googleapis.com/v1/places';
+
       var params = new URLSearchParams(window.location.search);
       var token = params.get('t') || params.get('token');
 
+      var loadingEl = document.getElementById('loading-state');
       var formEl = document.getElementById('form-state');
       var noTokenEl = document.getElementById('no-token-state');
+      var claimedEl = document.getElementById('claimed-state');
+      var expiredEl = document.getElementById('expired-state');
+      var invalidEl = document.getElementById('invalid-state');
+      var serverErrorEl = document.getElementById('server-error-state');
       var successEl = document.getElementById('success-state');
+      var allStates = [loadingEl, formEl, noTokenEl, claimedEl, expiredEl, invalidEl, serverErrorEl, successEl];
+
+      function show(el) {
+        allStates.forEach(function (s) {
+          if (s) s.classList.toggle('hidden', s !== el);
+        });
+      }
 
       if (!token) {
-        formEl.style.display = 'none';
-        noTokenEl.style.display = 'block';
+        show(noTokenEl);
         return;
       }
 
-      var formNode = document.getElementById('claim-form');
-      var submitBtn = document.getElementById('submit-btn');
-      var errorEl = document.getElementById('error');
+      // 1. Pre-check the token state ----------------------------------------
+      fetch(CLAIM_FN_URL + '?t=' + encodeURIComponent(token), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+      })
+      .then(function (res) {
+        return res.json().then(function (body) {
+          return { status: res.status, body: body };
+        });
+      })
+      .then(function (r) {
+        if (r.body && r.body.ok) {
+          // Valid token — show the form, prefill sender info + message.
+          var senderName = r.body.sender_name || 'Someone';
+          var fromTag = senderName.split(' ')[0] || 'Someone';
+          var senderCity = r.body.sender_city || '';
+          var msg = r.body.message_preview || '';
 
-      formNode.addEventListener('submit', function (e) {
-        e.preventDefault();
-        submit();
+          document.getElementById('form-title').textContent = fromTag + ' sent you a postcard.';
+          var subEl = document.getElementById('form-sub');
+          subEl.textContent = senderCity
+            ? 'From ' + senderName + ' in ' + senderCity + '. Share your address and we’ll print + mail it. Your address stays private to Mailroom.'
+            : 'From ' + senderName + '. Share your address and we’ll print + mail it. Your address stays private to Mailroom.';
+
+          if (msg) {
+            var previewEl = document.getElementById('form-preview');
+            previewEl.textContent = msg;
+            previewEl.classList.remove('hidden');
+          }
+
+          // Self-fill detection: if this browser previously created this
+          // token (we stored a marker when the sender opened the app's
+          // share sheet), nudge them not to fill it in themselves.
+          checkSelfFill(token);
+
+          show(formEl);
+          initForm(token);
+          return;
+        }
+
+        // Failure branches
+        var reason = (r.body && r.body.reason) || 'NOT_FOUND';
+        if (reason === 'ALREADY_CLAIMED') { show(claimedEl); return; }
+        if (reason === 'EXPIRED') { show(expiredEl); return; }
+        if (reason === 'NOT_FOUND' || reason === 'MISSING_TOKEN') { show(invalidEl); return; }
+        show(serverErrorEl);
+      })
+      .catch(function () {
+        show(serverErrorEl);
       });
 
-      function val(id) {
-        return (document.getElementById(id).value || '').trim();
-      }
-
-      function showError(msg) {
-        errorEl.textContent = msg;
-        errorEl.style.display = 'block';
-      }
-      function clearError() {
-        errorEl.textContent = '';
-        errorEl.style.display = 'none';
-      }
-
-      function submit() {
-        var name = val('name');
-        var line1 = val('line1');
-        var line2 = val('line2');
-        var city = val('city');
-        var state = val('state').toUpperCase();
-        var zip = val('zip');
-
-        clearError();
-
-        if (!name || !line1 || !city || !state || !zip) {
-          showError('Fill in every field above (apt/suite is optional).');
-          return;
-        }
-        if (state.length !== 2) {
-          showError('State should be two letters, e.g. CO, NY, CA.');
-          return;
-        }
-        if (!/^\d{5}(-\d{4})?$/.test(zip)) {
-          showError('ZIP should be 5 digits, e.g. 80218.');
-          return;
-        }
-
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Sending...';
-
-        fetch('https://nlwnmgwylmmnaemdnzlq.functions.supabase.co/claim', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            token: token,
-            name: name,
-            line1: line1,
-            line2: line2 || undefined,
-            city: city,
-            state: state,
-            zip: zip,
-          }),
-        })
-        .then(function (res) {
-          if (!res.ok) {
-            return res.text().then(function (body) { throw new Error(body || ('HTTP ' + res.status)); });
+      // 2. Self-fill detection ---------------------------------------------
+      function checkSelfFill(token) {
+        try {
+          var raw = localStorage.getItem('mailroom_sent_tokens');
+          if (!raw) return;
+          var arr = JSON.parse(raw);
+          if (Array.isArray(arr) && arr.indexOf(token) >= 0) {
+            document.getElementById('self-warn').style.display = 'block';
           }
-          return res.json();
-        })
-        .then(function () {
-          formEl.style.display = 'none';
-          successEl.style.display = 'block';
-        })
-        .catch(function (err) {
-          showError(err.message || "Couldn't save your address. Try again.");
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Send my address →';
+        } catch (e) { /* ignore */ }
+      }
+
+      // 3. Google Places autocomplete --------------------------------------
+      function initForm(token) {
+        var line1El = document.getElementById('line1');
+        var line2El = document.getElementById('line2');
+        var cityEl = document.getElementById('city');
+        var stateEl = document.getElementById('state');
+        var zipEl = document.getElementById('zip');
+        var dropdown = document.getElementById('ac-dropdown');
+
+        var sessionToken = newSessionToken();
+        var debounceTimer = null;
+        var abortCtrl = null;
+        var currentSuggestions = [];
+        var activeIdx = -1;
+
+        line1El.addEventListener('input', function () {
+          var q = line1El.value.trim();
+          activeIdx = -1;
+          if (debounceTimer) clearTimeout(debounceTimer);
+          if (abortCtrl) { try { abortCtrl.abort(); } catch (e) {} abortCtrl = null; }
+          if (q.length < 3) {
+            dropdown.classList.remove('open');
+            return;
+          }
+          debounceTimer = setTimeout(function () {
+            fetchSuggestions(q);
+          }, 180);
+        });
+
+        line1El.addEventListener('keydown', function (e) {
+          if (!dropdown.classList.contains('open')) return;
+          var items = dropdown.querySelectorAll('.ac-item');
+          if (!items.length) return;
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            activeIdx = (activeIdx + 1) % items.length;
+            updateActive(items);
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            activeIdx = (activeIdx - 1 + items.length) % items.length;
+            updateActive(items);
+          } else if (e.key === 'Enter') {
+            if (activeIdx >= 0 && activeIdx < currentSuggestions.length) {
+              e.preventDefault();
+              pickSuggestion(currentSuggestions[activeIdx]);
+            }
+          } else if (e.key === 'Escape') {
+            dropdown.classList.remove('open');
+          }
+        });
+
+        function updateActive(items) {
+          items.forEach(function (el, i) {
+            el.classList.toggle('active', i === activeIdx);
+          });
+          if (activeIdx >= 0 && items[activeIdx]) {
+            items[activeIdx].scrollIntoView({ block: 'nearest' });
+          }
+        }
+
+        document.addEventListener('click', function (e) {
+          if (e.target !== line1El && !dropdown.contains(e.target)) {
+            dropdown.classList.remove('open');
+          }
+        });
+
+        function fetchSuggestions(q) {
+          abortCtrl = new AbortController();
+          fetch(PLACES_AUTOCOMPLETE_URL, {
+            method: 'POST',
+            signal: abortCtrl.signal,
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Goog-Api-Key': GOOGLE_PLACES_KEY,
+              'X-Goog-FieldMask':
+                'suggestions.placePrediction.placeId,suggestions.placePrediction.text,suggestions.placePrediction.structuredFormat',
+            },
+            body: JSON.stringify({
+              input: q,
+              includedRegionCodes: ['us'],
+              languageCode: 'en',
+              includedPrimaryTypes: ['street_address', 'premise', 'subpremise'],
+              sessionToken: sessionToken,
+            }),
+          })
+          .then(function (res) {
+            if (!res.ok) throw new Error('places ' + res.status);
+            return res.json();
+          })
+          .then(function (data) {
+            var suggestions = (data.suggestions || [])
+              .map(function (s) {
+                var p = s.placePrediction;
+                if (!p || !p.placeId) return null;
+                return {
+                  placeId: p.placeId,
+                  label: (p.text && p.text.text) || '',
+                  main: p.structuredFormat && p.structuredFormat.mainText && p.structuredFormat.mainText.text,
+                  sec: p.structuredFormat && p.structuredFormat.secondaryText && p.structuredFormat.secondaryText.text,
+                };
+              })
+              .filter(Boolean);
+            renderSuggestions(suggestions);
+          })
+          .catch(function (err) {
+            if (err && err.name === 'AbortError') return;
+            // Silently fall back to plain text input on Places failure
+            dropdown.classList.remove('open');
+          });
+        }
+
+        function renderSuggestions(list) {
+          currentSuggestions = list;
+          activeIdx = -1;
+          if (!list.length) {
+            dropdown.classList.remove('open');
+            return;
+          }
+          dropdown.innerHTML = '';
+          list.forEach(function (s, i) {
+            var item = document.createElement('div');
+            item.className = 'ac-item';
+            item.setAttribute('role', 'option');
+            var main = document.createElement('div');
+            main.className = 'ac-main';
+            main.textContent = s.main || s.label;
+            var sec = document.createElement('div');
+            sec.className = 'ac-sec';
+            sec.textContent = s.sec || '';
+            item.appendChild(main);
+            if (sec.textContent) item.appendChild(sec);
+            item.addEventListener('mousedown', function (e) {
+              e.preventDefault(); // keep focus on input
+              pickSuggestion(s);
+            });
+            dropdown.appendChild(item);
+          });
+          dropdown.classList.add('open');
+        }
+
+        function pickSuggestion(s) {
+          dropdown.classList.remove('open');
+          // Fetch full details to fill structured fields
+          var url = PLACES_DETAILS_BASE + '/' + encodeURIComponent(s.placeId) + '?sessionToken=' + encodeURIComponent(sessionToken);
+          fetch(url, {
+            method: 'GET',
+            headers: {
+              'X-Goog-Api-Key': GOOGLE_PLACES_KEY,
+              'X-Goog-FieldMask': 'id,formattedAddress,addressComponents,displayName',
+            },
+          })
+          .then(function (res) {
+            if (!res.ok) throw new Error('details ' + res.status);
+            return res.json();
+          })
+          .then(function (data) {
+            var parsed = parseDetails(data);
+            if (!parsed) {
+              // Fallback: just put the label into line1
+              line1El.value = s.label || (s.main || '');
+              return;
+            }
+            line1El.value = parsed.line1;
+            if (parsed.line2) line2El.value = parsed.line2;
+            cityEl.value = parsed.city;
+            stateEl.value = parsed.state;
+            zipEl.value = parsed.zip;
+            // Reset session token after a successful selection
+            sessionToken = newSessionToken();
+            // Move focus to ZIP if line2 is empty, otherwise line2
+            (line2El.value ? cityEl : line2El).focus();
+          })
+          .catch(function () {
+            line1El.value = s.label || (s.main || '');
+          });
+        }
+
+        function parseDetails(data) {
+          var components = data.addressComponents || [];
+          function find(type, short) {
+            for (var i = 0; i < components.length; i++) {
+              var c = components[i];
+              if ((c.types || []).indexOf(type) >= 0) {
+                return (short ? c.shortText : c.longText) || c.longText || c.shortText || '';
+              }
+            }
+            return '';
+          }
+          var streetNumber = find('street_number');
+          var route = find('route');
+          var subpremise = find('subpremise');
+          var locality = find('locality') || find('sublocality_level_1') || find('postal_town');
+          var adminLevel1 = find('administrative_area_level_1', true);
+          var postalCode = find('postal_code');
+          var line1 = [streetNumber, route].filter(Boolean).join(' ').trim();
+          if (!line1 || !locality || !adminLevel1) return null;
+          return {
+            line1: line1,
+            line2: subpremise,
+            city: locality,
+            state: adminLevel1,
+            zip: postalCode,
+          };
+        }
+
+        function newSessionToken() {
+          return Date.now().toString(36) +
+            Math.random().toString(36).slice(2, 10) +
+            Math.random().toString(36).slice(2, 10);
+        }
+
+        // 4. Submit handler ------------------------------------------------
+        var formNode = document.getElementById('claim-form');
+        var submitBtn = document.getElementById('submit-btn');
+        var errorEl = document.getElementById('error');
+
+        function showError(msg) {
+          errorEl.textContent = msg;
+          errorEl.classList.remove('hidden');
+        }
+        function clearError() {
+          errorEl.textContent = '';
+          errorEl.classList.add('hidden');
+        }
+
+        formNode.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var name = (document.getElementById('name').value || '').trim();
+          var line1 = (line1El.value || '').trim();
+          var line2 = (line2El.value || '').trim();
+          var city = (cityEl.value || '').trim();
+          var state = (stateEl.value || '').trim().toUpperCase();
+          var zip = (zipEl.value || '').trim();
+
+          clearError();
+          if (!name || !line1 || !city || !state || !zip) {
+            showError('Fill in every field above (apt/suite is optional).');
+            return;
+          }
+          if (state.length !== 2) {
+            showError('State should be two letters, e.g. CO, NY, CA.');
+            return;
+          }
+          if (!/^\d{5}(-\d{4})?$/.test(zip)) {
+            showError('ZIP should be 5 digits, e.g. 80218.');
+            return;
+          }
+
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Sending...';
+          dropdown.classList.remove('open');
+
+          fetch(CLAIM_FN_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              token: token,
+              name: name,
+              line1: line1,
+              line2: line2 || undefined,
+              city: city,
+              state: state,
+              zip: zip,
+            }),
+          })
+          .then(function (res) {
+            return res.json().then(function (body) {
+              return { status: res.status, body: body };
+            });
+          })
+          .then(function (r) {
+            if (r.body && r.body.ok) {
+              // Clean the token from localStorage so the self-warn never
+              // shows again for this link.
+              try {
+                var raw = localStorage.getItem('mailroom_sent_tokens');
+                if (raw) {
+                  var arr = JSON.parse(raw);
+                  if (Array.isArray(arr)) {
+                    var filtered = arr.filter(function (t) { return t !== token; });
+                    localStorage.setItem('mailroom_sent_tokens', JSON.stringify(filtered));
+                  }
+                }
+              } catch (e) { /* ignore */ }
+              show(successEl);
+              return;
+            }
+            // Map specific server reasons to friendly messages
+            var reason = (r.body && (r.body.reason || r.body.error)) || 'unknown';
+            if (/ALREADY_CLAIMED/i.test(reason)) { show(claimedEl); return; }
+            if (/EXPIRED/i.test(reason)) { show(expiredEl); return; }
+            showError((r.body && r.body.error) || "Couldn't save your address. Try again.");
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send my address →';
+          })
+          .catch(function (err) {
+            showError((err && err.message) || "Couldn't save your address. Try again.");
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send my address →';
+          });
         });
       }
     })();
