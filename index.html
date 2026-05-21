@@ -326,6 +326,20 @@
     transform-style: preserve-3d;
     background: url('/images/postcard-illustration.jpg') center/cover no-repeat var(--cream-deep);
   }
+  /* Mailroom perforated-stamp brand mark in the top-right corner of the
+     postcard. Small, slightly tilted, with a soft drop shadow so it reads
+     as "stuck-on" rather than printed-into the illustration. */
+  .postcard-front-stamp {
+    position: absolute;
+    top: 5%;
+    right: 4.5%;
+    width: 14%;
+    aspect-ratio: 1 / 1;
+    background: url('/icons/C.png') center/contain no-repeat;
+    transform: rotate(4deg);
+    filter: drop-shadow(0 2px 3px rgba(26, 22, 18, 0.18));
+    z-index: 6;
+  }
   .postcard-front::after {
     content: '';
     position: absolute;
@@ -1192,10 +1206,12 @@
 
       <div class="postcard-stack">
         <!-- Solo photo postcard: the recraft balloon illustration is the brand
-             identity moment. No back overlap to fight for attention. -->
+             identity moment. No back overlap to fight for attention.
+             Mailroom stamp top-right brands it as a Mailroom postcard. -->
         <div class="postcard postcard-front">
           <div class="paper-grain"></div>
           <div class="paper-edge"></div>
+          <div class="postcard-front-stamp" aria-hidden="true"></div>
         </div>
       </div>
     </div>
