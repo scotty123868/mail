@@ -292,27 +292,27 @@
     50% { opacity: 0.5; transform: scale(1.2); }
   }
 
-  /* ============ POSTCARD MOCKUP (v4: front + back, brand illustration) ============ */
+  /* ============ POSTCARD MOCKUP (v5: solo photo postcard) ============ */
   .postcard-stack {
     position: relative;
     width: 100%;
-    max-width: 620px;
-    aspect-ratio: 1.15 / 1;
+    max-width: 600px;
+    aspect-ratio: 1.5 / 1;
     margin-left: auto;
-    margin-right: -16px;
     perspective: 1600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .postcard {
-    position: absolute;
-    width: 84%;
+    position: relative;
+    width: 100%;
     aspect-ratio: 1.5 / 1;
     background: var(--paper);
     border-radius: 3px;
     overflow: hidden;
     transform-origin: center center;
-    /* Layered shadows: hairline paper-edge stroke + ambient under-shadow
-       + tight mid-shadow + long soft cast — reads as paper lifted off a desk. */
     box-shadow:
       0 0 0 1px rgba(60, 50, 35, 0.07),
       0 1px 1px rgba(26, 22, 18, 0.10),
@@ -320,18 +320,10 @@
       0 56px 96px -18px rgba(26, 22, 18, 0.28);
   }
 
-  /* Photo front — uses the brand recraft illustration. Sits ON TOP of the
-     back card so the balloon (the brand-defining illustration moment)
-     stays visible. Back peeks from behind. */
+  /* Photo front — the brand recraft illustration as the entire hero element. */
   .postcard-front {
-    top: 4%;
-    right: 0;
-    transform: rotate(3deg) rotateX(4deg) rotateY(-3deg);
+    transform: rotate(-2.5deg) rotateX(4deg) rotateY(-2deg);
     transform-style: preserve-3d;
-    z-index: 2;
-    /* Source image is pre-cropped to a 1.5:1 ratio with the balloon
-       prominently centered. center center / cover fits the entire cropped
-       image inside the postcard front with no clipping. */
     background: url('/images/postcard-illustration.jpg') center/cover no-repeat var(--cream-deep);
   }
   .postcard-front::after {
@@ -547,19 +539,14 @@
     margin-top: 5px;
   }
 
-  /* === Float animations — front (top of stack) and back (peeks behind) === */
-  .postcard-front { animation: float-front 7s ease-in-out infinite; }
-  .postcard-back  { animation: float-back 9s ease-in-out infinite; }
-  @keyframes float-front {
-    0%, 100% { transform: rotate(3deg) rotateX(4deg) rotateY(-3deg) translateY(0); }
-    50%      { transform: rotate(3.4deg) rotateX(3deg) rotateY(-2.5deg) translateY(-6px); }
-  }
-  @keyframes float-back {
-    0%, 100% { transform: rotate(-5deg) rotateX(3deg) rotateY(2deg) translateY(0); }
-    50%      { transform: rotate(-4.5deg) rotateX(2.5deg) rotateY(1.5deg) translateY(-4px); }
+  /* === Float animation — single postcard breathes === */
+  .postcard-front { animation: float-solo 8s ease-in-out infinite; }
+  @keyframes float-solo {
+    0%, 100% { transform: rotate(-2.5deg) rotateX(4deg) rotateY(-2deg) translateY(0); }
+    50%      { transform: rotate(-2deg) rotateX(3deg) rotateY(-1.5deg) translateY(-6px); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .postcard-front, .postcard-back { animation: none; }
+    .postcard-front { animation: none; }
   }
 
   /* ============ SECTION COMMON ============ */
@@ -1204,51 +1191,11 @@
       </div>
 
       <div class="postcard-stack">
-        <!-- Behind: the FRONT of the postcard, showing the recraft illustration -->
+        <!-- Solo photo postcard: the recraft balloon illustration is the brand
+             identity moment. No back overlap to fight for attention. -->
         <div class="postcard postcard-front">
           <div class="paper-grain"></div>
           <div class="paper-edge"></div>
-        </div>
-        <!-- In front: the BACK with handwriting + stamp + address -->
-        <div class="postcard postcard-back">
-          <div class="paper-grain"></div>
-          <div class="paper-edge"></div>
-          <div class="return-address">
-            <strong>MAILROOM</strong><br>
-            For the fridge,<br>
-            not the feed
-          </div>
-          <div class="back-left">
-            <div class="handwriting">
-              <span class="line-a">Wish you</span>
-              <span class="line-b">were here.</span>
-              <svg class="hand-doodle" viewBox="0 0 40 36" fill="none" aria-hidden="true">
-                <path d="M20 32 C 8 24, 2 14, 8 8 C 12 4, 18 6, 20 12 C 22 6, 28 4, 32 8 C 38 14, 32 24, 20 32 Z" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
-              </svg>
-            </div>
-          </div>
-          <div class="back-right">
-            <div class="stamp-with-cancel">
-              <div class="postcard-stamp"></div>
-              <div class="postmark-cancel" aria-hidden="true">
-                <svg viewBox="0 0 120 120" width="100%" height="100%" fill="none">
-                  <circle cx="60" cy="60" r="42" stroke="currentColor" stroke-width="1.5"/>
-                  <circle cx="60" cy="60" r="32" stroke="currentColor" stroke-width="1"/>
-                  <text x="60" y="46" font-family="Georgia, serif" font-size="9" letter-spacing="1.5" fill="currentColor" text-anchor="middle" opacity="0.9">MAILROOM</text>
-                  <text x="60" y="78" font-family="Georgia, serif" font-size="9" letter-spacing="1.5" fill="currentColor" text-anchor="middle" opacity="0.9">USA</text>
-                  <path d="M-10 60 Q 10 55, 30 60 T 70 60 T 110 60 T 150 60" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.55"/>
-                  <path d="M-10 68 Q 10 63, 30 68 T 70 68 T 110 68 T 150 68" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.55"/>
-                </svg>
-              </div>
-            </div>
-            <div class="address-block">
-              <div class="address-label">DELIVER TO</div>
-              <div class="address-line"><span style="width: 88%"></span></div>
-              <div class="address-line"><span style="width: 72%"></span></div>
-              <div class="address-line"><span style="width: 56%"></span></div>
-            </div>
-          </div>
-          <div class="center-divider" aria-hidden="true"></div>
         </div>
       </div>
     </div>
