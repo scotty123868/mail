@@ -327,9 +327,11 @@
     transform: rotate(-5deg) rotateX(3deg) rotateY(2deg);
     transform-style: preserve-3d;
     z-index: 1;
-    /* center top so the balloon + MAIL car at the top of the square illustration
-       stay visible; the green hills at the bottom of the source get cropped */
-    background: url('/images/postcard-illustration.jpg') center top/cover no-repeat var(--cream-deep);
+    /* Source image is now pre-cropped to a 1.5:1 ratio with the balloon
+       prominently centered (was a 1:1 square that got partially covered
+       by the back postcard). center center / cover now fits the entire
+       cropped image inside the postcard front. */
+    background: url('/images/postcard-illustration.jpg') center/cover no-repeat var(--cream-deep);
   }
   .postcard-front::after {
     content: '';
