@@ -1,0 +1,7 @@
+[2026-05-21T17:46:51.941Z] GET http://localhost:8788/ → 200 (10ms, 44669B)
+[2026-05-21T17:46:51.962Z] GET https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600&family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..900,0..100,0..1&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap → 200 (132ms, 18206B)
+[2026-05-21T17:46:52.161Z] GET http://localhost:8788/icons/C.png → 200 (2ms, 37023B)
+[2026-05-21T17:46:52.161Z] GET https://fonts.gstatic.com/s/intertight/v9/NGSwv5HMAFg6IuGlBNMjxLsH8ahuQ2e8.woff2 → 200 (221ms, 44916B)
+[2026-05-21T17:46:52.161Z] GET http://localhost:8788/images/postcard-illustration.jpg → 200 (3ms, 165093B)
+[2026-05-21T17:46:52.161Z] GET https://fonts.gstatic.com/s/fraunces/v38/6NUV8FyLNQOQZAnv9ZwIlOkuy91B.woff2 → 200 (246ms, 120800B)
+[2026-05-21T17:46:52.161Z] GET https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxDcwgknk-4.woff2 → 200 (211ms, 31340B)

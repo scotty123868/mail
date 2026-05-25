@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mailroom · Real postcards for 70 cents</title>
-<meta name="description" content="Real postcards for 70 cents. No address needed. To the people you love. For the fridge, not the feed.">
-<meta property="og:title" content="Mailroom · For the fridge, not the feed">
-<meta property="og:description" content="Real postcards for 70 cents. To the people you love.">
+<title>Mailroom · Send a postcard with a text</title>
+<meta name="description" content="Send a postcard with a text. Pick a photo. Write a note. No address needed. Your first card is free. For the fridge, not the feed.">
+<meta property="og:title" content="Mailroom · Send a postcard with a text">
+<meta property="og:description" content="Text us a photo. We mail a real postcard to anyone. First one's free.">
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/favicon.png">
 
@@ -1145,6 +1145,30 @@
   .hero-waitlist-success.visible { display: block; }
   .hero-waitlist-form.submitted { display: none; }
 
+  /* v1.1: SMS CTA — replaces email waitlist as the hero call-to-action.
+     Tapping on mobile opens the user's Messages app prefilled with our
+     toll-free number. */
+  .hero-cta-sms {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 30px;
+    font-size: 17px;
+    font-weight: 500;
+    margin-bottom: 14px;
+  }
+  .hero-cta-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--ink-soft);
+    letter-spacing: 0.02em;
+    margin-bottom: 8px;
+  }
+  @media (max-width: 640px) {
+    .hero-cta-sms { width: 100%; justify-content: center; }
+    .hero-cta-number { text-align: center; }
+  }
+
   /* ============ Trust proof row ============ */
   .trust-row {
     display: flex;
@@ -1205,21 +1229,26 @@
     <div class="hero-grid">
       <div>
         <div class="eyebrow">Send photos for less than a stamp</div>
-        <h1>Real postcards for <em>70 cents.</em></h1>
+        <h1>Send a postcard with <em>a text.</em></h1>
         <p class="hero-subhead">
           Pick a photo. Write a note. No address needed. <strong style="color: var(--ink); font-weight: 600;">Your first card is free.</strong>
         </p>
-        <form class="hero-waitlist-form" id="heroWaitlistForm" onsubmit="handleWaitlist(event)">
-          <input type="email" required placeholder="you@example.com" name="email" class="hero-waitlist-input" autocomplete="email" aria-label="Email address" />
-          <button type="submit" class="btn-primary hero-waitlist-btn">
-            Get your first card free
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M3 7H11M11 7L7 3M11 7L7 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </form>
-        <p class="hero-waitlist-success" id="heroWaitlistSuccess">
-          You're on the list. Your free card is waiting when we launch.
+        <!-- v1.1: replaced email waitlist with direct SMS CTA. Tapping
+             on mobile opens the user's Messages app prefilled with our
+             toll-free number; on desktop it surfaces the number to
+             text from a phone. The whole onboarding is now "text us a
+             photo" → magic link → finish in mobile web. No app
+             download required. -->
+        <a href="sms:+18773355905&body=Hi%20Mailroom%21%20Send%20me%20a%20photo%20to%20get%20started%2E"
+           class="btn-primary hero-cta-sms"
+           id="heroCtaSms">
+          Text us — send a free card
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M3 7H11M11 7L7 3M11 7L7 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <p class="hero-cta-number" id="heroCtaNumber">
+          Or text any photo to <a href="sms:+18773355905" style="color: var(--ink); font-weight: 600; text-decoration: none; border-bottom: 1px solid currentColor;">+1 (877) 335-5905</a>
         </p>
       </div>
 

@@ -1,0 +1,30 @@
+{"ts":"2026-05-20T22:53:12.911Z","cmd":"viewport","args":"1440x900","origin":"about:blank","durationMs":4,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-20T22:53:13.219Z","cmd":"goto","args":"http://localhost:8788/","origin":"http://localhost:8788/","durationMs":251,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-20T22:53:15.463Z","cmd":"screenshot","args":"--viewport /tmp/mailroom-design-review/07-final.png","origin":"http://localhost:8788/","durationMs":174,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-20T22:58:33.207Z","cmd":"viewport","args":"1440x900","origin":"about:blank","durationMs":3,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-20T22:58:33.520Z","cmd":"goto","args":"http://localhost:8788/","origin":"http://localhost:8788/","durationMs":265,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-20T22:58:35.767Z","cmd":"screenshot","args":"--viewport /tmp/mailroom-design-review/08-solo.png","origin":"http://localhost:8788/","durationMs":179,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-20T23:22:35.507Z","cmd":"viewport","args":"1440x900","origin":"about:blank","durationMs":3,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-20T23:22:35.790Z","cmd":"goto","args":"http://localhost:8788/","origin":"http://localhost:8788/","durationMs":235,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-20T23:22:38.024Z","cmd":"screenshot","args":"--viewport /tmp/mailroom-design-review/09-final-polish.png","origin":"http://localhost:8788/","durationMs":170,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-20T23:42:17.325Z","cmd":"viewport","args":"1440x900","origin":"about:blank","durationMs":10,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-20T23:42:17.881Z","cmd":"goto","args":"http://localhost:8788/","origin":"http://localhost:8788/","durationMs":400,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-20T23:42:20.353Z","cmd":"screenshot","args":"--viewport /tmp/mailroom-design-review/10-recraft-illustration.png","origin":"http://localhost:8788/","durationMs":288,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-20T23:45:29.719Z","cmd":"goto","args":"http://localhost:8788/","origin":"http://localhost:8788/","durationMs":300,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-20T23:45:31.943Z","cmd":"screenshot","args":"--viewport /tmp/mailroom-design-review/11-crop-top.png","origin":"http://localhost:8788/","durationMs":148,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-21T17:09:02.273Z","cmd":"viewport","args":"1440x900","origin":"about:blank","durationMs":5,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-21T17:09:02.613Z","cmd":"goto","args":"http://localhost:8788/","origin":"http://localhost:8788/","durationMs":289,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-21T17:09:04.911Z","cmd":"screenshot","args":"--viewport /tmp/mailroom-design-review/12-balloon-on-top.png","origin":"http://localhost:8788/","durationMs":222,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-21T17:12:32.403Z","cmd":"viewport","args":"1440x900","origin":"about:blank","durationMs":4,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-21T17:12:32.685Z","cmd":"goto","args":"http://localhost:8788/","origin":"http://localhost:8788/","durationMs":227,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-21T17:12:34.963Z","cmd":"screenshot","args":"--viewport /tmp/mailroom-design-review/13-solo-photo.png","origin":"http://localhost:8788/","durationMs":198,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-21T17:24:25.467Z","cmd":"viewport","args":"1440x900","origin":"about:blank","durationMs":5,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-21T17:24:25.804Z","cmd":"goto","args":"http://localhost:8788/","origin":"http://localhost:8788/","durationMs":263,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-21T17:24:28.172Z","cmd":"screenshot","args":"--viewport /tmp/mailroom-design-review/14-postcard-with-stamp.png","origin":"http://localhost:8788/","durationMs":231,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-21T17:31:38.876Z","cmd":"viewport","args":"390x844","origin":"about:blank","durationMs":4,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-21T17:31:39.153Z","cmd":"goto","args":"http://localhost:8788/","origin":"http://localhost:8788/","durationMs":223,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-21T17:31:41.449Z","cmd":"screenshot","args":"/tmp/mailroom-design-review/mobile-01-full.png","origin":"http://localhost:8788/","durationMs":199,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-21T17:31:41.555Z","cmd":"screenshot","args":"--viewport /tmp/mailroom-design-review/mobile-02-hero.png","origin":"http://localhost:8788/","durationMs":55,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-21T17:46:51.881Z","cmd":"viewport","args":"390x844","origin":"about:blank","durationMs":3,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-21T17:46:52.165Z","cmd":"goto","args":"http://localhost:8788/","origin":"http://localhost:8788/","durationMs":228,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-05-21T17:46:55.316Z","cmd":"screenshot","args":"--viewport /tmp/mailroom-design-review/mobile-after-1.png","origin":"http://localhost:8788/","durationMs":71,"status":"ok","hasCookies":false,"mode":"launched"}

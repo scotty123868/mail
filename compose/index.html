@@ -5,7 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Finish your postcard — Mailroom</title>
   <meta name="description" content="Your photo's ready. Add a note and send it to anyone, anywhere." />
-  <link rel="icon" href="/favicon.ico" />
+  <link rel="icon" href="/favicon.png" />
+  <!-- Google Places autocomplete for the address step. Same key as the
+       iOS app (app.json googlePlacesApiKey). Public by design (key-
+       restricted in the Google Cloud console to themailroom.club). -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCHeEI7jSErR4tdtCzaZfkCcy_2F43c9Ak&libraries=places&loading=async&callback=onGoogleMapsLoaded" async defer></script>
   <style>
     :root {
       --ink: #11141c;
@@ -14,6 +18,7 @@
       --postal-blue: #3c6e8f;
       --line: #d4c9b1;
       --paper: #F8F1E3;
+      --paper-warm: #fdfaf1;
       --white: #ffffff;
     }
     * { box-sizing: border-box; }
@@ -29,13 +34,23 @@
     main {
       max-width: 480px;
       margin: 0 auto;
-      padding: 24px 16px 60px 16px;
+      padding: 18px 16px 60px 16px;
     }
     .stage {
       background: var(--white);
       border-radius: 12px;
       padding: 20px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+    .step-label {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      color: var(--muted-ink);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      text-align: center;
     }
     .kicker {
       font-family: ui-sans-serif, system-ui, sans-serif;
@@ -58,7 +73,6 @@
       font-style: italic;
       margin: 0 0 18px 0;
     }
-    /* Postcard front preview — your photo, 3:2 letterbox like a real card. */
     .postcard-front {
       width: 100%;
       aspect-ratio: 3 / 2;
@@ -84,6 +98,68 @@
       0% { background-position: 200% 0; }
       100% { background-position: -200% 0; }
     }
+    /* Back-of-postcard preview — paper, divider line, handwritten note
+       on the left, address area on the right (greyed placeholder until
+       recipient is entered). */
+    .postcard-back {
+      width: 100%;
+      aspect-ratio: 3 / 2;
+      background: var(--paper-warm);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 16px;
+      gap: 12px;
+    }
+    .postcard-back::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 16px;
+      bottom: 16px;
+      width: 1px;
+      background: rgba(0,0,0,0.15);
+    }
+    .pc-message {
+      font-family: "Caveat", "Bradley Hand", cursive;
+      font-size: 16px;
+      line-height: 1.4;
+      color: var(--ink);
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow: hidden;
+    }
+    .pc-message.empty { color: rgba(0,0,0,0.3); font-style: italic; }
+    .pc-address {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 11px;
+      color: var(--ink);
+      align-self: end;
+      line-height: 1.4;
+    }
+    .pc-address.empty { color: rgba(0,0,0,0.3); font-style: italic; }
+    .pc-stamp {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 36px;
+      height: 44px;
+      background: var(--postal-red);
+      border: 2px dashed var(--paper-warm);
+      box-shadow: 0 0 0 1px var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--paper);
+      font-family: ui-serif, Georgia, serif;
+      font-weight: 700;
+      font-size: 10px;
+      letter-spacing: 0.5px;
+    }
     .meta-row {
       display: flex;
       justify-content: space-between;
@@ -93,10 +169,52 @@
       font-size: 11px;
       color: var(--muted-ink);
     }
-    .meta-row .from { letter-spacing: 0.4px; }
-    .continue {
+    .field {
+      margin-top: 16px;
+    }
+    .field label {
+      display: block;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: var(--muted-ink);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .field input, .field textarea {
       width: 100%;
-      margin-top: 24px;
+      padding: 12px 14px;
+      font-family: ui-serif, Georgia, serif;
+      font-size: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper-warm);
+      color: var(--ink);
+      -webkit-appearance: none;
+    }
+    .field textarea {
+      min-height: 90px;
+      font-family: "Caveat", "Bradley Hand", cursive;
+      font-size: 19px;
+      line-height: 1.4;
+      resize: vertical;
+    }
+    .field-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 8px;
+    }
+    .charcount {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 11px;
+      color: var(--muted-ink);
+      text-align: right;
+      margin-top: 4px;
+    }
+    .primary {
+      width: 100%;
+      margin-top: 22px;
       padding: 14px 16px;
       background: var(--ink);
       color: var(--paper);
@@ -108,183 +226,662 @@
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
     }
-    .continue:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .continue:active {
-      opacity: 0.85;
-    }
-    .state-card {
-      background: var(--white);
-      border-radius: 12px;
-      padding: 28px 22px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      text-align: center;
-    }
-    .state-card h2 {
-      font-size: 22px;
-      font-weight: 600;
-      margin: 8px 0 6px 0;
-    }
-    .state-card p {
+    .primary:disabled { opacity: 0.4; cursor: not-allowed; }
+    .primary:active:not(:disabled) { opacity: 0.85; }
+    .ghost {
+      width: 100%;
+      margin-top: 10px;
+      padding: 12px 16px;
+      background: transparent;
+      color: var(--muted-ink);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      font-family: ui-serif, Georgia, serif;
       font-size: 14px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .err {
+      color: var(--postal-red);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 13px;
+      margin-top: 12px;
+      padding: 10px 12px;
+      background: rgba(184,72,58,0.07);
+      border-radius: 6px;
+    }
+    .hint {
+      color: var(--muted-ink);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 12px;
+      margin-top: 8px;
+      font-style: italic;
+    }
+    /* Google Places autocomplete dropdown polish */
+    .pac-container {
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      font-family: ui-serif, Georgia, serif !important;
+    }
+    .pac-item { padding: 8px 12px; cursor: pointer; }
+    .pac-item:hover { background: var(--paper); }
+    .otp-input {
+      letter-spacing: 0.5em;
+      text-align: center;
+      font-size: 22px !important;
+      font-family: ui-monospace, "SF Mono", monospace !important;
+    }
+    /* Success / final-state card */
+    .success {
+      text-align: center;
+      padding: 30px 22px;
+    }
+    .success .seal {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--postal-red);
+      color: var(--paper);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      font-family: ui-serif, Georgia, serif;
+    }
+    .success h2 {
+      font-size: 26px;
+      font-weight: 600;
+      margin: 0 0 6px 0;
+    }
+    .success p {
+      font-size: 15px;
       color: var(--muted-ink);
       font-style: italic;
-      margin: 0;
+      margin: 0 0 6px 0;
     }
-    .step-label {
-      font-family: ui-sans-serif, system-ui, sans-serif;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 1.2px;
-      color: var(--muted-ink);
-      text-transform: uppercase;
-      margin-bottom: 14px;
-      text-align: center;
+    .app-cta {
+      display: inline-block;
+      margin-top: 22px;
+      padding: 13px 22px;
+      background: var(--ink);
+      color: var(--paper);
+      text-decoration: none;
+      border-radius: 10px;
+      font-family: ui-serif, Georgia, serif;
+      font-size: 15px;
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
   <main id="root">
-    <!-- Step 1: photo preview + continue (Phase 1 scaffold).
-         Phase 2 adds: message step, recipient step, phone auth, submit. -->
-    <div class="step-label">Step 1 of 3 — Your photo</div>
+    <div class="step-label" id="step-label">Loading…</div>
     <div class="stage" id="stage">
       <div class="kicker">YOUR POSTCARD</div>
-      <h1 id="title">Loading your photo…</h1>
-      <p class="sub" id="sub">One sec — pulling it from the message you sent.</p>
-      <div class="postcard-front skeleton" id="postcard-front"></div>
-      <div class="meta-row">
-        <span class="from" id="from-line"></span>
-        <span id="expiry-line"></span>
-      </div>
-      <button class="continue" id="continue-btn" disabled>Continue →</button>
+      <h1>Loading your photo…</h1>
+      <p class="sub">One sec — pulling it from the message you sent.</p>
+      <div class="postcard-front skeleton"></div>
     </div>
   </main>
 
   <script>
     /**
-     * Compose page bootstrap (Phase 1 scaffold).
+     * Compose page (Phase 2 full wizard).
      *
-     * URL shape: https://app.themailroom.club/compose/<token>
-     * vercel.json rewrites /compose/(.*) → /compose/index.html, so the
-     * token lives in the path. Strip the last segment.
+     * Steps:
+     *   1. photo preview  → user taps Continue
+     *   2. message        → live back-of-postcard preview as they type
+     *   3. recipient      → name + address (Google Places autocomplete)
+     *   4. phone OTP      → enter phone, get code via SMS, verify
+     *   5. confirmation   → "Mailed!" + download-app CTA
      *
-     * Calls sms-draft-resolve via fetch, gets back the photo URL + meta,
-     * renders the preview. Phase 2 wires the Continue button to the
-     * message step.
+     * State machine: single `state` object holds everything. Each step
+     * renders to #root by replacing innerHTML. No framework — keeps the
+     * page <1KB compressed JS so it loads instantly on a 3G phone.
      */
     const SUPABASE_URL = "https://nlwnmgwylmmnaemdnzlq.supabase.co";
+    const APP_STORE_URL = "https://apps.apple.com/us/app/mailroom-send-postcards/id6768460855";
 
+    const state = {
+      token: "",
+      draft: null,            // resolved draft (from sms-draft-resolve)
+      message: "",
+      recipient: { name: "", line1: "", line2: "", city: "", state: "", zip: "" },
+      phone: "",              // E.164, set when user enters it on the OTP step
+      otpCode: "",
+      otpSent: false,
+      verified: false,
+      result: null,           // sms-submit response on success
+      // Step pointer: "photo" | "message" | "recipient" | "phone" | "submitting" | "done" | "error"
+      step: "photo",
+      // Async UI state
+      busy: false,
+      errorMsg: "",
+    };
+
+    let placesAutocomplete = null;
+    let pendingAddressInput = null;
+
+    /* -- URL token extraction ----------------------------------------- */
     function extractToken() {
-      // Path will be like "/compose/aBc123..." — last segment is the token.
       const segments = window.location.pathname.split("/").filter(Boolean);
-      // First segment is "compose"; second is the token.
       return segments[1] ?? "";
     }
 
-    function showState(opts) {
-      const root = document.getElementById("root");
-      root.innerHTML = `
-        <div class="state-card">
-          <div class="kicker">${opts.kicker ?? ""}</div>
-          <h2>${opts.title ?? ""}</h2>
-          <p>${opts.body ?? ""}</p>
-        </div>
-      `;
+    /* -- Network helpers --------------------------------------------- */
+    async function postJson(fn, body) {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/${fn}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({}));
+      return { httpOk: res.ok, ...data };
     }
 
-    async function loadDraft(token) {
-      const url = `${SUPABASE_URL}/functions/v1/sms-draft-resolve?token=${encodeURIComponent(token)}`;
+    async function loadDraft() {
+      const url = `${SUPABASE_URL}/functions/v1/sms-draft-resolve?token=${encodeURIComponent(state.token)}`;
       try {
-        const res = await fetch(url, { method: "GET" });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const res = await fetch(url);
         return await res.json();
-      } catch (e) {
+      } catch {
         return { ok: false, reason: "network" };
       }
     }
 
-    function renderDraft(draft) {
-      const title = document.getElementById("title");
-      const sub = document.getElementById("sub");
-      const front = document.getElementById("postcard-front");
-      const fromLine = document.getElementById("from-line");
-      const expiryLine = document.getElementById("expiry-line");
-      const btn = document.getElementById("continue-btn");
+    /* -- Step renderers ----------------------------------------------- */
+    function html(strings, ...values) {
+      // Tiny template-tag with no escaping (callers must escape user
+      // input themselves — easy here, all values are state we control).
+      return strings.reduce((acc, s, i) => acc + s + (values[i] ?? ""), "");
+    }
 
-      title.textContent = "Looks good?";
-      sub.textContent = draft.caption
-        ? `You wrote: "${draft.caption}"`
-        : "Tap continue to add a note and a recipient.";
+    function escapeHtml(s) {
+      return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
 
-      front.classList.remove("skeleton");
-      front.innerHTML = `<img src="${draft.photo_url}" alt="Your postcard photo" />`;
+    function renderStep() {
+      const stepLabel = document.getElementById("step-label");
+      const stages = {
+        photo: "Step 1 of 4 — Your photo",
+        message: "Step 2 of 4 — Your note",
+        recipient: "Step 3 of 4 — Who's it for",
+        phone: "Step 4 of 4 — Confirm your number",
+        submitting: "Sending your card…",
+        done: "Mailed!",
+        error: "Hmm.",
+      };
+      stepLabel.textContent = stages[state.step] || "";
 
-      fromLine.textContent = `From ${draft.from_phone_masked || "you"}`;
+      const stage = document.getElementById("stage");
+      stage.innerHTML = stepBodyHtml();
 
-      const expires = draft.expires_at ? new Date(draft.expires_at) : null;
-      if (expires) {
-        const hoursLeft = Math.max(0, Math.round((expires.getTime() - Date.now()) / 3600000));
-        expiryLine.textContent = hoursLeft > 0 ? `Link expires in ${hoursLeft}h` : "Link expired";
+      // After replacing innerHTML, re-attach behaviors that need it.
+      attachStepBehaviors();
+    }
+
+    function stepBodyHtml() {
+      switch (state.step) {
+        case "photo": return photoStepHtml();
+        case "message": return messageStepHtml();
+        case "recipient": return recipientStepHtml();
+        case "phone": return phoneStepHtml();
+        case "submitting": return submittingStepHtml();
+        case "done": return doneStepHtml();
+        case "error": return errorStepHtml();
+        default: return "";
       }
+    }
 
-      btn.disabled = false;
-      btn.addEventListener("click", () => {
-        // Phase 2: route to message step.
-        // For now: surface what's next.
-        alert("Phase 2 hooks up the message + recipient + submit. Coming soon.");
+    /* Step 1: photo preview */
+    function photoStepHtml() {
+      if (!state.draft) {
+        return `
+          <div class="kicker">YOUR POSTCARD</div>
+          <h1>Loading your photo…</h1>
+          <p class="sub">One sec — pulling it from the message you sent.</p>
+          <div class="postcard-front skeleton"></div>
+        `;
+      }
+      const expires = state.draft.expires_at ? new Date(state.draft.expires_at) : null;
+      const hoursLeft = expires ? Math.max(0, Math.round((expires.getTime() - Date.now()) / 3600000)) : null;
+      return html`
+        <div class="kicker">YOUR POSTCARD</div>
+        <h1>Looks good?</h1>
+        <p class="sub">${state.draft.caption ? `You said: "${escapeHtml(state.draft.caption)}"` : "Tap continue to add a note and a recipient."}</p>
+        <div class="postcard-front">
+          <img src="${escapeHtml(state.draft.photo_url)}" alt="Your postcard photo" />
+        </div>
+        <div class="meta-row">
+          <span>From ${escapeHtml(state.draft.from_phone_masked || "you")}</span>
+          ${hoursLeft != null ? `<span>Link expires in ${hoursLeft}h</span>` : ""}
+        </div>
+        <button class="primary" id="btn-continue">Continue →</button>
+      `;
+    }
+
+    /* Step 2: message + live back preview */
+    function messageStepHtml() {
+      const msgEsc = escapeHtml(state.message);
+      const recipientName = state.recipient.name?.trim() || "your friend";
+      const addressShown = state.recipient.line1 ? `${escapeHtml(state.recipient.name || recipientName)}<br>${escapeHtml(state.recipient.line1)}<br>${escapeHtml(state.recipient.city)}, ${escapeHtml(state.recipient.state)} ${escapeHtml(state.recipient.zip)}` : "Recipient info comes next.";
+      return html`
+        <div class="kicker">WRITE A NOTE</div>
+        <h1>What's on the back?</h1>
+        <p class="sub">A line or two. Keep it short — postcard space is tight.</p>
+        <div class="postcard-back" id="back-preview" aria-label="Postcard back preview">
+          <div class="pc-message ${state.message ? "" : "empty"}" id="pc-message">${msgEsc || "Your note goes here…"}</div>
+          <div class="pc-address empty">${addressShown}</div>
+          <div class="pc-stamp">$0.55</div>
+        </div>
+        <div class="field">
+          <label for="msg">Your note (max 240 characters)</label>
+          <textarea id="msg" maxlength="240" rows="3" placeholder="Wish you were here. Miss you, Mom.">${msgEsc}</textarea>
+          <div class="charcount"><span id="cc">${state.message.length}</span>/240</div>
+        </div>
+        <button class="primary" id="btn-continue" ${state.message.trim().length === 0 ? "disabled" : ""}>Continue →</button>
+        <button class="ghost" id="btn-back">← Back</button>
+      `;
+    }
+
+    /* Step 3: recipient address (Google Places) */
+    function recipientStepHtml() {
+      const r = state.recipient;
+      return html`
+        <div class="kicker">WHO'S IT FOR</div>
+        <h1>Where do we mail it?</h1>
+        <p class="sub">Their address stays private to you. They never see yours either.</p>
+        <div class="field">
+          <label for="r-name">Their name</label>
+          <input id="r-name" type="text" autocomplete="name" placeholder="Lori Lefkowitz" value="${escapeHtml(r.name)}" />
+        </div>
+        <div class="field">
+          <label for="r-line1">Street address</label>
+          <input id="r-line1" type="text" autocomplete="off" placeholder="Start typing — we'll find it" value="${escapeHtml(r.line1)}" />
+          <div class="hint">Powered by Google Places — we'll fill the rest.</div>
+        </div>
+        <div class="field">
+          <label for="r-line2">Apt / Suite (optional)</label>
+          <input id="r-line2" type="text" autocomplete="off" placeholder="Apt 4B" value="${escapeHtml(r.line2)}" />
+        </div>
+        <div class="field-row">
+          <div>
+            <label for="r-city">City</label>
+            <input id="r-city" type="text" placeholder="Naples" value="${escapeHtml(r.city)}" />
+          </div>
+          <div>
+            <label for="r-state">State</label>
+            <input id="r-state" type="text" maxlength="2" placeholder="FL" value="${escapeHtml(r.state)}" />
+          </div>
+          <div>
+            <label for="r-zip">ZIP</label>
+            <input id="r-zip" type="text" placeholder="34101" value="${escapeHtml(r.zip)}" />
+          </div>
+        </div>
+        <button class="primary" id="btn-continue">Continue →</button>
+        <button class="ghost" id="btn-back">← Back</button>
+      `;
+    }
+
+    /* Step 4: phone OTP */
+    function phoneStepHtml() {
+      const phoneDefault = state.draft?.from_phone_masked ? "" : "";
+      // We pre-fill with the phone they texted from (we have it on the
+      // draft but we masked it before sending to the client; let them
+      // confirm it themselves to prove ownership).
+      return html`
+        <div class="kicker">${state.otpSent ? "ENTER YOUR CODE" : "CONFIRM YOUR NUMBER"}</div>
+        <h1>${state.otpSent ? "Check your texts." : "Your free card is almost out."}</h1>
+        <p class="sub">${state.otpSent
+          ? "We just sent a 6-digit code to your phone. Pop it in below."
+          : "We'll text you a 6-digit code to confirm it's really you. Standard mobile rates apply."
+        }</p>
+        ${state.otpSent ? "" : html`
+          <div class="field">
+            <label for="phone">Your phone</label>
+            <input id="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(415) 555-1234" value="${escapeHtml(state.phone)}" />
+            <div class="hint">Use the same number you texted the photo from.</div>
+          </div>
+        `}
+        ${state.otpSent ? html`
+          <div class="field">
+            <label for="otp">6-digit code</label>
+            <input id="otp" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" class="otp-input" placeholder="••••••" value="${escapeHtml(state.otpCode)}" />
+          </div>
+        ` : ""}
+        ${state.errorMsg ? `<div class="err">${escapeHtml(state.errorMsg)}</div>` : ""}
+        <button class="primary" id="btn-continue" ${state.busy ? "disabled" : ""}>
+          ${state.busy ? "Sending…" : state.otpSent ? "Verify + send postcard" : "Send me the code"}
+        </button>
+        ${state.otpSent ? `<button class="ghost" id="btn-resend">Didn't get it? Send a new code</button>` : ""}
+        <button class="ghost" id="btn-back">← Back</button>
+      `;
+    }
+
+    /* Submitting (in-flight) */
+    function submittingStepHtml() {
+      return html`
+        <div class="kicker">SENDING</div>
+        <h1>Posting your card…</h1>
+        <p class="sub">Handing it off to the printer. This takes a few seconds.</p>
+        <div class="postcard-front skeleton"></div>
+      `;
+    }
+
+    /* Done (success) */
+    function doneStepHtml() {
+      const eta = state.result?.expected_delivery
+        ? new Date(state.result.expected_delivery).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })
+        : "in 3-5 days";
+      return html`
+        <div class="success">
+          <div class="seal">✓</div>
+          <h2>Mailed!</h2>
+          <p>Your card to <strong style="color:var(--ink)">${escapeHtml(state.recipient.name)}</strong> arrives ${eta}.</p>
+          <p>We texted you a confirmation. You'll get another text when it lands.</p>
+          <a href="${APP_STORE_URL}" class="app-cta">Download Mailroom for iOS →</a>
+        </div>
+      `;
+    }
+
+    /* Error (terminal) */
+    function errorStepHtml() {
+      return html`
+        <div class="success">
+          <div class="seal" style="background:var(--muted-ink)">!</div>
+          <h2>Something went wrong.</h2>
+          <p>${escapeHtml(state.errorMsg || "Unknown error.")}</p>
+          <p>Text us another photo to start over, or try again in a minute.</p>
+        </div>
+      `;
+    }
+
+    /* -- Event wiring after each render ------------------------------- */
+    function attachStepBehaviors() {
+      switch (state.step) {
+        case "photo":      return attachPhoto();
+        case "message":    return attachMessage();
+        case "recipient":  return attachRecipient();
+        case "phone":      return attachPhone();
+      }
+    }
+
+    function attachPhoto() {
+      document.getElementById("btn-continue")?.addEventListener("click", () => {
+        state.step = "message";
+        renderStep();
       });
     }
 
-    (async function init() {
-      const token = extractToken();
-      if (!token || token.length < 16) {
-        showState({
-          kicker: "LINK PROBLEM",
-          title: "Couldn't read your link.",
-          body: "Double-check you tapped the link from your SMS. It should look like /compose/abc123...",
-        });
-        return;
-      }
-
-      const draft = await loadDraft(token);
-
-      if (!draft?.ok) {
-        switch (draft?.reason) {
-          case "expired":
-            showState({
-              kicker: "LINK EXPIRED",
-              title: "This link's older than 24 hours.",
-              body: "Text us another photo to start fresh.",
-            });
-            break;
-          case "already_consumed":
-            showState({
-              kicker: "ALREADY MAILED",
-              title: "Your card is in flight.",
-              body: "We'll text you when it ships and when it arrives.",
-            });
-            break;
-          case "not_found":
-            showState({
-              kicker: "LINK NOT FOUND",
-              title: "We don't recognize that link.",
-              body: "If you copied it from the SMS, double-check the characters.",
-            });
-            break;
-          default:
-            showState({
-              kicker: "SOMETHING WENT WRONG",
-              title: "Couldn't load your draft.",
-              body: "Check your connection and refresh. If it keeps happening, text us again.",
-            });
+    function attachMessage() {
+      const msg = document.getElementById("msg");
+      const cc = document.getElementById("cc");
+      const pcMessage = document.getElementById("pc-message");
+      const btn = document.getElementById("btn-continue");
+      msg?.addEventListener("input", () => {
+        state.message = msg.value;
+        cc.textContent = String(state.message.length);
+        if (pcMessage) {
+          if (state.message.trim()) {
+            pcMessage.textContent = state.message;
+            pcMessage.classList.remove("empty");
+          } else {
+            pcMessage.textContent = "Your note goes here…";
+            pcMessage.classList.add("empty");
+          }
         }
+        btn.disabled = state.message.trim().length === 0;
+      });
+      btn?.addEventListener("click", () => {
+        if (state.message.trim().length === 0) return;
+        state.step = "recipient";
+        renderStep();
+      });
+      document.getElementById("btn-back")?.addEventListener("click", () => {
+        state.step = "photo";
+        renderStep();
+      });
+    }
+
+    function attachRecipient() {
+      const fields = ["name", "line1", "line2", "city", "state", "zip"];
+      const inputs = {};
+      for (const f of fields) {
+        const el = document.getElementById(`r-${f}`);
+        inputs[f] = el;
+        el?.addEventListener("input", () => {
+          state.recipient[f] = el.value;
+        });
+      }
+      // State input: uppercase + 2 chars
+      inputs.state?.addEventListener("input", () => {
+        inputs.state.value = inputs.state.value.toUpperCase().slice(0, 2);
+        state.recipient.state = inputs.state.value;
+      });
+      // ZIP: digits + dash only
+      inputs.zip?.addEventListener("input", () => {
+        inputs.zip.value = inputs.zip.value.replace(/[^0-9-]/g, "").slice(0, 10);
+        state.recipient.zip = inputs.zip.value;
+      });
+
+      // Wire Google Places autocomplete onto the line1 input.
+      pendingAddressInput = inputs.line1;
+      tryAttachAutocomplete();
+
+      document.getElementById("btn-continue")?.addEventListener("click", () => {
+        const r = state.recipient;
+        if (!r.name.trim() || !r.line1.trim() || !r.city.trim() || !r.state.trim() || !r.zip.trim()) {
+          state.errorMsg = "Fill in every field above.";
+          renderStep();
+          return;
+        }
+        state.errorMsg = "";
+        // Default phone field to the from_phone (we have it server-side
+        // but masked on the client; user re-enters to prove ownership).
+        state.step = "phone";
+        renderStep();
+      });
+      document.getElementById("btn-back")?.addEventListener("click", () => {
+        state.step = "message";
+        renderStep();
+      });
+    }
+
+    function attachPhone() {
+      if (!state.otpSent) {
+        const phoneIn = document.getElementById("phone");
+        phoneIn?.addEventListener("input", () => {
+          state.phone = phoneIn.value;
+        });
+        document.getElementById("btn-continue")?.addEventListener("click", async () => {
+          const e164 = normalizePhone(state.phone);
+          if (!e164) {
+            state.errorMsg = "Use a 10-digit US phone number.";
+            renderStep();
+            return;
+          }
+          state.phone = e164;
+          state.busy = true;
+          state.errorMsg = "";
+          renderStep();
+          const r = await postJson("sms-otp-request", { phone: e164, draft_token: state.token });
+          state.busy = false;
+          if (r.ok) {
+            state.otpSent = true;
+            renderStep();
+          } else {
+            state.errorMsg = humanReason(r.reason);
+            renderStep();
+          }
+        });
+      } else {
+        const otpIn = document.getElementById("otp");
+        otpIn?.addEventListener("input", () => {
+          state.otpCode = otpIn.value.replace(/\D/g, "").slice(0, 6);
+          otpIn.value = state.otpCode;
+        });
+        document.getElementById("btn-continue")?.addEventListener("click", async () => {
+          if (state.otpCode.length !== 6) {
+            state.errorMsg = "Enter the 6-digit code.";
+            renderStep();
+            return;
+          }
+          state.busy = true;
+          state.errorMsg = "";
+          renderStep();
+          // Step A: verify OTP
+          const v = await postJson("sms-otp-verify", {
+            phone: state.phone,
+            code: state.otpCode,
+            draft_token: state.token,
+          });
+          if (!v.ok) {
+            state.busy = false;
+            state.errorMsg = v.reason === "wrong_code" && v.attempts_left
+              ? `Wrong code. ${v.attempts_left} ${v.attempts_left === 1 ? "try" : "tries"} left.`
+              : humanReason(v.reason);
+            renderStep();
+            return;
+          }
+          state.verified = true;
+          // Step B: submit
+          state.step = "submitting";
+          renderStep();
+          const submit = await postJson("sms-submit", {
+            draft_token: state.token,
+            phone: state.phone,
+            message: state.message.trim(),
+            recipient: {
+              name: state.recipient.name.trim(),
+              line1: state.recipient.line1.trim(),
+              line2: state.recipient.line2.trim(),
+              city: state.recipient.city.trim(),
+              state: state.recipient.state.trim().toUpperCase(),
+              zip: state.recipient.zip.trim(),
+            },
+          });
+          state.busy = false;
+          if (submit.ok) {
+            state.result = submit;
+            state.step = "done";
+            renderStep();
+          } else {
+            state.errorMsg = humanReason(submit.reason, submit.message);
+            state.step = "error";
+            renderStep();
+          }
+        });
+        document.getElementById("btn-resend")?.addEventListener("click", async () => {
+          state.busy = true;
+          state.errorMsg = "";
+          renderStep();
+          const r = await postJson("sms-otp-request", { phone: state.phone, draft_token: state.token });
+          state.busy = false;
+          if (!r.ok) state.errorMsg = humanReason(r.reason);
+          state.otpCode = "";
+          renderStep();
+        });
+      }
+      document.getElementById("btn-back")?.addEventListener("click", () => {
+        // If OTP already sent, going back means resetting to phone-entry.
+        if (state.otpSent) {
+          state.otpSent = false;
+          state.otpCode = "";
+          state.errorMsg = "";
+          renderStep();
+        } else {
+          state.step = "recipient";
+          renderStep();
+        }
+      });
+    }
+
+    /* -- Helpers ------------------------------------------------------ */
+    function normalizePhone(raw) {
+      if (!raw) return null;
+      const digits = raw.replace(/\D/g, "");
+      if (digits.length === 10) return "+1" + digits;
+      if (digits.length === 11 && digits.startsWith("1")) return "+" + digits;
+      if (raw.startsWith("+") && /^\+[1-9]\d{6,14}$/.test(raw)) return raw;
+      return null;
+    }
+
+    function humanReason(code, detail) {
+      const map = {
+        rate_limited: "You've requested too many codes recently. Try again in an hour.",
+        invalid_phone: "That doesn't look like a valid phone number.",
+        twilio_failed: "Couldn't send the code right now. Try again in a moment.",
+        no_code: "No code requested yet. Tap 'Send me the code'.",
+        expired: "That code expired. Tap 'Didn't get it?' to send a new one.",
+        wrong_code: "Wrong code.",
+        too_many_attempts: "Too many wrong attempts. Tap 'Didn't get it?' for a new code.",
+        invalid_phone_format: "That doesn't look like a phone number.",
+        invalid_code_format: "Code must be 6 digits.",
+        phone_mismatch: "Use the same phone you texted the photo from.",
+        already_consumed: "This card is already on its way.",
+        draft_not_found: "Link not recognized. Text us a new photo.",
+        out_of_credits: "You're out of free credits. Card packs coming soon.",
+        lob_failed: "The print queue rejected your card. We refunded your credit. Try again.",
+        send_failed: "Couldn't send the card. We refunded your credit. Try again.",
+        photo_sign_failed: "Couldn't access your photo. Text us a new one.",
+        user_create_failed: "Couldn't set up your account. Try again.",
+        friend_create_failed: "Couldn't save the recipient. Try again.",
+      };
+      return map[code] || detail || "Something went wrong. Try again.";
+    }
+
+    function tryAttachAutocomplete() {
+      if (!pendingAddressInput || !window.google?.maps?.places) return;
+      if (placesAutocomplete) return; // already wired (back-nav re-render)
+      placesAutocomplete = new google.maps.places.Autocomplete(pendingAddressInput, {
+        types: ["address"],
+        componentRestrictions: { country: "us" },
+        fields: ["address_components", "formatted_address"],
+      });
+      placesAutocomplete.addListener("place_changed", () => {
+        const place = placesAutocomplete.getPlace();
+        if (!place?.address_components) return;
+        const parts = {};
+        for (const c of place.address_components) {
+          const t = c.types[0];
+          parts[t] = c.short_name || c.long_name;
+        }
+        const r = state.recipient;
+        r.line1 = [parts.street_number, parts.route].filter(Boolean).join(" ");
+        r.city = parts.locality || parts.sublocality || parts.administrative_area_level_3 || "";
+        r.state = parts.administrative_area_level_1 || "";
+        r.zip = parts.postal_code || "";
+        // Re-render the recipient step to flush the new values into inputs.
+        renderStep();
+      });
+    }
+
+    window.onGoogleMapsLoaded = function () {
+      tryAttachAutocomplete();
+    };
+
+    /* -- Bootstrap ---------------------------------------------------- */
+    (async function init() {
+      state.token = extractToken();
+      if (!state.token || state.token.length < 16) {
+        state.step = "error";
+        state.errorMsg = "Link is malformed. Text us a fresh photo to start over.";
+        renderStep();
         return;
       }
-
-      renderDraft(draft);
+      const draft = await loadDraft();
+      if (!draft?.ok) {
+        state.step = "error";
+        state.errorMsg = humanReason(draft?.reason);
+        renderStep();
+        return;
+      }
+      state.draft = draft;
+      state.step = "photo";
+      renderStep();
     })();
   </script>
 </body>
