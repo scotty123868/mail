@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Finish your postcard — Mailroom</title>
+  <meta name="description" content="Your photo's ready. Add a note and send it to anyone, anywhere." />
+  <link rel="icon" href="/favicon.ico" />
+  <style>
+    :root {
+      --ink: #11141c;
+      --muted-ink: #696969;
+      --postal-red: #b8483a;
+      --postal-blue: #3c6e8f;
+      --line: #d4c9b1;
+      --paper: #F8F1E3;
+      --white: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--paper);
+      font-family: ui-serif, Georgia, "Times New Roman", serif;
+      color: var(--ink);
+      min-height: 100%;
+      -webkit-font-smoothing: antialiased;
+    }
+    main {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 24px 16px 60px 16px;
+    }
+    .stage {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+    .kicker {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.6px;
+      color: var(--postal-red);
+      text-transform: uppercase;
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 6px 0 4px 0;
+      line-height: 1.15;
+    }
+    .sub {
+      font-size: 13px;
+      color: var(--muted-ink);
+      font-style: italic;
+      margin: 0 0 18px 0;
+    }
+    /* Postcard front preview — your photo, 3:2 letterbox like a real card. */
+    .postcard-front {
+      width: 100%;
+      aspect-ratio: 3 / 2;
+      background: #eee;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    .postcard-front img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .postcard-front.skeleton {
+      background: linear-gradient(120deg, #eee 0%, #f4f4f4 50%, #eee 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s linear infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 11px;
+      color: var(--muted-ink);
+    }
+    .meta-row .from { letter-spacing: 0.4px; }
+    .continue {
+      width: 100%;
+      margin-top: 24px;
+      padding: 14px 16px;
+      background: var(--ink);
+      color: var(--paper);
+      border: none;
+      border-radius: 10px;
+      font-family: ui-serif, Georgia, serif;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .continue:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .continue:active {
+      opacity: 0.85;
+    }
+    .state-card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 28px 22px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      text-align: center;
+    }
+    .state-card h2 {
+      font-size: 22px;
+      font-weight: 600;
+      margin: 8px 0 6px 0;
+    }
+    .state-card p {
+      font-size: 14px;
+      color: var(--muted-ink);
+      font-style: italic;
+      margin: 0;
+    }
+    .step-label {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      color: var(--muted-ink);
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <main id="root">
+    <!-- Step 1: photo preview + continue (Phase 1 scaffold).
+         Phase 2 adds: message step, recipient step, phone auth, submit. -->
+    <div class="step-label">Step 1 of 3 — Your photo</div>
+    <div class="stage" id="stage">
+      <div class="kicker">YOUR POSTCARD</div>
+      <h1 id="title">Loading your photo…</h1>
+      <p class="sub" id="sub">One sec — pulling it from the message you sent.</p>
+      <div class="postcard-front skeleton" id="postcard-front"></div>
+      <div class="meta-row">
+        <span class="from" id="from-line"></span>
+        <span id="expiry-line"></span>
+      </div>
+      <button class="continue" id="continue-btn" disabled>Continue →</button>
+    </div>
+  </main>
+
+  <script>
+    /**
+     * Compose page bootstrap (Phase 1 scaffold).
+     *
+     * URL shape: https://app.themailroom.club/compose/<token>
+     * vercel.json rewrites /compose/(.*) → /compose/index.html, so the
+     * token lives in the path. Strip the last segment.
+     *
+     * Calls sms-draft-resolve via fetch, gets back the photo URL + meta,
+     * renders the preview. Phase 2 wires the Continue button to the
+     * message step.
+     */
+    const SUPABASE_URL = "https://nlwnmgwylmmnaemdnzlq.supabase.co";
+
+    function extractToken() {
+      // Path will be like "/compose/aBc123..." — last segment is the token.
+      const segments = window.location.pathname.split("/").filter(Boolean);
+      // First segment is "compose"; second is the token.
+      return segments[1] ?? "";
+    }
+
+    function showState(opts) {
+      const root = document.getElementById("root");
+      root.innerHTML = `
+        <div class="state-card">
+          <div class="kicker">${opts.kicker ?? ""}</div>
+          <h2>${opts.title ?? ""}</h2>
+          <p>${opts.body ?? ""}</p>
+        </div>
+      `;
+    }
+
+    async function loadDraft(token) {
+      const url = `${SUPABASE_URL}/functions/v1/sms-draft-resolve?token=${encodeURIComponent(token)}`;
+      try {
+        const res = await fetch(url, { method: "GET" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+      } catch (e) {
+        return { ok: false, reason: "network" };
+      }
+    }
+
+    function renderDraft(draft) {
+      const title = document.getElementById("title");
+      const sub = document.getElementById("sub");
+      const front = document.getElementById("postcard-front");
+      const fromLine = document.getElementById("from-line");
+      const expiryLine = document.getElementById("expiry-line");
+      const btn = document.getElementById("continue-btn");
+
+      title.textContent = "Looks good?";
+      sub.textContent = draft.caption
+        ? `You wrote: "${draft.caption}"`
+        : "Tap continue to add a note and a recipient.";
+
+      front.classList.remove("skeleton");
+      front.innerHTML = `<img src="${draft.photo_url}" alt="Your postcard photo" />`;
+
+      fromLine.textContent = `From ${draft.from_phone_masked || "you"}`;
+
+      const expires = draft.expires_at ? new Date(draft.expires_at) : null;
+      if (expires) {
+        const hoursLeft = Math.max(0, Math.round((expires.getTime() - Date.now()) / 3600000));
+        expiryLine.textContent = hoursLeft > 0 ? `Link expires in ${hoursLeft}h` : "Link expired";
+      }
+
+      btn.disabled = false;
+      btn.addEventListener("click", () => {
+        // Phase 2: route to message step.
+        // For now: surface what's next.
+        alert("Phase 2 hooks up the message + recipient + submit. Coming soon.");
+      });
+    }
+
+    (async function init() {
+      const token = extractToken();
+      if (!token || token.length < 16) {
+        showState({
+          kicker: "LINK PROBLEM",
+          title: "Couldn't read your link.",
+          body: "Double-check you tapped the link from your SMS. It should look like /compose/abc123...",
+        });
+        return;
+      }
+
+      const draft = await loadDraft(token);
+
+      if (!draft?.ok) {
+        switch (draft?.reason) {
+          case "expired":
+            showState({
+              kicker: "LINK EXPIRED",
+              title: "This link's older than 24 hours.",
+              body: "Text us another photo to start fresh.",
+            });
+            break;
+          case "already_consumed":
+            showState({
+              kicker: "ALREADY MAILED",
+              title: "Your card is in flight.",
+              body: "We'll text you when it ships and when it arrives.",
+            });
+            break;
+          case "not_found":
+            showState({
+              kicker: "LINK NOT FOUND",
+              title: "We don't recognize that link.",
+              body: "If you copied it from the SMS, double-check the characters.",
+            });
+            break;
+          default:
+            showState({
+              kicker: "SOMETHING WENT WRONG",
+              title: "Couldn't load your draft.",
+              body: "Check your connection and refresh. If it keeps happening, text us again.",
+            });
+        }
+        return;
+      }
+
+      renderDraft(draft);
+    })();
+  </script>
+</body>
+</html>

@@ -13,6 +13,7 @@
     { "source": "/r/(.*)", "destination": "/welcome-mail/index.html" },
     { "source": "/u/(.*)", "destination": "/u/index.html" },
     { "source": "/privacy", "destination": "/privacy.html" },
-    { "source": "/terms", "destination": "/terms.html" }
+    { "source": "/terms", "destination": "/terms.html" },
+    { "source": "/compose/(.*)", "destination": "/compose/index.html" }
   ]
 }
