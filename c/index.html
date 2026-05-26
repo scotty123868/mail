@@ -248,13 +248,15 @@
     .postcard:hover .flip-hint { opacity: 0.95; }
 
     /* Stamp — perforated edge, multi-color, illustration inside. */
+    /* Stamp sits quietly in place — no flying-in choreography. Restraint over drama. */
     .stamp {
       position: absolute;
       top: 14px; right: 14px;
       width: 56px; height: 68px;
       z-index: 3;
+      transform: rotate(4deg);
       opacity: 0;
-      animation: stamp-land 0.9s var(--ease-bounce) 0.6s forwards;
+      animation: fade-up 0.5s var(--ease-out) 1.0s forwards;
       filter: drop-shadow(0 1px 2px rgba(0,0,0,0.18));
     }
     .stamp svg { width: 100%; height: 100%; display: block; }
@@ -265,10 +267,12 @@
       top: 22px; right: 78px;
       width: 96px; height: 96px;
       z-index: 2;
+      transform: rotate(-6deg);
       opacity: 0;
-      animation: postmark-land 0.7s var(--ease-out) 1.0s forwards;
+      animation: fade-up 0.5s var(--ease-out) 1.2s forwards;
       pointer-events: none;
     }
+    .postmark[style*="opacity:1"], .postmark { /* settled state opacity */ }
     .postmark svg { width: 100%; height: 100%; }
 
     /* Postcard BACK — postal-standard layout: divider, message left, address right. */
@@ -722,12 +726,15 @@
         language: "en",
       });
       _mapkitReady = true;
-      MK_PENDING.forEach(([s,r,el]) => { if (el) renderMapKit(el, s, r); });
+      MK_PENDING.forEach(([s,r,el,sCity,rCity]) => { if (el) renderMapKit(el, s, r, sCity, rCity); });
       MK_PENDING.length = 0;
     };
 
-    function renderMap(senderCoord, recipientCoord) {
-      const payload = JSON.stringify({ sender: senderCoord, recipient: recipientCoord });
+    function renderMap(senderCoord, recipientCoord, senderCity, recipientCity) {
+      const payload = JSON.stringify({
+        sender: senderCoord, recipient: recipientCoord,
+        senderCity: senderCity || "", recipientCity: recipientCity || "",
+      });
       return `<div class="map-slot" data-coords='${escapeHtml(payload)}'></div>`;
     }
 
@@ -737,17 +744,18 @@
         el.dataset.bound = "true";
         let coords; try { coords = JSON.parse(el.dataset.coords || "{}"); } catch { coords = {}; }
         const s = coords.sender, r = coords.recipient;
+        const sCity = coords.senderCity, rCity = coords.recipientCity;
         if (_mapkitReady && typeof mapkit !== "undefined") {
-          renderMapKit(el, s, r);
+          renderMapKit(el, s, r, sCity, rCity);
         } else if (typeof mapkit !== "undefined" && !_mapkitReady) {
-          MK_PENDING.push([s, r, el]);
+          MK_PENDING.push([s, r, el, sCity, rCity]);
         } else {
           el.innerHTML = renderMapSvg(s, r);
         }
       });
     }
 
-    function renderMapKit(container, senderCoord, recipientCoord) {
+    function renderMapKit(container, senderCoord, recipientCoord, senderCity, recipientCity) {
       if (container._mkMap) { try { container._mkMap.destroy(); } catch {} container._mkMap = null; }
       container.innerHTML = "";
 
@@ -764,119 +772,156 @@
       });
       container._mkMap = map;
 
-      // Annotations + route
+      // Dot pins + city labels (small, non-blocking, like the original SVG).
       const annotations = [];
-      const coords = [];
+      const senderC = senderCoord ? new mapkit.Coordinate(senderCoord[0], senderCoord[1]) : null;
+      const recipC = recipientCoord ? new mapkit.Coordinate(recipientCoord[0], recipientCoord[1]) : null;
 
-      if (senderCoord) {
-        const c = new mapkit.Coordinate(senderCoord[0], senderCoord[1]);
-        coords.push(c);
-        annotations.push(new mapkit.Annotation(c, () => makePin("sender", 0), {
-          anchorOffset: new DOMPoint(0, -22),
+      if (senderC) {
+        annotations.push(new mapkit.Annotation(senderC, () => makeDotPin("sender", 0), {
+          collisionMode: mapkit.Annotation.CollisionMode.None,
+        }));
+        annotations.push(new mapkit.Annotation(senderC, () => makeCityLabel((senderCity || "").toUpperCase(), "sender"), {
+          anchorOffset: new DOMPoint(0, 18),
           collisionMode: mapkit.Annotation.CollisionMode.None,
         }));
       }
-      if (recipientCoord) {
-        const c = new mapkit.Coordinate(recipientCoord[0], recipientCoord[1]);
-        coords.push(c);
-        annotations.push(new mapkit.Annotation(c, () => makePin("recipient", 280), {
-          anchorOffset: new DOMPoint(0, -22),
+      if (recipC) {
+        annotations.push(new mapkit.Annotation(recipC, () => makeDotPin("recipient", 220), {
+          collisionMode: mapkit.Annotation.CollisionMode.None,
+        }));
+        annotations.push(new mapkit.Annotation(recipC, () => makeCityLabel((recipientCity || "").toUpperCase(), "recipient"), {
+          anchorOffset: new DOMPoint(0, 18),
           collisionMode: mapkit.Annotation.CollisionMode.None,
         }));
       }
       if (annotations.length) map.addAnnotations(annotations);
 
-      // Animated polyline: start invisible, then progressively reveal.
-      if (senderCoord && recipientCoord) {
-        const route = new mapkit.PolylineOverlay(coords, {
-          style: new mapkit.Style({
-            strokeColor: "#b8483a",
-            lineWidth: 3,
-            lineDash: [8, 6],
-            lineCap: "round",
-            strokeOpacity: 0,
-          }),
-        });
-        map.addOverlay(route);
-
-        // Fade in + dash-march animation
-        setTimeout(() => {
-          let opacity = 0;
-          const step = () => {
-            opacity = Math.min(opacity + 0.05, 1);
-            route.style = new mapkit.Style({
-              strokeColor: "#b8483a",
-              lineWidth: 3,
-              lineDash: [8, 6],
-              lineCap: "round",
-              strokeOpacity: opacity * 0.85,
-            });
-            if (opacity < 1) requestAnimationFrame(step);
-            else marchDash(map, route, coords);
-          };
-          requestAnimationFrame(step);
-        }, 700);
-      }
-
-      // Auto-fit region with margin
+      // Auto-fit region with margin (set BEFORE arc animation so map is settled).
+      const coords = [senderC, recipC].filter(Boolean);
       if (coords.length >= 2) {
         map.region = boundingRegion(coords);
       } else if (coords.length === 1) {
         map.region = new mapkit.CoordinateRegion(coords[0],
           new mapkit.CoordinateSpan(2.5, 2.5));
       }
+
+      // Indiana Jones — curved arc that draws across the map, point by
+      // point. Bezier between sender + recipient with control point
+      // pushed perpendicular for a nice arc. Polyline grows over ~1.5s.
+      if (senderCoord && recipientCoord) {
+        const arcPoints = generateArc(senderCoord, recipientCoord, 60);
+        animateArc(map, arcPoints, 900); // 900ms after pin drop
+      }
     }
 
-    // Marches the dashed polyline forward indefinitely — feels like the
-    // mail is on its way.
-    function marchDash(map, route, coords) {
-      let phase = 0;
-      function tick() {
-        phase = (phase + 0.4) % 14;
-        // MapKit doesn't expose lineDashOffset directly, so we re-create
-        // the style. Cheap enough at this size.
-        route.style = new mapkit.Style({
+    // Build a Bezier arc between two lat/lng points. Control point is
+    // pushed perpendicular to the great-circle path so the line bows
+    // upward (north for west-east routes). Returns N+1 points.
+    function generateArc(start, end, n) {
+      const dLat = end[0] - start[0];
+      const dLng = end[1] - start[1];
+      const dist = Math.sqrt(dLat * dLat + dLng * dLng);
+      // Perpendicular direction (rotated 90° CCW from the line).
+      // For west-to-east routes this pushes the arc NORTHWARD.
+      const perpLat = -dLng;
+      const perpLng = dLat;
+      const norm = Math.sqrt(perpLat * perpLat + perpLng * perpLng) || 1;
+      const arcHeight = dist * 0.22;
+      const ctrlLat = (start[0] + end[0]) / 2 + (perpLat / norm) * arcHeight;
+      const ctrlLng = (start[1] + end[1]) / 2 + (perpLng / norm) * arcHeight;
+
+      const out = [];
+      for (let i = 0; i <= n; i++) {
+        const t = i / n;
+        const oneMinusT = 1 - t;
+        const lat = oneMinusT * oneMinusT * start[0]
+                  + 2 * oneMinusT * t * ctrlLat
+                  + t * t * end[0];
+        const lng = oneMinusT * oneMinusT * start[1]
+                  + 2 * oneMinusT * t * ctrlLng
+                  + t * t * end[1];
+        out.push(new mapkit.Coordinate(lat, lng));
+      }
+      return out;
+    }
+
+    // Progressively reveal the arc by re-adding the polyline with more
+    // points each frame. MapKit polylines aren't directly mutable, so
+    // remove + add is the simplest path. 60 points over ~1.5s = ~40fps.
+    function animateArc(map, points, delayMs) {
+      setTimeout(() => {
+        let i = 2;
+        let overlay = null;
+        const style = new mapkit.Style({
           strokeColor: "#b8483a",
-          lineWidth: 3,
-          lineDash: [8, 6],
+          lineWidth: 2.5,
+          lineDash: [6, 4],
           lineCap: "round",
           strokeOpacity: 0.85,
         });
-        requestAnimationFrame(tick);
-      }
-      // Skipping the dash-offset trick for simplicity; the pulsing ring
-      // on the recipient pin carries the "in motion" feel.
+        const step = () => {
+          if (overlay) {
+            try { map.removeOverlay(overlay); } catch {}
+          }
+          overlay = new mapkit.PolylineOverlay(points.slice(0, i), { style });
+          map.addOverlay(overlay);
+          i += 1;
+          if (i <= points.length) {
+            // ~30ms per frame -> 60 points -> ~1.8s total. Feels Indiana Jones.
+            setTimeout(step, 30);
+          }
+        };
+        step();
+      }, delayMs);
     }
 
-    function makePin(role, delayMs) {
-      const isSender = role === "sender";
-      const fill = isSender ? "#b8483a" : "#3c6e8f";
-      const fillDeep = isSender ? "#8d2f23" : "#284e69";
-      const glyph = isSender ? "★" : "✉";
+    // Small dot pin — matches the original SVG style: filled disc, faint
+    // outer halo. Sized so it doesn't block the underlying city label.
+    function makeDotPin(role, delayMs) {
+      const fill = role === "sender" ? "#b8483a" : "#3c6e8f";
       const el = document.createElement("div");
       el.style.cssText = `
-        position:relative; width:38px; height:48px;
-        pointer-events:auto;
-        animation: pin-drop 0.75s cubic-bezier(0.34, 1.56, 0.64, 1) ${delayMs}ms backwards;
+        position: relative;
+        width: 36px; height: 36px;
+        pointer-events: none;
+        animation: pin-drop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) ${delayMs}ms backwards;
       `;
       el.innerHTML = `
-        <svg viewBox="0 0 38 48" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block;filter:drop-shadow(0 4px 5px rgba(0,0,0,0.30));">
-          <ellipse cx="19" cy="45" rx="7" ry="1.8" fill="rgba(0,0,0,0.22)"/>
-          <path d="M19 45 L15 26 Q19 22 23 26 Z" fill="${fillDeep}"/>
-          <circle cx="19" cy="16" r="14" fill="${fill}" stroke="#fdfaf1" stroke-width="2.5"/>
-          <circle cx="19" cy="16" r="14" fill="url(#g-${role})"/>
-          <defs>
-            <radialGradient id="g-${role}" cx="0.35" cy="0.3" r="0.7">
-              <stop offset="0" stop-color="rgba(255,255,255,0.35)"/>
-              <stop offset="1" stop-color="rgba(255,255,255,0)"/>
-            </radialGradient>
-          </defs>
-          <text x="19" y="21" text-anchor="middle" font-size="15" font-weight="700" fill="#fdfaf1" font-family="ui-sans-serif,system-ui,sans-serif">${glyph}</text>
+        <svg viewBox="0 0 36 36" style="width:100%; height:100%; display:block;">
+          <!-- soft outer halo -->
+          <circle cx="18" cy="18" r="16" fill="${fill}" opacity="0.18"/>
+          <!-- inner disc with white ring -->
+          <circle cx="18" cy="18" r="7" fill="${fill}" stroke="#fdfaf1" stroke-width="2.2"/>
         </svg>
         ${role === "recipient" ? `
-          <span style="position:absolute; left:50%; top:14px; transform:translate(-50%,-50%); width:32px; height:32px; border-radius:50%; background:${fill}; opacity:0.35; animation: pin-ring 2.4s ease-out ${delayMs + 600}ms infinite; pointer-events:none;"></span>
+          <span style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:34px; height:34px; border-radius:50%; background:${fill}; opacity:0.32; animation: pin-ring 2.4s ease-out ${delayMs + 400}ms infinite; pointer-events:none;"></span>
         ` : ""}
       `;
+      return el;
+    }
+
+    // City label pill placed below the dot pin. Like a Maps app callout.
+    function makeCityLabel(city, role) {
+      const el = document.createElement("div");
+      el.style.cssText = `
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.9px;
+        color: #1a1612;
+        background: rgba(253, 250, 241, 0.94);
+        padding: 4px 8px;
+        border-radius: 999px;
+        white-space: nowrap;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.15), 0 0 0 0.5px rgba(0,0,0,0.06);
+        text-transform: uppercase;
+        pointer-events: none;
+        opacity: 0;
+        animation: fade-up 0.4s var(--ease-out) ${role === "sender" ? 600 : 800}ms forwards;
+        transform-origin: center top;
+      `;
+      el.textContent = city || "";
       return el;
     }
 
@@ -1016,7 +1061,25 @@
         <h1 class="anim-in" data-delay="200">${escapeHtml(h1)}</h1>
         <p class="sub anim-in" data-delay="300">To <strong>${escapeHtml(recipName)}</strong> in ${escapeHtml(recipientLabel || "their mailbox")}</p>
 
-        <div class="postcard-stage anim-in" data-delay="400" style="animation: fade-up-tilt 0.85s var(--ease-bounce) 0.4s backwards;">
+        <div class="map-card anim-in" data-delay="400">
+          <div class="map-header">
+            <div class="map-header-title">${mapHeaderTitle}</div>
+            <div class="map-header-eta">${mapHeaderEta}</div>
+          </div>
+          <div style="position:relative;">
+            ${renderMap(senderCoord, recipientCoord, sender.city || "", recipient.city || "")}
+            ${mapOverlayLabel}
+          </div>
+          ${isScheduled ? `<div class="map-foot">We'll drop this in the mail on ${escapeHtml(sendDateFmt)}. Come back to watch it travel.</div>` : ""}
+        </div>
+
+        <div class="meta-line anim-in" data-delay="700">
+          <strong>${escapeHtml(senderLabel)}</strong>
+          <span class="arrow">→</span>
+          <strong>${escapeHtml(recipientLabel || "their mailbox")}</strong>
+        </div>
+
+        <div class="postcard-stage anim-in" data-delay="800">
           <div class="postcard" id="postcard" role="button" tabindex="0" aria-label="Tap to flip the postcard">
             <div class="postcard-side postcard-front">
               ${data.photo_url ? `<img src="${escapeHtml(data.photo_url)}" alt="Your postcard photo" loading="eager" />` : ""}
@@ -1040,36 +1103,18 @@
           </div>
         </div>
 
-        <div class="meta-line anim-in" data-delay="700">
-          <strong>${escapeHtml(senderLabel)}</strong>
-          <span class="arrow">→</span>
-          <strong>${escapeHtml(recipientLabel || "their mailbox")}</strong>
-        </div>
-
-        <div class="map-card anim-in" data-delay="900">
-          <div class="map-header">
-            <div class="map-header-title">${mapHeaderTitle}</div>
-            <div class="map-header-eta">${mapHeaderEta}</div>
-          </div>
-          <div style="position:relative;">
-            ${renderMap(senderCoord, recipientCoord)}
-            ${mapOverlayLabel}
-          </div>
-          ${isScheduled ? `<div class="map-foot">We'll drop this in the mail on ${escapeHtml(sendDateFmt)}. Come back to watch it travel.</div>` : ""}
-        </div>
-
-        <div class="timeline anim-in" data-delay="1100">
+        <div class="timeline anim-in" data-delay="1000">
           <div class="timeline-header">Status</div>
           ${timelineRows.map((row, i) => `
             <div class="timeline-row ${row.done ? "done" : ""} ${row.current ? "current" : ""}"
-                 style="animation-delay: ${1200 + i * 80}ms;">
+                 style="animation-delay: ${1100 + i * 80}ms;">
               <div class="timeline-dot-wrap"><div class="timeline-dot"></div></div>
               <div>${escapeHtml(row.label)}</div>
             </div>
           `).join("")}
         </div>
 
-        <div class="cta-row anim-in" data-delay="1300">
+        <div class="cta-row anim-in" data-delay="1200">
           <a href="sms:+14156836457&body=" class="cta cta-primary">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
@@ -1084,7 +1129,7 @@
           </a>
         </div>
 
-        <div class="footer anim-in" data-delay="1300">
+        <div class="footer anim-in" data-delay="1200">
           <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="mailto:hello@mailroomclub.io">Contact</a>
         </div>
       `;
