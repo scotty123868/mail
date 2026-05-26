@@ -209,46 +209,67 @@
   <div class="container">
     <div class="eyebrow">Privacy</div>
     <h1>How we handle <em>your stuff.</em></h1>
-    <p class="updated">Last updated: May 12, 2026</p>
+    <p class="updated">Last updated: May 25, 2026</p>
 
     <p>Mailroom exists to help you send physical postcards to people you love. To do that, we need a few pieces of information about you and about the people you're writing to. This page explains exactly what we collect, why, and what we do with it. No tricks, no fine print.</p>
 
     <h2>What we collect from you</h2>
     <ul>
-      <li><strong>Your account info.</strong> Your name, email address, and (if you choose) your phone number. Used to log you in, send you receipts, and contact you about your account.</li>
-      <li><strong>Your photos and notes.</strong> The images and text you send on postcards. Stored only as long as we need to print and mail the card. We don't train on your photos, we don't scan them for content, and we don't share them with anyone.</li>
+      <li><strong>Your phone number.</strong> When you text us a photo, we save your phone number to identify your conversation, mail your card with your name on the return address, and text you back. You can ask us to delete it at any time by replying <strong>STOP</strong>.</li>
+      <li><strong>Your account info.</strong> If you also use the iOS app, we collect your name, email address, and (optionally) your phone number. Used to log you in, send you receipts, and contact you about your account.</li>
+      <li><strong>Your photos and notes.</strong> The images and text you send on postcards (via SMS/MMS or the iOS app). Stored only as long as we need to print and mail the card. We don't train AI on your photos, we don't scan them for content, and we don't share them with anyone except our printing partner.</li>
+      <li><strong>Your SMS conversation.</strong> The back-and-forth texts when composing a card (recipient name, address, message). Retained for our records and for customer support. Deletable on request.</li>
       <li><strong>Payment information.</strong> Processed by our payment provider (Stripe). We never see or store your card number directly.</li>
-      <li><strong>Usage data.</strong> Basic analytics about how the app is used so we can fix bugs and improve the experience. Aggregated and anonymized.</li>
+      <li><strong>Usage data.</strong> Basic analytics about how the app + SMS flow are used so we can fix bugs and improve the experience. Aggregated and anonymized.</li>
     </ul>
 
     <h2>What we collect about your friends</h2>
-    <p>When you send a postcard, we need a mailing address. Your friend can share their address with you privately through Mailroom (you never see it, only we do) or you can enter an address yourself if you already know it.</p>
-    <p>If your friend shares their address through Mailroom, we use it only to mail their postcards. We don't sell it, we don't share it with you, and we delete it if they ask us to.</p>
+    <p>When you send a postcard, we need a mailing address. You enter the recipient's name and address either through the iOS app or by texting it to us. We use this information only to print and deliver the postcard.</p>
+    <p>We don't sell recipient addresses. We don't share them with anyone except our printing vendor (Lob) for fulfillment. We delete them on request from either you or the recipient.</p>
+
+    <h2>SMS messaging specifically</h2>
+    <p>Mailroom can be used entirely via text message — you text us a photo to start, we walk you through composing the postcard via SMS, and we text you a confirmation when the card is mailed. A few things to know about how that works:</p>
+    <ul>
+      <li><strong>Opt-in:</strong> Texting a photo or message to our toll-free number constitutes opt-in to receive transactional SMS from Mailroom.</li>
+      <li><strong>Opt-out:</strong> Reply <strong>STOP</strong>, <strong>CANCEL</strong>, or <strong>UNSUBSCRIBE</strong> at any time to opt out. We'll send one confirmation message, then stop. We delete your phone number from active messaging within 24 hours.</li>
+      <li><strong>Help:</strong> Reply <strong>HELP</strong> to get support contact info via text.</li>
+      <li><strong>Frequency:</strong> You'll get messages only as part of conversations you started (typically 5-10 messages per postcard order). We don't send marketing SMS.</li>
+      <li><strong>Costs:</strong> Message and data rates may apply, charged by your wireless carrier. Mailroom doesn't bill you for SMS itself; you pay for postcards.</li>
+      <li><strong>Carriers:</strong> Outbound SMS from Mailroom is delivered through Twilio (our messaging service provider), and ultimately by T-Mobile, AT&amp;T, Verizon, and other US carriers.</li>
+    </ul>
 
     <h2>What we never do</h2>
     <ul>
       <li>We don't sell your data. Ever.</li>
       <li>We don't share your photos, notes, or messages with third parties (except the printing partner who actually prints the card, who is contractually bound to delete after fulfillment).</li>
+      <li>We don't send marketing SMS. The only texts we send are direct replies in conversations you started.</li>
       <li>We don't track you across other apps or websites.</li>
-      <li>We don't read your camera roll. You pick the photos you want to send.</li>
+      <li>We don't read your camera roll. You pick (or text us) the photos you want to send.</li>
     </ul>
 
-    <h2>Who we share with</h2>
-    <p>We share the minimum information necessary with three categories of partners:</p>
+    <h2>Sub-processors</h2>
+    <p>To run Mailroom, we use a handful of vendors who handle specific slices of your data. Each is contractually bound to handle it only on our behalf:</p>
     <ul>
-      <li><strong>Our printing and fulfillment vendor</strong>, who needs the photo, message, and mailing address to physically produce and mail your card.</li>
-      <li><strong>Stripe</strong>, who processes payments.</li>
-      <li><strong>Apple App Store</strong>, who handles app distribution and (if applicable) in-app purchases.</li>
+      <li><strong>Lob</strong> — our printing and USPS fulfillment partner. Receives the photo, message, sender return address, and recipient mailing address needed to physically produce and mail your card. Lob is HIPAA + SOC 2 compliant.</li>
+      <li><strong>Twilio</strong> — our SMS and MMS provider. Routes your inbound texts to us and our outbound replies back to you. Sees your phone number and message content for the brief moment it's in transit.</li>
+      <li><strong>OpenAI</strong> — when you text us a messy address ("123 main st naples FL 34101"), we send that text fragment to OpenAI's GPT-4o-mini model to parse it into a structured mailing address. We send only the fragment, not your phone number, name, or any other identifying info. OpenAI's API terms prohibit using API inputs for model training (per their March 2023 policy). We don't send your photos to OpenAI.</li>
+      <li><strong>Stripe</strong> — processes payments. Sees your card details, never us.</li>
+      <li><strong>Supabase</strong> — our database and backend infrastructure provider. Stores all account, postcard, and conversation data. SOC 2 Type 2 compliant.</li>
+      <li><strong>Apple App Store</strong> — handles iOS app distribution and (if applicable) in-app purchases.</li>
+      <li><strong>Google Places</strong> — autocomplete suggestions when entering recipient addresses in the web compose flow. Address fragments sent during typing; not tied to your identity.</li>
     </ul>
 
     <h2>Your rights</h2>
-    <p>You can request a copy of your data, ask us to delete your account and everything associated with it, or correct anything we have wrong. Email <a href="mailto:hello@mailroomclub.io">hello@mailroomclub.io</a> and we'll handle it within 30 days.</p>
+    <p>You can request a copy of your data, ask us to delete your account and everything associated with it, or correct anything we have wrong. Email <a href="mailto:hello@mailroomclub.io">hello@mailroomclub.io</a> and we'll handle it within 30 days. If you're a California, EU, or UK resident, you have additional rights under CCPA, GDPR, and UK GDPR — same email reaches us either way.</p>
 
     <h2>Cookies and tracking</h2>
     <p>The Mailroom website uses minimal cookies, primarily for the session and for understanding aggregate site traffic. We don't use advertising trackers. The Mailroom app uses standard Apple analytics frameworks (which respect your iOS privacy settings).</p>
 
+    <h2>Children</h2>
+    <p>Mailroom is not directed at children under 13. We don't knowingly collect data from anyone under 13. If you believe we have, email us and we'll delete it.</p>
+
     <h2>Changes to this policy</h2>
-    <p>If we make material changes to how we handle data, we'll email you before the changes take effect. We won't surprise you.</p>
+    <p>If we make material changes to how we handle data, we'll email you (or text you, if SMS is your primary channel) before the changes take effect. We won't surprise you.</p>
 
     <h2>Contact</h2>
     <p>Questions, concerns, or requests? Write to <a href="mailto:hello@mailroomclub.io">hello@mailroomclub.io</a>. We read everything.</p>
