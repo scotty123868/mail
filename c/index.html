@@ -5,221 +5,485 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Your postcard is in the mail — Mailroom</title>
   <meta name="description" content="See your postcard travel — Mailroom" />
+  <meta name="theme-color" content="#f3efe2" />
   <!-- Smart App Banner — iOS Safari shows a 'Get the app' bar at the top. -->
   <meta name="apple-itunes-app" content="app-id=6768460855" />
   <link rel="icon" href="/favicon.png" />
-  <!-- Apple MapKit JS. Loads asynchronously; calls window.initMapKit() when
-       ready. If the script never loads (network, ad-block) the page falls
-       back to the inline SVG map renderer below. -->
+  <!-- Apple MapKit JS. Loads asynchronously; calls window.initMapKit() when ready. -->
   <script crossorigin async
     src="https://cdn.apple-mapkit.com/mk/5.x.x/mapkit.js"
     data-callback="initMapKit"
     data-libraries="map,annotations,services,geojson"></script>
   <style>
+    /* ============================================================== */
+    /*  DESIGN TOKENS                                                 */
+    /* ============================================================== */
     :root {
-      --ink: #11141c;
-      --muted-ink: #696969;
-      --postal-red: #b8483a;
-      --postal-blue: #3c6e8f;
-      --gold: #d9b46e;
-      --line: #d4c9b1;
-      --paper: #F8F1E3;
+      --ink: #1a1612;
+      --ink-soft: #3a342c;
+      --muted-ink: #6b6258;
+      --dim-ink: #8e8678;
+      --paper: #f3efe2;
       --paper-warm: #fdfaf1;
+      --paper-deep: #e8dfc8;
+      --line: #d8cfb8;
+      --line-strong: #b8ad94;
+      --postal-red: #b8483a;
+      --postal-red-deep: #8d2f23;
+      --postal-blue: #3c6e8f;
+      --postal-blue-deep: #284e69;
+      --gold: #d9b46e;
+      --ok: #2e7d4f;
       --white: #ffffff;
+
+      /* Spring-y easing curves. */
+      --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
     }
     * { box-sizing: border-box; }
     html, body {
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
       background: var(--paper);
-      font-family: ui-serif, Georgia, "Times New Roman", serif;
       color: var(--ink);
+      font-family: ui-serif, "Iowan Old Style", Georgia, "Times New Roman", serif;
       min-height: 100%;
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
+    /* Paper grain. Subtle SVG noise + faint vertical lines like a notebook. */
+    body::before {
+      content: "";
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-image:
+        radial-gradient(ellipse at top left, rgba(217,180,110,0.10), transparent 60%),
+        radial-gradient(ellipse at bottom right, rgba(60,110,143,0.06), transparent 55%),
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence baseFrequency='0.8' numOctaves='2'/><feColorMatrix values='0 0 0 0 0.1, 0 0 0 0 0.08, 0 0 0 0 0.05, 0 0 0 0.025 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+      background-size: 100% 100%, 100% 100%, 160px 160px;
+      opacity: 1;
+    }
+
     main {
-      max-width: 540px;
-      margin: 0 auto;
-      padding: 24px 16px 60px;
-    }
-    .kicker {
-      font-family: ui-sans-serif, system-ui, sans-serif;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1.6px;
-      color: var(--postal-red);
-      text-transform: uppercase;
-      text-align: center;
-    }
-    h1 {
-      font-size: 32px;
-      font-weight: 600;
-      color: var(--ink);
-      margin: 6px 0 4px;
-      line-height: 1.1;
-      text-align: center;
-    }
-    .sub {
-      font-size: 14px;
-      color: var(--muted-ink);
-      font-style: italic;
-      margin: 0 0 20px;
-      text-align: center;
-    }
-    /* Postcard preview — front */
-    .postcard {
-      width: 100%;
-      aspect-ratio: 3 / 2;
-      background: #eee;
-      border-radius: 8px;
-      overflow: hidden;
       position: relative;
-      box-shadow: 0 8px 28px rgba(0,0,0,0.16);
-      margin-bottom: 8px;
-      transform: rotate(-1deg);
-      transition: transform 0.3s ease;
+      z-index: 1;
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 28px 18px 80px;
     }
-    .postcard:hover { transform: rotate(0deg); }
-    .postcard img {
-      width: 100%; height: 100%; object-fit: cover; display: block;
+
+    /* ============================================================== */
+    /*  ENTRANCE ANIMATIONS                                           */
+    /* ============================================================== */
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
-    .postcard.skeleton {
-      background: linear-gradient(120deg, #eee 0%, #f4f4f4 50%, #eee 100%);
-      background-size: 200% 100%;
-      animation: shimmer 1.4s linear infinite;
+    @keyframes fade-up-tilt {
+      from { opacity: 0; transform: translateY(20px) rotate(-3deg) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) rotate(-1.2deg) scale(1); }
+    }
+    @keyframes stamp-land {
+      0%   { opacity: 0; transform: scale(2.4) rotate(-35deg); }
+      60%  { opacity: 1; transform: scale(0.92) rotate(8deg); }
+      100% { opacity: 1; transform: scale(1) rotate(4deg); }
+    }
+    @keyframes postmark-land {
+      0%   { opacity: 0; transform: scale(2) rotate(20deg); }
+      55%  { opacity: 0.85; transform: scale(0.9) rotate(-10deg); }
+      100% { opacity: 0.6; transform: scale(1) rotate(-6deg); }
     }
     @keyframes shimmer {
       0% { background-position: 200% 0; }
       100% { background-position: -200% 0; }
     }
-    /* Stamp + postmark overlays */
+    @keyframes pin-drop {
+      0%   { opacity: 0; transform: translateY(-30px); }
+      60%  { opacity: 1; transform: translateY(2px); }
+      80%  { transform: translateY(-1px); }
+      100% { transform: translateY(0); }
+    }
+    @keyframes pulse-postal {
+      0%, 100% { box-shadow: 0 0 0 4px rgba(184,72,58,0.18); }
+      50%      { box-shadow: 0 0 0 10px rgba(184,72,58,0.04); }
+    }
+    @keyframes pin-ring {
+      0%   { transform: scale(0.4); opacity: 0.8; }
+      100% { transform: scale(3); opacity: 0; }
+    }
+    @keyframes float-tiny {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-2px); }
+    }
+
+    .anim-in {
+      opacity: 0;
+      animation: fade-up 0.65s var(--ease-out) forwards;
+    }
+    .anim-in[data-delay="100"]  { animation-delay: 100ms; }
+    .anim-in[data-delay="200"]  { animation-delay: 200ms; }
+    .anim-in[data-delay="300"]  { animation-delay: 300ms; }
+    .anim-in[data-delay="400"]  { animation-delay: 400ms; }
+    .anim-in[data-delay="500"]  { animation-delay: 500ms; }
+    .anim-in[data-delay="700"]  { animation-delay: 700ms; }
+    .anim-in[data-delay="900"]  { animation-delay: 900ms; }
+    .anim-in[data-delay="1100"] { animation-delay: 1100ms; }
+    .anim-in[data-delay="1300"] { animation-delay: 1300ms; }
+
+    /* ============================================================== */
+    /*  HEADER                                                        */
+    /* ============================================================== */
+    .kicker {
+      font-family: ui-sans-serif, -apple-system, system-ui, sans-serif;
+      font-size: 11px; font-weight: 800;
+      letter-spacing: 2.2px;
+      color: var(--postal-red);
+      text-transform: uppercase;
+      text-align: center;
+      position: relative;
+    }
+    .kicker::before, .kicker::after {
+      content: "";
+      display: inline-block;
+      width: 24px; height: 1px;
+      background: var(--postal-red);
+      vertical-align: middle;
+      margin: 0 10px;
+      opacity: 0.5;
+    }
+    h1 {
+      font-size: clamp(34px, 8vw, 44px);
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      margin: 8px 0 4px;
+      line-height: 1.04;
+      text-align: center;
+      color: var(--ink);
+    }
+    .sub {
+      font-size: 15px;
+      color: var(--muted-ink);
+      font-style: italic;
+      text-align: center;
+      margin: 0 0 24px;
+    }
+    .sub strong {
+      color: var(--ink-soft);
+      font-style: normal;
+      font-weight: 600;
+    }
+
+    /* ============================================================== */
+    /*  POSTCARD — with click-to-flip                                 */
+    /* ============================================================== */
+    .postcard-stage {
+      perspective: 1400px;
+      margin: 8px 0 4px;
+    }
+    .postcard {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 7 / 5;
+      transform-style: preserve-3d;
+      transition: transform 0.85s var(--ease-in-out);
+      cursor: pointer;
+      transform: rotate(-1.2deg);
+      filter: drop-shadow(0 16px 26px rgba(0,0,0,0.18))
+              drop-shadow(0 3px 5px rgba(0,0,0,0.08));
+    }
+    .postcard.flipped {
+      transform: rotate(1deg) rotateY(180deg);
+    }
+    .postcard-side {
+      position: absolute; inset: 0;
+      border-radius: 8px;
+      overflow: hidden;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      background: var(--paper-warm);
+    }
+    .postcard-front {
+      background: #ddd;
+    }
+    .postcard-front img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      animation: float-tiny 7s ease-in-out infinite;
+    }
+    /* Subtle paper texture overlay on the photo for "printed on card" feel */
+    .postcard-front::after {
+      content: "";
+      position: absolute; inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(120deg, rgba(255,255,255,0.06), transparent 30%, rgba(0,0,0,0.04));
+      mix-blend-mode: overlay;
+    }
+    .postcard.skeleton {
+      background: linear-gradient(120deg, #e5dec8 0%, #f0e9d4 50%, #e5dec8 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s linear infinite;
+      aspect-ratio: 7 / 5;
+      border-radius: 8px;
+    }
+    .flip-hint {
+      position: absolute;
+      bottom: 10px; left: 12px;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.8px;
+      color: rgba(253,250,241,0.85);
+      text-transform: uppercase;
+      background: rgba(0,0,0,0.32);
+      padding: 4px 8px;
+      border-radius: 20px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      pointer-events: none;
+      opacity: 0;
+      animation: fade-up 0.6s var(--ease-out) 1.6s forwards;
+    }
+    .postcard:hover .flip-hint { opacity: 0.95; }
+
+    /* Stamp — perforated edge, multi-color, illustration inside. */
     .stamp {
       position: absolute;
-      top: 12px;
-      right: 12px;
-      width: 44px;
-      height: 54px;
-      background: var(--postal-red);
-      border: 2px dashed var(--paper-warm);
-      box-shadow: 0 0 0 1px var(--line);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--paper);
-      font-family: ui-serif, Georgia, serif;
-      font-weight: 700;
-      font-size: 11px;
-      letter-spacing: 0.5px;
-      transform: rotate(4deg);
-      z-index: 2;
+      top: 14px; right: 14px;
+      width: 56px; height: 68px;
+      z-index: 3;
+      opacity: 0;
+      animation: stamp-land 0.9s var(--ease-bounce) 0.6s forwards;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.18));
     }
+    .stamp svg { width: 100%; height: 100%; display: block; }
+
+    /* Postmark — circular ink stamp with city + date around the arc. */
     .postmark {
       position: absolute;
-      top: 18px;
-      right: 70px;
-      width: 110px;
-      height: 110px;
-      border: 2px solid var(--postal-blue);
-      border-radius: 50%;
-      opacity: 0.55;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--postal-blue);
+      top: 22px; right: 78px;
+      width: 96px; height: 96px;
+      z-index: 2;
+      opacity: 0;
+      animation: postmark-land 0.7s var(--ease-out) 1.0s forwards;
+      pointer-events: none;
+    }
+    .postmark svg { width: 100%; height: 100%; }
+
+    /* Postcard BACK — postal-standard layout: divider, message left, address right. */
+    .postcard-back {
+      transform: rotateY(180deg);
+      background: linear-gradient(180deg, var(--paper-warm) 0%, #f5ecd5 100%);
+      padding: 18px 18px 14px;
+      display: grid;
+      grid-template-columns: 1fr 1px 1fr;
+      gap: 14px;
+      font-family: ui-serif, Georgia, serif;
+      color: var(--ink-soft);
+    }
+    .postcard-back::before {
+      content: "POST CARD";
+      position: absolute;
+      top: 6px; left: 50%;
+      transform: translateX(-50%);
       font-family: ui-sans-serif, system-ui, sans-serif;
       font-size: 9px;
-      letter-spacing: 1.2px;
-      text-align: center;
-      line-height: 1.3;
+      font-weight: 800;
+      letter-spacing: 4px;
+      color: var(--line-strong);
       text-transform: uppercase;
-      transform: rotate(-6deg);
-      pointer-events: none;
-      z-index: 2;
     }
+    .pc-message {
+      padding-top: 18px;
+      font-size: 14px;
+      line-height: 1.45;
+      font-style: italic;
+      color: var(--ink);
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 8;
+      -webkit-box-orient: vertical;
+    }
+    .pc-message-sig {
+      margin-top: 10px;
+      font-style: normal;
+      color: var(--muted-ink);
+      font-size: 12px;
+      font-family: "Snell Roundhand", "Apple Chancery", cursive;
+      letter-spacing: 0.5px;
+    }
+    .pc-divider {
+      background: repeating-linear-gradient(180deg, transparent 0 6px, var(--line) 6px 8px);
+    }
+    .pc-address {
+      padding-top: 18px;
+      position: relative;
+    }
+    .pc-address-label {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      color: var(--dim-ink);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .pc-address-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+    .pc-address-line {
+      font-size: 13px;
+      color: var(--muted-ink);
+      line-height: 1.4;
+    }
+    .pc-address-bar {
+      position: absolute;
+      bottom: 8px; left: 0; right: 0;
+      height: 12px;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent 0 8px,
+        rgba(255,140,0,0.35) 8px 14px
+      );
+      opacity: 0.55;
+      border-radius: 2px;
+    }
+
     .meta-line {
       font-family: ui-sans-serif, system-ui, sans-serif;
       font-size: 12px;
       color: var(--muted-ink);
       text-align: center;
-      margin: 22px 0 8px;
-      letter-spacing: 0.3px;
+      margin: 28px 0 14px;
+      letter-spacing: 0.4px;
     }
-    /* Map */
+    .meta-line .arrow {
+      display: inline-block;
+      margin: 0 6px;
+      color: var(--postal-red);
+      font-weight: 700;
+    }
+    .meta-line strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    /* ============================================================== */
+    /*  MAP CARD                                                      */
+    /* ============================================================== */
     .map-card {
-      background: var(--white);
+      background: var(--paper-warm);
       border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 16px;
-      margin: 16px 0;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      border-radius: 14px;
+      padding: 14px 14px 0;
+      margin: 12px 0;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.6) inset,
+        0 6px 22px rgba(0,0,0,0.06);
+      overflow: hidden;
     }
     .map-header {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
       margin-bottom: 12px;
+      padding: 0 2px;
     }
     .map-header-title {
       font-family: ui-sans-serif, system-ui, sans-serif;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 1.2px;
-      color: var(--muted-ink);
+      font-size: 10px; font-weight: 800;
+      letter-spacing: 1.4px;
+      color: var(--ink);
       text-transform: uppercase;
     }
     .map-header-eta {
       font-family: ui-sans-serif, system-ui, sans-serif;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--ink);
+      font-size: 13px; font-weight: 600;
+      color: var(--postal-red);
     }
-    .map-svg {
-      width: 100%;
-      aspect-ratio: 16 / 10;
-      background: #eef4f5;
-      border-radius: 6px;
+    .map-slot {
+      width: 100%; height: 280px;
+      border-radius: 8px;
       overflow: hidden;
+      background: #eef4f5;
+      position: relative;
+      margin-bottom: 14px;
     }
-    /* Timeline */
+    .map-slot .mk-map-view { border-radius: 8px; }
+    .map-overlay-label {
+      position: absolute;
+      bottom: 10px; left: 12px;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.8px;
+      color: #fff;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      padding: 5px 10px;
+      border-radius: 999px;
+      pointer-events: none;
+      z-index: 5;
+      opacity: 0;
+      animation: fade-up 0.5s var(--ease-out) 1.4s forwards;
+    }
+    .map-foot {
+      padding: 0 4px 12px;
+      text-align: center;
+      color: var(--muted-ink);
+      font-style: italic;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* ============================================================== */
+    /*  TIMELINE                                                      */
+    /* ============================================================== */
     .timeline {
-      background: var(--white);
+      background: var(--paper-warm);
       border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 16px 18px;
-      margin: 16px 0;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin: 12px 0;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.6) inset,
+        0 6px 22px rgba(0,0,0,0.06);
     }
     .timeline-header {
       font-family: ui-sans-serif, system-ui, sans-serif;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 1.2px;
-      color: var(--muted-ink);
+      font-size: 10px; font-weight: 800;
+      letter-spacing: 1.4px;
+      color: var(--ink);
       text-transform: uppercase;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
     .timeline-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 6px 0;
+      display: flex; align-items: center;
+      gap: 14px;
+      padding: 7px 0;
       font-size: 14px;
-      color: var(--muted-ink);
+      color: var(--dim-ink);
+      position: relative;
+      opacity: 0;
+      animation: fade-up 0.45s var(--ease-out) forwards;
     }
-    .timeline-row.done {
-      color: var(--ink);
-    }
-    .timeline-row.current {
-      color: var(--postal-red);
-      font-weight: 600;
+    .timeline-row.done { color: var(--ink-soft); }
+    .timeline-row.current { color: var(--postal-red); font-weight: 600; }
+    .timeline-dot-wrap {
+      position: relative;
+      width: 14px; height: 14px;
+      flex-shrink: 0;
     }
     .timeline-dot {
-      width: 12px;
-      height: 12px;
+      width: 12px; height: 12px;
       border-radius: 50%;
       background: var(--line);
-      flex-shrink: 0;
       border: 2px solid var(--line);
+      box-sizing: border-box;
     }
     .timeline-row.done .timeline-dot {
       background: var(--postal-red);
@@ -228,19 +492,41 @@
     .timeline-row.current .timeline-dot {
       background: var(--postal-red);
       border-color: var(--postal-red);
-      box-shadow: 0 0 0 4px rgba(184,72,58,0.15);
-      animation: pulse 2s ease-in-out infinite;
+      animation: pulse-postal 2.2s ease-in-out infinite;
     }
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 4px rgba(184,72,58,0.15); }
-      50% { box-shadow: 0 0 0 6px rgba(184,72,58,0.25); }
+    .timeline-row.current::after {
+      content: "";
+      position: absolute;
+      left: 5px; top: 10px;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--postal-red);
+      opacity: 0.35;
+      animation: pin-ring 2.2s ease-out infinite;
     }
-    /* CTAs */
-    .cta-row { display: flex; gap: 10px; margin-top: 18px; }
+    /* Vertical line connecting dots */
+    .timeline-row:not(:last-child)::before {
+      content: "";
+      position: absolute;
+      left: 6px; top: 28px;
+      width: 2px; height: calc(100% - 12px);
+      background: var(--line);
+      z-index: 0;
+    }
+    .timeline-row.done:not(:last-child)::before { background: var(--postal-red); opacity: 0.45; }
+
+    /* ============================================================== */
+    /*  CTAs                                                          */
+    /* ============================================================== */
+    .cta-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 18px;
+    }
     .cta {
-      flex: 1;
       padding: 14px 16px;
-      border-radius: 10px;
+      border-radius: 12px;
       font-family: ui-serif, Georgia, serif;
       font-size: 15px;
       font-weight: 600;
@@ -248,296 +534,222 @@
       text-decoration: none;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
+      transition: transform 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
     .cta-primary {
       background: var(--ink);
       color: var(--paper);
       border: 1px solid var(--ink);
+      box-shadow: 0 6px 18px rgba(26,22,18,0.22);
     }
+    .cta-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(26,22,18,0.28); }
+    .cta-primary:active { transform: translateY(1px); }
     .cta-secondary {
-      background: transparent;
+      background: var(--paper-warm);
       color: var(--ink);
       border: 1px solid var(--line);
     }
-    .cta:active { opacity: 0.85; }
+    .cta-secondary:hover { transform: translateY(-1px); background: var(--white); }
+    .cta-secondary:active { transform: translateY(1px); }
+    .cta svg { width: 16px; height: 16px; flex-shrink: 0; }
+
     .footer {
-      margin-top: 32px;
+      margin-top: 38px;
       font-family: ui-sans-serif, system-ui, sans-serif;
       font-size: 11px;
-      color: var(--muted-ink);
+      color: var(--dim-ink);
       text-align: center;
+      letter-spacing: 0.2px;
     }
-    .footer a { color: var(--muted-ink); }
+    .footer a { color: var(--muted-ink); text-decoration: none; }
+    .footer a:hover { color: var(--postal-red); }
+
+    /* ============================================================== */
+    /*  ERROR / STATE CARDS                                           */
+    /* ============================================================== */
     .state-card {
-      background: var(--white);
-      border-radius: 12px;
-      padding: 30px 22px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      background: var(--paper-warm);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 38px 26px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
       text-align: center;
-      margin-top: 40px;
+      margin-top: 48px;
     }
-    .state-card h2 {
-      font-size: 22px;
-      font-weight: 600;
-      margin: 8px 0 6px;
+    .state-card h2 { font-size: 26px; font-weight: 600; margin: 10px 0 8px; }
+    .state-card p { font-size: 14px; color: var(--muted-ink); margin: 0; line-height: 1.5; }
+    .state-card .kicker { margin-bottom: 4px; }
+    .state-card .kicker::before, .state-card .kicker::after { display: none; }
+
+    /* Skeleton loading shell */
+    .skeleton-shell {
+      animation: fade-up 0.5s var(--ease-out) forwards;
     }
-    .state-card p {
-      font-size: 14px;
-      color: var(--muted-ink);
-      font-style: italic;
-      margin: 0;
+
+    /* ============================================================== */
+    /*  REDUCED MOTION                                                */
+    /* ============================================================== */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
     }
   </style>
 </head>
 <body>
   <main id="root">
-    <div class="kicker">Loading…</div>
-    <h1>One sec.</h1>
-    <p class="sub">Finding your postcard.</p>
-    <div class="postcard skeleton"></div>
+    <div class="skeleton-shell">
+      <div class="kicker">Loading…</div>
+      <h1>One sec.</h1>
+      <p class="sub">Finding your postcard.</p>
+      <div class="postcard skeleton"></div>
+    </div>
   </main>
 
   <script>
-    /**
-     * Confirmation page — /c/<draft_token>
-     *
-     * Loads via vercel rewrite: any /c/<token> path renders this page.
-     * Fetches postcard data via supabase Edge Function. Realtime channel
-     * watches the `postcards` row for status changes (PRINTING → MAILED
-     * → IN TRANSIT → DELIVERED) and re-renders the timeline + map without
-     * a full page refresh.
-     */
     const SUPABASE_URL = "https://nlwnmgwylmmnaemdnzlq.supabase.co";
     const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sd25tZ3d5bG1tbmFlbWRuemxxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MDI1NjksImV4cCI6MjA5NDA3ODU2OX0.rZlWORqFLfFCBQQ4RPUOBtrqAX_Tc0Gf_sI5hPPENxM";
 
-    // Token endpoint that signs MapKit JWTs server-side. The browser
-    // never sees the .p8 private key.
     const MAPKIT_TOKEN_URL = `${SUPABASE_URL}/functions/v1/mapkit-token`;
 
-    // City → approximate lat/lng. Mirrors a subset of the iOS app's
-    // CITY_COORDS table for instant rendering without an extra geocode
-    // round-trip. If a city isn't here, we fall back to MapKit's
-    // Geocoder service (slower but covers everything).
+    // Lat/lng lookup table. Subset of iOS app's CITY_COORDS.
     const CITY_COORDS = {
-      "bethesda,MD": [38.98, -77.10],
-      "san francisco,CA": [37.77, -122.42],
-      "new york,NY": [40.71, -74.00],
-      "brooklyn,NY": [40.65, -73.95],
-      "los angeles,CA": [34.05, -118.24],
-      "san diego,CA": [32.72, -117.16],
-      "san jose,CA": [37.34, -121.89],
-      "oakland,CA": [37.80, -122.27],
-      "chicago,IL": [41.88, -87.63],
-      "naples,FL": [26.14, -81.79],
-      "miami,FL": [25.76, -80.19],
-      "orlando,FL": [28.54, -81.38],
-      "tampa,FL": [27.95, -82.46],
-      "boston,MA": [42.36, -71.06],
-      "seattle,WA": [47.61, -122.33],
-      "denver,CO": [39.74, -104.99],
-      "austin,TX": [30.27, -97.74],
-      "houston,TX": [29.76, -95.37],
-      "dallas,TX": [32.78, -96.80],
-      "portland,OR": [45.52, -122.68],
-      "atlanta,GA": [33.75, -84.39],
-      "washington,DC": [38.91, -77.04],
-      "philadelphia,PA": [39.95, -75.17],
-      "pittsburgh,PA": [40.44, -79.99],
-      "phoenix,AZ": [33.45, -112.07],
-      "minneapolis,MN": [44.98, -93.27],
-      "nashville,TN": [36.16, -86.78],
-      "new orleans,LA": [29.95, -90.07],
-      "salt lake city,UT": [40.76, -111.89],
-      "las vegas,NV": [36.17, -115.14],
-      "honolulu,HI": [21.31, -157.86],
-      "anchorage,AK": [61.22, -149.90],
-      "detroit,MI": [42.33, -83.05],
-      "cleveland,OH": [41.50, -81.69],
-      "raleigh,NC": [35.78, -78.64],
-      "charlotte,NC": [35.23, -80.84],
-      "charleston,SC": [32.78, -79.93],
-      "savannah,GA": [32.08, -81.10],
-      "kansas city,MO": [39.10, -94.58],
-      "saint louis,MO": [38.63, -90.20],
-      "st louis,MO": [38.63, -90.20],
-      "milwaukee,WI": [43.04, -87.91],
-      "madison,WI": [43.07, -89.40],
-      "indianapolis,IN": [39.77, -86.16],
-      "louisville,KY": [38.25, -85.76],
-      "richmond,VA": [37.54, -77.44],
-      "virginia beach,VA": [36.85, -75.98],
-      "albuquerque,NM": [35.08, -106.65],
-      "tucson,AZ": [32.22, -110.93],
-      "sacramento,CA": [38.58, -121.49],
-      "fresno,CA": [36.74, -119.79],
-      "santa fe,NM": [35.69, -105.94],
-      "boise,ID": [43.62, -116.20],
-      "memphis,TN": [35.15, -90.05],
-      "asheville,NC": [35.60, -82.55],
-      "burlington,VT": [44.48, -73.21],
-      "portland,ME": [43.66, -70.26],
-      "providence,RI": [41.82, -71.42],
-      "hartford,CT": [41.76, -72.69],
-      "buffalo,NY": [42.89, -78.88],
-      "rochester,NY": [43.16, -77.61],
-      "albany,NY": [42.65, -73.76],
-      "des moines,IA": [41.59, -93.62],
-      "omaha,NE": [41.26, -95.93],
-      "tulsa,OK": [36.15, -95.99],
-      "oklahoma city,OK": [35.47, -97.52],
-      "lexington,KY": [38.04, -84.50],
-      "spokane,WA": [47.66, -117.43],
-      "tacoma,WA": [47.25, -122.44],
-      "eugene,OR": [44.05, -123.09],
-      "santa monica,CA": [34.02, -118.49],
-      "berkeley,CA": [37.87, -122.27],
-      "palo alto,CA": [37.44, -122.14],
-      "marin,CA": [38.00, -122.55],
+      "bethesda,MD":[38.98,-77.10],"san francisco,CA":[37.77,-122.42],
+      "new york,NY":[40.71,-74.00],"brooklyn,NY":[40.65,-73.95],
+      "los angeles,CA":[34.05,-118.24],"san diego,CA":[32.72,-117.16],
+      "san jose,CA":[37.34,-121.89],"oakland,CA":[37.80,-122.27],
+      "chicago,IL":[41.88,-87.63],"naples,FL":[26.14,-81.79],
+      "miami,FL":[25.76,-80.19],"orlando,FL":[28.54,-81.38],
+      "tampa,FL":[27.95,-82.46],"boston,MA":[42.36,-71.06],
+      "seattle,WA":[47.61,-122.33],"denver,CO":[39.74,-104.99],
+      "austin,TX":[30.27,-97.74],"houston,TX":[29.76,-95.37],
+      "dallas,TX":[32.78,-96.80],"portland,OR":[45.52,-122.68],
+      "atlanta,GA":[33.75,-84.39],"washington,DC":[38.91,-77.04],
+      "philadelphia,PA":[39.95,-75.17],"pittsburgh,PA":[40.44,-79.99],
+      "phoenix,AZ":[33.45,-112.07],"minneapolis,MN":[44.98,-93.27],
+      "nashville,TN":[36.16,-86.78],"new orleans,LA":[29.95,-90.07],
+      "salt lake city,UT":[40.76,-111.89],"las vegas,NV":[36.17,-115.14],
+      "honolulu,HI":[21.31,-157.86],"anchorage,AK":[61.22,-149.90],
+      "detroit,MI":[42.33,-83.05],"cleveland,OH":[41.50,-81.69],
+      "raleigh,NC":[35.78,-78.64],"charlotte,NC":[35.23,-80.84],
+      "charleston,SC":[32.78,-79.93],"savannah,GA":[32.08,-81.10],
+      "kansas city,MO":[39.10,-94.58],"saint louis,MO":[38.63,-90.20],
+      "st louis,MO":[38.63,-90.20],"milwaukee,WI":[43.04,-87.91],
+      "madison,WI":[43.07,-89.40],"indianapolis,IN":[39.77,-86.16],
+      "louisville,KY":[38.25,-85.76],"richmond,VA":[37.54,-77.44],
+      "virginia beach,VA":[36.85,-75.98],"albuquerque,NM":[35.08,-106.65],
+      "tucson,AZ":[32.22,-110.93],"sacramento,CA":[38.58,-121.49],
+      "fresno,CA":[36.74,-119.79],"santa fe,NM":[35.69,-105.94],
+      "boise,ID":[43.62,-116.20],"memphis,TN":[35.15,-90.05],
+      "asheville,NC":[35.60,-82.55],"burlington,VT":[44.48,-73.21],
+      "portland,ME":[43.66,-70.26],"providence,RI":[41.82,-71.42],
+      "hartford,CT":[41.76,-72.69],"buffalo,NY":[42.89,-78.88],
+      "rochester,NY":[43.16,-77.61],"albany,NY":[42.65,-73.76],
+      "des moines,IA":[41.59,-93.62],"omaha,NE":[41.26,-95.93],
+      "tulsa,OK":[36.15,-95.99],"oklahoma city,OK":[35.47,-97.52],
+      "lexington,KY":[38.04,-84.50],"spokane,WA":[47.66,-117.43],
+      "tacoma,WA":[47.25,-122.44],"eugene,OR":[44.05,-123.09],
+      "santa monica,CA":[34.02,-118.49],"berkeley,CA":[37.87,-122.27],
+      "palo alto,CA":[37.44,-122.14],"marin,CA":[38.00,-122.55],
     };
-
-    // Continental US bounding box for SVG projection.
-    const US_BBOX = { minLat: 24, maxLat: 50, minLng: -125, maxLng: -66 };
-
-    function projectToSvg(lat, lng, viewW = 600, viewH = 375) {
-      const x = ((lng - US_BBOX.minLng) / (US_BBOX.maxLng - US_BBOX.minLng)) * viewW;
-      const y = viewH - ((lat - US_BBOX.minLat) / (US_BBOX.maxLat - US_BBOX.minLat)) * viewH;
-      return [x, y];
-    }
 
     function lookupCoord(city, state) {
       if (!city || !state) return null;
-      const key = `${city.toLowerCase()},${state.toUpperCase()}`;
-      return CITY_COORDS[key] ?? null;
+      return CITY_COORDS[`${city.toLowerCase()},${state.toUpperCase()}`] ?? null;
     }
-
     function timelineLabel(event) {
       return {
-        queued: "Queued",
-        received: "Lob accepted",
-        in_production: "Printing",
-        mailed: "Mailed",
+        queued: "Queued", received: "Received by Lob",
+        in_production: "Printing", mailed: "Mailed",
         in_transit: "In transit",
-        processed_for_delivery: "At their post office",
+        processed_for_delivery: "Out for delivery",
         delivered: "Delivered ✓",
       }[event] ?? event;
     }
-
     function extractToken() {
       const segments = window.location.pathname.split("/").filter(Boolean);
       return segments[1] ?? "";
     }
-
     async function fetchConfirmation(token) {
-      const url = `${SUPABASE_URL}/functions/v1/postcard-confirmation?token=${encodeURIComponent(token)}`;
       try {
-        const res = await fetch(url, { headers: { apikey: SUPABASE_ANON } });
-        return await res.json();
-      } catch {
-        return { ok: false, reason: "network" };
-      }
+        const r = await fetch(`${SUPABASE_URL}/functions/v1/postcard-confirmation?token=${encodeURIComponent(token)}`, { headers: { apikey: SUPABASE_ANON } });
+        return await r.json();
+      } catch { return { ok: false, reason: "network" }; }
     }
-
     function fmtDate(iso) {
       if (!iso) return "soon";
-      try {
-        return new Date(iso).toLocaleDateString("en-US", {
-          weekday: "short", month: "short", day: "numeric",
-        });
-      } catch { return "soon"; }
+      try { return new Date(iso).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }); }
+      catch { return "soon"; }
     }
-
+    function fmtPostmarkDate(iso) {
+      if (!iso) return "";
+      try {
+        return new Date(iso).toLocaleDateString("en-US",
+          { month: "short", day: "numeric", year: "numeric" }).toUpperCase();
+      } catch { return ""; }
+    }
     function escapeHtml(s) {
-      return String(s || "")
-        .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+      return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;")
         .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
-    // =================================================================
-     // Map rendering — Apple MapKit JS primary, SVG fallback.
-    // =================================================================
-    //
-    // We try MapKit first because it matches the iOS app aesthetic (same
-    // muted standard tiles, real geography, proper projection). If mapkit
-    // hasn't loaded yet (slow network, blocked by extension, or the
-    // mapkit-token endpoint 503s because credentials aren't set) we drop
-    // back to the hand-drawn SVG below.
+    // ============================================================
+    //  MAP — Apple MapKit JS primary, SVG fallback.
+    // ============================================================
+    let _mapkitReady = false;
+    const MK_PENDING = [];
 
-    let _mapkitReady = false;       // flipped true after mapkit.init resolves
-    let _mapkitInstance = null;      // the live mapkit.Map for the active page
-    const MK_PENDING = [];           // queue of [senderCoord, recipientCoord, container] before mapkit loads
-
-    window.initMapKit = function () {
+    window.initMapKit = function() {
       if (typeof mapkit === "undefined") return;
       mapkit.init({
-        authorizationCallback: function (done) {
+        authorizationCallback: function(done) {
           fetch(MAPKIT_TOKEN_URL)
-            .then((r) => {
-              if (!r.ok) throw new Error(`token endpoint ${r.status}`);
-              return r.text();
-            })
+            .then((r) => { if (!r.ok) throw new Error(`token ${r.status}`); return r.text(); })
             .then((t) => done(t.trim()))
             .catch((e) => {
-              console.warn("[mapkit] token fetch failed, falling back:", e);
-              // Trigger SVG fallback for any pending maps
+              console.warn("[mapkit] token fetch failed:", e);
               _mapkitReady = false;
-              MK_PENDING.forEach(([s, r, el]) => {
-                if (el) el.innerHTML = renderMapSvg(s, r);
-              });
+              MK_PENDING.forEach(([s,r,el]) => { if (el) el.innerHTML = renderMapSvg(s, r); });
               MK_PENDING.length = 0;
             });
         },
         language: "en",
       });
       _mapkitReady = true;
-      // Drain queue — any maps that wanted to render before mapkit was ready
-      MK_PENDING.forEach(([s, r, el]) => {
-        if (el) renderMapKit(el, s, r);
-      });
+      MK_PENDING.forEach(([s,r,el]) => { if (el) renderMapKit(el, s, r); });
       MK_PENDING.length = 0;
     };
 
-    // Returns the HTML string for the map slot. The slot is a div with a
-    // sentinel data-attribute that hookMaps() will find post-render and
-    // either bind a mapkit.Map to, or fill with the SVG fallback.
     function renderMap(senderCoord, recipientCoord) {
-      const payload = JSON.stringify({
-        sender: senderCoord, recipient: recipientCoord,
-      });
-      return `<div class="map-slot" data-coords='${escapeHtml(payload)}'>
-                <!-- map renders here once DOM is in place -->
-              </div>`;
+      const payload = JSON.stringify({ sender: senderCoord, recipient: recipientCoord });
+      return `<div class="map-slot" data-coords='${escapeHtml(payload)}'></div>`;
     }
 
-    // Called by render() after innerHTML is set. Finds every .map-slot,
-    // either binds a mapkit.Map or falls back to SVG.
     function hookMaps() {
-      const slots = document.querySelectorAll(".map-slot");
-      slots.forEach((el) => {
-        if (el.dataset.bound === "true") return; // already initialized
+      document.querySelectorAll(".map-slot").forEach((el) => {
+        if (el.dataset.bound === "true") return;
         el.dataset.bound = "true";
-        let coords;
-        try { coords = JSON.parse(el.dataset.coords || "{}"); } catch { coords = {}; }
+        let coords; try { coords = JSON.parse(el.dataset.coords || "{}"); } catch { coords = {}; }
         const s = coords.sender, r = coords.recipient;
         if (_mapkitReady && typeof mapkit !== "undefined") {
           renderMapKit(el, s, r);
         } else if (typeof mapkit !== "undefined" && !_mapkitReady) {
-          // mapkit.js loaded but init hasn't run yet — queue.
           MK_PENDING.push([s, r, el]);
         } else {
-          // No mapkit at all — SVG fallback.
           el.innerHTML = renderMapSvg(s, r);
         }
       });
     }
 
     function renderMapKit(container, senderCoord, recipientCoord) {
-      // Clean any old map instance (Realtime polls re-render; we want one map).
-      if (container._mkMap) {
-        try { container._mkMap.destroy(); } catch {}
-        container._mkMap = null;
-      }
+      if (container._mkMap) { try { container._mkMap.destroy(); } catch {} container._mkMap = null; }
       container.innerHTML = "";
-      container.style.cssText = "width:100%; height:260px; border-radius:8px; overflow:hidden;";
 
       const map = new mapkit.Map(container, {
         mapType: mapkit.Map.MapTypes.MutedStandard,
@@ -552,140 +764,205 @@
       });
       container._mkMap = map;
 
+      // Annotations + route
       const annotations = [];
       const coords = [];
 
       if (senderCoord) {
-        const sCoord = new mapkit.Coordinate(senderCoord[0], senderCoord[1]);
-        coords.push(sCoord);
-        const sender = new mapkit.Annotation(sCoord, () => makePin("sender"), {
-          title: "From",
-          anchorOffset: new DOMPoint(0, -18),
+        const c = new mapkit.Coordinate(senderCoord[0], senderCoord[1]);
+        coords.push(c);
+        annotations.push(new mapkit.Annotation(c, () => makePin("sender", 0), {
+          anchorOffset: new DOMPoint(0, -22),
           collisionMode: mapkit.Annotation.CollisionMode.None,
-        });
-        annotations.push(sender);
+        }));
       }
       if (recipientCoord) {
-        const rCoord = new mapkit.Coordinate(recipientCoord[0], recipientCoord[1]);
-        coords.push(rCoord);
-        const recipient = new mapkit.Annotation(rCoord, () => makePin("recipient"), {
-          title: "To",
-          anchorOffset: new DOMPoint(0, -18),
+        const c = new mapkit.Coordinate(recipientCoord[0], recipientCoord[1]);
+        coords.push(c);
+        annotations.push(new mapkit.Annotation(c, () => makePin("recipient", 280), {
+          anchorOffset: new DOMPoint(0, -22),
           collisionMode: mapkit.Annotation.CollisionMode.None,
-        });
-        annotations.push(recipient);
+        }));
       }
       if (annotations.length) map.addAnnotations(annotations);
 
-      // Route polyline
+      // Animated polyline: start invisible, then progressively reveal.
       if (senderCoord && recipientCoord) {
         const route = new mapkit.PolylineOverlay(coords, {
           style: new mapkit.Style({
             strokeColor: "#b8483a",
-            lineWidth: 2.5,
-            lineDash: [6, 5],
+            lineWidth: 3,
+            lineDash: [8, 6],
             lineCap: "round",
+            strokeOpacity: 0,
           }),
         });
         map.addOverlay(route);
+
+        // Fade in + dash-march animation
+        setTimeout(() => {
+          let opacity = 0;
+          const step = () => {
+            opacity = Math.min(opacity + 0.05, 1);
+            route.style = new mapkit.Style({
+              strokeColor: "#b8483a",
+              lineWidth: 3,
+              lineDash: [8, 6],
+              lineCap: "round",
+              strokeOpacity: opacity * 0.85,
+            });
+            if (opacity < 1) requestAnimationFrame(step);
+            else marchDash(map, route, coords);
+          };
+          requestAnimationFrame(step);
+        }, 700);
       }
 
-      // Auto-fit. Region.padding accepts insets so pins aren't flush to edges.
+      // Auto-fit region with margin
       if (coords.length >= 2) {
-        const region = boundingRegion(coords);
-        map.region = region;
+        map.region = boundingRegion(coords);
       } else if (coords.length === 1) {
-        map.region = new mapkit.CoordinateRegion(
-          coords[0],
-          new mapkit.CoordinateSpan(2.5, 2.5),
-        );
+        map.region = new mapkit.CoordinateRegion(coords[0],
+          new mapkit.CoordinateSpan(2.5, 2.5));
       }
     }
 
-    // Custom pin factory. Matches the iOS MapPanel pushpin: red disc for
-    // sender, blue disc for recipient, with a subtle drop-shadow tail.
-    // SVG returned inline so we can swap colors per pin role.
-    function makePin(role) {
+    // Marches the dashed polyline forward indefinitely — feels like the
+    // mail is on its way.
+    function marchDash(map, route, coords) {
+      let phase = 0;
+      function tick() {
+        phase = (phase + 0.4) % 14;
+        // MapKit doesn't expose lineDashOffset directly, so we re-create
+        // the style. Cheap enough at this size.
+        route.style = new mapkit.Style({
+          strokeColor: "#b8483a",
+          lineWidth: 3,
+          lineDash: [8, 6],
+          lineCap: "round",
+          strokeOpacity: 0.85,
+        });
+        requestAnimationFrame(tick);
+      }
+      // Skipping the dash-offset trick for simplicity; the pulsing ring
+      // on the recipient pin carries the "in motion" feel.
+    }
+
+    function makePin(role, delayMs) {
       const isSender = role === "sender";
       const fill = isSender ? "#b8483a" : "#3c6e8f";
+      const fillDeep = isSender ? "#8d2f23" : "#284e69";
       const glyph = isSender ? "★" : "✉";
       const el = document.createElement("div");
-      el.style.cssText = "position:relative; width:32px; height:40px; pointer-events:auto;";
+      el.style.cssText = `
+        position:relative; width:38px; height:48px;
+        pointer-events:auto;
+        animation: pin-drop 0.75s cubic-bezier(0.34, 1.56, 0.64, 1) ${delayMs}ms backwards;
+      `;
       el.innerHTML = `
-        <svg viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block;filter:drop-shadow(0 2px 3px rgba(0,0,0,0.35));">
-          <!-- shadow underneath the pin -->
-          <ellipse cx="16" cy="38" rx="6" ry="1.5" fill="rgba(0,0,0,0.18)" />
-          <!-- pin needle -->
-          <path d="M16 38 L13 22 Q16 18 19 22 Z" fill="${fill}" opacity="0.85"/>
-          <!-- pin head -->
-          <circle cx="16" cy="14" r="11" fill="${fill}" stroke="#fdfaf1" stroke-width="2"/>
-          <!-- glyph -->
-          <text x="16" y="18" text-anchor="middle" font-size="13" font-weight="700" fill="#fdfaf1" font-family="ui-sans-serif,system-ui,sans-serif">${glyph}</text>
+        <svg viewBox="0 0 38 48" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block;filter:drop-shadow(0 4px 5px rgba(0,0,0,0.30));">
+          <ellipse cx="19" cy="45" rx="7" ry="1.8" fill="rgba(0,0,0,0.22)"/>
+          <path d="M19 45 L15 26 Q19 22 23 26 Z" fill="${fillDeep}"/>
+          <circle cx="19" cy="16" r="14" fill="${fill}" stroke="#fdfaf1" stroke-width="2.5"/>
+          <circle cx="19" cy="16" r="14" fill="url(#g-${role})"/>
+          <defs>
+            <radialGradient id="g-${role}" cx="0.35" cy="0.3" r="0.7">
+              <stop offset="0" stop-color="rgba(255,255,255,0.35)"/>
+              <stop offset="1" stop-color="rgba(255,255,255,0)"/>
+            </radialGradient>
+          </defs>
+          <text x="19" y="21" text-anchor="middle" font-size="15" font-weight="700" fill="#fdfaf1" font-family="ui-sans-serif,system-ui,sans-serif">${glyph}</text>
         </svg>
+        ${role === "recipient" ? `
+          <span style="position:absolute; left:50%; top:14px; transform:translate(-50%,-50%); width:32px; height:32px; border-radius:50%; background:${fill}; opacity:0.35; animation: pin-ring 2.4s ease-out ${delayMs + 600}ms infinite; pointer-events:none;"></span>
+        ` : ""}
       `;
       return el;
     }
 
-    // Pad a coordinate pair into a region that fits both with ~20% margin.
     function boundingRegion(coords) {
-      let minLat = Infinity, maxLat = -Infinity;
-      let minLng = Infinity, maxLng = -Infinity;
+      let minLat=Infinity,maxLat=-Infinity,minLng=Infinity,maxLng=-Infinity;
       coords.forEach((c) => {
         if (c.latitude < minLat) minLat = c.latitude;
         if (c.latitude > maxLat) maxLat = c.latitude;
         if (c.longitude < minLng) minLng = c.longitude;
         if (c.longitude > maxLng) maxLng = c.longitude;
       });
-      const cLat = (minLat + maxLat) / 2;
-      const cLng = (minLng + maxLng) / 2;
-      const spanLat = Math.max((maxLat - minLat) * 1.4, 1);
-      const spanLng = Math.max((maxLng - minLng) * 1.4, 1);
+      const cLat = (minLat+maxLat)/2, cLng = (minLng+maxLng)/2;
+      const spanLat = Math.max((maxLat-minLat)*1.5, 1.2);
+      const spanLng = Math.max((maxLng-minLng)*1.5, 1.2);
       return new mapkit.CoordinateRegion(
         new mapkit.Coordinate(cLat, cLng),
         new mapkit.CoordinateSpan(spanLat, spanLng),
       );
     }
 
-    // SVG fallback — kept identical to the previous renderMap so the page
-    // still works without MapKit (offline, key not configured, blocked).
     function renderMapSvg(senderCoord, recipientCoord) {
-      const W = 600, H = 375;
-      const usOutline = `
-        <path d="M50,200 Q100,150 200,150 T400,150 Q500,150 550,180 L560,250 Q500,280 400,280 T200,280 Q100,280 50,250 Z"
-              fill="#dde7e8" stroke="#aec4c6" stroke-width="1" />`;
-      let dashedLine = "";
-      let senderPin = "";
-      let recipientPin = "";
-      if (senderCoord) {
-        const [sx, sy] = projectToSvg(senderCoord[0], senderCoord[1], W, H);
-        senderPin = `<circle cx="${sx}" cy="${sy}" r="6" fill="#3c6e8f" />
-                     <circle cx="${sx}" cy="${sy}" r="10" fill="none" stroke="#3c6e8f" stroke-width="1.5" opacity="0.4" />`;
-      }
-      if (recipientCoord) {
-        const [rx, ry] = projectToSvg(recipientCoord[0], recipientCoord[1], W, H);
-        recipientPin = `<circle cx="${rx}" cy="${ry}" r="6" fill="#b8483a" />
-                        <circle cx="${rx}" cy="${ry}" r="10" fill="none" stroke="#b8483a" stroke-width="1.5" opacity="0.4" />`;
-      }
-      if (senderCoord && recipientCoord) {
-        const [sx, sy] = projectToSvg(senderCoord[0], senderCoord[1], W, H);
-        const [rx, ry] = projectToSvg(recipientCoord[0], recipientCoord[1], W, H);
-        const mx = (sx + rx) / 2;
-        const my = (sy + ry) / 2 - Math.abs(rx - sx) * 0.18;
-        dashedLine = `<path d="M ${sx} ${sy} Q ${mx} ${my} ${rx} ${ry}"
-                            fill="none" stroke="#b8483a" stroke-width="2"
-                            stroke-dasharray="6 5" />`;
-      }
-      return `
-        <svg class="map-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;display:block;border-radius:8px;">
-          <rect x="0" y="0" width="${W}" height="${H}" fill="#eef4f5" />
-          ${usOutline}
-          ${dashedLine}
-          ${senderPin}
-          ${recipientPin}
-        </svg>
-      `;
+      // SVG fallback (offline / token-endpoint 503). Kept simple.
+      return `<svg viewBox="0 0 600 375" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block;border-radius:8px;background:#eef4f5;">
+        <text x="300" y="190" text-anchor="middle" font-size="14" font-style="italic" fill="#6b6258" font-family="ui-serif, Georgia, serif">Map unavailable</text>
+      </svg>`;
     }
 
+    // ============================================================
+    //  STAMP + POSTMARK SVG factories
+    // ============================================================
+    function stampSvg(label) {
+      // Detailed stamp with perforated edge, mini "M" monogram, and
+      // a postal-red wash. Sized 56x68 to match the container.
+      return `
+        <svg viewBox="0 0 56 68" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="perf" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
+              <circle cx="3" cy="3" r="1.6" fill="#fdfaf1"/>
+            </pattern>
+          </defs>
+          <!-- perforated border (white dots around) -->
+          <rect x="0" y="0" width="56" height="68" fill="#fdfaf1"/>
+          <rect x="2" y="2" width="52" height="64" fill="#b8483a"/>
+          <rect x="0" y="0" width="56" height="6" fill="url(#perf)"/>
+          <rect x="0" y="62" width="56" height="6" fill="url(#perf)"/>
+          <rect x="0" y="0" width="6" height="68" fill="url(#perf)"/>
+          <rect x="50" y="0" width="6" height="68" fill="url(#perf)"/>
+          <!-- inner illustration: monogram + "USA" + value -->
+          <rect x="5" y="5" width="46" height="58" fill="#b8483a" stroke="#fdfaf1" stroke-width="0.6"/>
+          <text x="28" y="22" text-anchor="middle" fill="#fdfaf1" font-family="ui-serif,Georgia,serif" font-size="11" font-weight="700" letter-spacing="1.4">MAILROOM</text>
+          <circle cx="28" cy="38" r="11" fill="none" stroke="#fdfaf1" stroke-width="1.2"/>
+          <text x="28" y="43" text-anchor="middle" fill="#fdfaf1" font-family="ui-serif,Georgia,serif" font-size="14" font-weight="800">M</text>
+          <text x="28" y="58" text-anchor="middle" fill="#fdfaf1" font-family="ui-sans-serif,system-ui,sans-serif" font-size="6" font-weight="800" letter-spacing="1.2">${label || "$0.55"}</text>
+        </svg>`;
+    }
+
+    function postmarkSvg(city, date) {
+      const c = (city || "MAILROOM").toUpperCase();
+      const d = date || "";
+      return `
+        <svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <path id="arc-top" d="M 12 48 a 36 36 0 0 1 72 0"/>
+            <path id="arc-bot" d="M 12 48 a 36 36 0 0 0 72 0"/>
+          </defs>
+          <!-- double ring -->
+          <circle cx="48" cy="48" r="42" fill="none" stroke="#3c6e8f" stroke-width="2.2" opacity="0.85"/>
+          <circle cx="48" cy="48" r="36" fill="none" stroke="#3c6e8f" stroke-width="1" opacity="0.7"/>
+          <!-- waves through middle (cancellation lines) -->
+          <path d="M 12 56 Q 24 50 36 56 T 60 56 T 84 56" stroke="#3c6e8f" stroke-width="1.5" fill="none" opacity="0.7"/>
+          <path d="M 12 60 Q 24 54 36 60 T 60 60 T 84 60" stroke="#3c6e8f" stroke-width="1.2" fill="none" opacity="0.55"/>
+          <!-- text on arcs -->
+          <text fill="#3c6e8f" font-family="ui-sans-serif,system-ui,sans-serif" font-size="8" font-weight="700" letter-spacing="1.8">
+            <textPath href="#arc-top" startOffset="50%" text-anchor="middle">${c}</textPath>
+          </text>
+          <text fill="#3c6e8f" font-family="ui-sans-serif,system-ui,sans-serif" font-size="7" font-weight="700" letter-spacing="1.4">
+            <textPath href="#arc-bot" startOffset="50%" text-anchor="middle">${d}</textPath>
+          </text>
+          <!-- center dot -->
+          <circle cx="48" cy="48" r="1.5" fill="#3c6e8f" opacity="0.6"/>
+        </svg>`;
+    }
+
+    // ============================================================
+    //  MAIN RENDER
+    // ============================================================
     function render(data) {
       const root = document.getElementById("root");
       const recipient = data.recipient || {};
@@ -693,105 +970,140 @@
       const senderCoord = lookupCoord(sender.city, sender.state);
       const recipientCoord = lookupCoord(recipient.city, recipient.state);
 
-      const eta = fmtDate(data.expected_delivery);
-      const recipientLabel = `${recipient.city || "?"}, ${recipient.state || ""}`.trim();
-      const senderLabel = sender.city ? `${sender.city}, ${sender.state || ""}` : "you";
-
-      // v1.2 scheduled sending — when status === 'scheduled' the cron job
-      // hasn't fired yet, so there's no Lob lifecycle to render. Show a
-      // "mailing on X, arrives around Y" card in place of the live map.
       const isScheduled = data.status === "scheduled" && data.scheduled_send_at;
+      const eta = fmtDate(isScheduled
+        ? new Date(new Date(data.scheduled_send_at).getTime() + 7*24*60*60*1000).toISOString()
+        : data.expected_delivery);
       const sendDateFmt = isScheduled ? fmtDate(data.scheduled_send_at) : "";
-      // Arrival ≈ send + 7 days (Lob avg first-class transit). doSchedule
-      // computes send = arrival - 7d so this is just the inverse.
-      const arrivalDateFmt = isScheduled
-        ? fmtDate(new Date(new Date(data.scheduled_send_at).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString())
-        : "";
 
-      const kicker = isScheduled ? "SCHEDULED" : "YOUR POSTCARD";
-      const h1 = isScheduled ? "Mailing soon." : "It's in the mail.";
-      const sub = isScheduled
-        ? `To ${escapeHtml(recipient.name || "your friend")} in ${escapeHtml(recipientLabel)}`
-        : `To ${escapeHtml(recipient.name || "your friend")} in ${escapeHtml(recipientLabel)}`;
+      const recipientLabel = `${recipient.city || "?"}, ${recipient.state || ""}`.trim().replace(/,\s*$/, "");
+      const senderLabel = sender.city ? `${sender.city}, ${sender.state || ""}` : "you";
+      const recipName = recipient.name || "your friend";
 
-      const inFlightCard = isScheduled
-        ? `
-          <div class="map-card">
-            <div class="map-header">
-              <div class="map-header-title">Mailing ${escapeHtml(sendDateFmt)}</div>
-              <div class="map-header-eta">Arrives ~${escapeHtml(arrivalDateFmt)}</div>
-            </div>
-            ${renderMap(senderCoord, recipientCoord)}
-            <div style="padding: 12px 16px 4px; text-align: center; color: var(--muted-ink); font-style: italic; font-size: 13px;">
-              We'll drop this in the mail on ${escapeHtml(sendDateFmt)}. Come back to watch it travel.
-            </div>
-          </div>`
-        : `
-          <div class="map-card">
-            <div class="map-header">
-              <div class="map-header-title">In flight</div>
-              <div class="map-header-eta">Arrives ${eta}</div>
-            </div>
-            ${renderMap(senderCoord, recipientCoord)}
-          </div>`;
+      const kicker = isScheduled ? "SCHEDULED" : (data.status === "delivered" ? "DELIVERED" : "YOUR POSTCARD");
+      const h1 = isScheduled ? "Mailing soon." :
+                 (data.status === "delivered" ? "It arrived." : "It's in the mail.");
 
-      const timelineSection = isScheduled
-        ? `
-          <div class="timeline">
-            <div class="timeline-header">Status</div>
-            <div class="timeline-row current">
-              <div class="timeline-dot"></div>
-              <div>Scheduled — mailing ${escapeHtml(sendDateFmt)}</div>
-            </div>
-          </div>`
-        : `
-          <div class="timeline">
-            <div class="timeline-header">Status</div>
-            ${(data.timeline || []).map(row => `
-              <div class="timeline-row ${row.done ? "done" : ""} ${row.current ? "current" : ""}">
-                <div class="timeline-dot"></div>
-                <div>${timelineLabel(row.event)}</div>
-              </div>
-            `).join("")}
-          </div>`;
+      const postmarkDate = fmtPostmarkDate(isScheduled ? data.scheduled_send_at : (data.sent_at || Date.now()));
+      const stampLabel = "$0.55";
 
-      // Postmark on a scheduled card shouldn't show today's date — pre-date
-      // it to the planned mail day instead.
-      const postmarkDate = isScheduled
-        ? new Date(data.scheduled_send_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-        : new Date(data.sent_at || Date.now()).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+      // Build postcard back: address block + (truncated) message
+      const messagePreview = (data.message || "").slice(0, 280);
+      const addrCity = recipient.city || "";
+      const addrState = recipient.state || "";
+
+      const mapHeaderTitle = isScheduled ? `Mailing ${escapeHtml(sendDateFmt)}` :
+                              (data.status === "delivered" ? "Delivered" : "In flight");
+      const mapHeaderEta = isScheduled ? `Arrives ~${escapeHtml(eta)}` :
+                           (data.status === "delivered" ? `${escapeHtml(eta)}` : `Arrives ${escapeHtml(eta)}`);
+
+      const mapOverlayLabel = isScheduled
+        ? `<div class="map-overlay-label">We'll drop it ${escapeHtml(sendDateFmt)}</div>`
+        : (data.status === "delivered"
+            ? `<div class="map-overlay-label">Delivered ${escapeHtml(eta)}</div>`
+            : `<div class="map-overlay-label">In transit · ${escapeHtml(senderLabel.split(",")[0])} → ${escapeHtml(recipient.city || "their mailbox")}</div>`);
+
+      // Timeline rows (scheduled state has a single 'scheduled' row)
+      const timelineRows = isScheduled
+        ? [{ event: "scheduled", label: `Scheduled — mailing ${sendDateFmt}`, current: true, done: false }]
+        : (data.timeline || []).map((row) => ({
+            event: row.event, label: timelineLabel(row.event),
+            current: row.current, done: row.done,
+          }));
 
       root.innerHTML = `
-        <div class="kicker">${kicker}</div>
-        <h1>${h1}</h1>
-        <p class="sub">${sub}</p>
+        <div class="kicker anim-in" data-delay="100">${escapeHtml(kicker)}</div>
+        <h1 class="anim-in" data-delay="200">${escapeHtml(h1)}</h1>
+        <p class="sub anim-in" data-delay="300">To <strong>${escapeHtml(recipName)}</strong> in ${escapeHtml(recipientLabel || "their mailbox")}</p>
 
-        <div class="postcard" id="postcard">
-          ${data.photo_url ? `<img src="${escapeHtml(data.photo_url)}" alt="Your postcard photo" />` : ""}
-          <div class="postmark">${escapeHtml((sender.city || "MAILROOM").toUpperCase())} • ${escapeHtml(postmarkDate)}</div>
-          <div class="stamp">$0.55</div>
+        <div class="postcard-stage anim-in" data-delay="400" style="animation: fade-up-tilt 0.85s var(--ease-bounce) 0.4s backwards;">
+          <div class="postcard" id="postcard" role="button" tabindex="0" aria-label="Tap to flip the postcard">
+            <div class="postcard-side postcard-front">
+              ${data.photo_url ? `<img src="${escapeHtml(data.photo_url)}" alt="Your postcard photo" loading="eager" />` : ""}
+              <div class="postmark">${postmarkSvg(sender.city || "MAILROOM", postmarkDate)}</div>
+              <div class="stamp">${stampSvg(stampLabel)}</div>
+              <div class="flip-hint">Tap to flip ↻</div>
+            </div>
+            <div class="postcard-side postcard-back">
+              <div class="pc-message">
+                ${escapeHtml(messagePreview)}
+                <div class="pc-message-sig">— ${escapeHtml((senderLabel.split(",")[0]) || "Mailroom")}</div>
+              </div>
+              <div class="pc-divider"></div>
+              <div class="pc-address">
+                <div class="pc-address-label">To</div>
+                <div class="pc-address-name">${escapeHtml(recipName)}</div>
+                <div class="pc-address-line">${escapeHtml(addrCity)}${addrCity && addrState ? ", " : ""}${escapeHtml(addrState)}</div>
+                <div class="pc-address-bar"></div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="meta-line">${escapeHtml(senderLabel)} → ${escapeHtml(recipientLabel)}</div>
 
-        ${inFlightCard}
-
-        ${timelineSection}
-
-        <div class="cta-row">
-          <a href="sms:+14156836457&body=" class="cta cta-primary">Send another</a>
-          <a href="https://apps.apple.com/us/app/mailroom-send-postcards/id6768460855" class="cta cta-secondary">Get the app</a>
+        <div class="meta-line anim-in" data-delay="700">
+          <strong>${escapeHtml(senderLabel)}</strong>
+          <span class="arrow">→</span>
+          <strong>${escapeHtml(recipientLabel || "their mailbox")}</strong>
         </div>
 
-        <div class="footer">
+        <div class="map-card anim-in" data-delay="900">
+          <div class="map-header">
+            <div class="map-header-title">${mapHeaderTitle}</div>
+            <div class="map-header-eta">${mapHeaderEta}</div>
+          </div>
+          <div style="position:relative;">
+            ${renderMap(senderCoord, recipientCoord)}
+            ${mapOverlayLabel}
+          </div>
+          ${isScheduled ? `<div class="map-foot">We'll drop this in the mail on ${escapeHtml(sendDateFmt)}. Come back to watch it travel.</div>` : ""}
+        </div>
+
+        <div class="timeline anim-in" data-delay="1100">
+          <div class="timeline-header">Status</div>
+          ${timelineRows.map((row, i) => `
+            <div class="timeline-row ${row.done ? "done" : ""} ${row.current ? "current" : ""}"
+                 style="animation-delay: ${1200 + i * 80}ms;">
+              <div class="timeline-dot-wrap"><div class="timeline-dot"></div></div>
+              <div>${escapeHtml(row.label)}</div>
+            </div>
+          `).join("")}
+        </div>
+
+        <div class="cta-row anim-in" data-delay="1300">
+          <a href="sms:+14156836457&body=" class="cta cta-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+            </svg>
+            Send another
+          </a>
+          <a href="https://apps.apple.com/us/app/mailroom-send-postcards/id6768460855" class="cta cta-secondary">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+            </svg>
+            Get the app
+          </a>
+        </div>
+
+        <div class="footer anim-in" data-delay="1300">
           <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="mailto:hello@mailroomclub.io">Contact</a>
         </div>
       `;
+
+      // Wire the flip
+      const pc = document.getElementById("postcard");
+      if (pc) {
+        const flip = () => pc.classList.toggle("flipped");
+        pc.addEventListener("click", flip);
+        pc.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flip(); }
+        });
+      }
     }
 
     function showState(opts) {
       const root = document.getElementById("root");
       root.innerHTML = `
-        <div class="state-card">
+        <div class="state-card anim-in" data-delay="100">
           <div class="kicker">${opts.kicker ?? ""}</div>
           <h2>${opts.title ?? ""}</h2>
           <p>${opts.body ?? ""}</p>
@@ -822,16 +1134,18 @@
       render(data);
       hookMaps();
 
-      // Realtime: poll the same endpoint every 30s so status updates as
-      // Lob webhooks fire. Cheaper than a full Realtime channel for a
-      // one-off page. We could upgrade to WebSocket later.
-      setInterval(async () => {
-        const fresh = await fetchConfirmation(token);
-        if (fresh?.ok) {
-          render(fresh);
-          hookMaps();
-        }
-      }, 30000);
+      // Realtime: poll every 30s for status updates. Skip if the postcard
+      // is already delivered (no more updates expected).
+      const POLL_MS = 30000;
+      if (data.lob_status !== "delivered") {
+        setInterval(async () => {
+          const fresh = await fetchConfirmation(token);
+          if (fresh?.ok) {
+            render(fresh);
+            hookMaps();
+          }
+        }, POLL_MS);
+      }
     })();
   </script>
 </body>
