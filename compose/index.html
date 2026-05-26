@@ -371,6 +371,16 @@
       return segments[1] ?? "";
     }
 
+    // v1.1 hack: ?bypass_otp=1 lets us skip the SMS OTP step. Needed
+    // until Twilio A2P 10DLC registration is approved (the user can't
+    // receive OTP SMS until then). The verified_phone must already be
+    // set on the draft server-side for sms-submit's phone-mismatch
+    // gate to pass. Remove this query-param check once A2P approval
+    // lands.
+    function shouldBypassOtp() {
+      return new URLSearchParams(window.location.search).get("bypass_otp") === "1";
+    }
+
     /* -- Network helpers --------------------------------------------- */
     async function postJson(fn, body) {
       const res = await fetch(`${SUPABASE_URL}/functions/v1/${fn}`, {
@@ -532,12 +542,15 @@
       // We pre-fill with the phone they texted from (we have it on the
       // draft but we masked it before sending to the client; let them
       // confirm it themselves to prove ownership).
+      const bypass = shouldBypassOtp();
       return html`
-        <div class="kicker">${state.otpSent ? "ENTER YOUR CODE" : "CONFIRM YOUR NUMBER"}</div>
-        <h1>${state.otpSent ? "Check your texts." : "Your free card is almost out."}</h1>
-        <p class="sub">${state.otpSent
-          ? "We just sent a 6-digit code to your phone. Pop it in below."
-          : "We'll text you a 6-digit code to confirm it's really you. Standard mobile rates apply."
+        <div class="kicker">${bypass ? "CONFIRM YOUR NUMBER" : state.otpSent ? "ENTER YOUR CODE" : "CONFIRM YOUR NUMBER"}</div>
+        <h1>${bypass ? "Almost there." : state.otpSent ? "Check your texts." : "Your free card is almost out."}</h1>
+        <p class="sub">${bypass
+          ? "Enter the phone you texted us from. Tap to mail your card."
+          : state.otpSent
+            ? "We just sent a 6-digit code to your phone. Pop it in below."
+            : "We'll text you a 6-digit code to confirm it's really you. Standard mobile rates apply."
         }</p>
         ${state.otpSent ? "" : html`
           <div class="field">
@@ -554,7 +567,7 @@
         ` : ""}
         ${state.errorMsg ? `<div class="err">${escapeHtml(state.errorMsg)}</div>` : ""}
         <button class="primary" id="btn-continue" ${state.busy ? "disabled" : ""}>
-          ${state.busy ? "Sending…" : state.otpSent ? "Verify + send postcard" : "Send me the code"}
+          ${state.busy ? "Sending…" : bypass ? "Mail it →" : state.otpSent ? "Verify + send postcard" : "Send me the code"}
         </button>
         ${state.otpSent ? `<button class="ghost" id="btn-resend">Didn't get it? Send a new code</button>` : ""}
         <button class="ghost" id="btn-back">← Back</button>
@@ -704,6 +717,37 @@
             return;
           }
           state.phone = e164;
+          // v1.1 bypass: ?bypass_otp=1 skips the OTP round-trip and
+          // goes straight to submit. The draft must already have
+          // verified_phone set server-side (we did it manually for
+          // pre-A2P-registration testing).
+          if (shouldBypassOtp()) {
+            state.verified = true;
+            state.step = "submitting";
+            renderStep();
+            const submit = await postJson("sms-submit", {
+              draft_token: state.token,
+              phone: state.phone,
+              message: state.message.trim(),
+              recipient: {
+                name: state.recipient.name.trim(),
+                line1: state.recipient.line1.trim(),
+                line2: state.recipient.line2.trim(),
+                city: state.recipient.city.trim(),
+                state: state.recipient.state.trim().toUpperCase(),
+                zip: state.recipient.zip.trim(),
+              },
+            });
+            if (submit.ok) {
+              state.result = submit;
+              state.step = "done";
+            } else {
+              state.errorMsg = humanReason(submit.reason, submit.message);
+              state.step = "error";
+            }
+            renderStep();
+            return;
+          }
           state.busy = true;
           state.errorMsg = "";
           renderStep();
