@@ -430,35 +430,84 @@
       const recipientLabel = `${recipient.city || "?"}, ${recipient.state || ""}`.trim();
       const senderLabel = sender.city ? `${sender.city}, ${sender.state || ""}` : "you";
 
+      // v1.2 scheduled sending — when status === 'scheduled' the cron job
+      // hasn't fired yet, so there's no Lob lifecycle to render. Show a
+      // "mailing on X, arrives around Y" card in place of the live map.
+      const isScheduled = data.status === "scheduled" && data.scheduled_send_at;
+      const sendDateFmt = isScheduled ? fmtDate(data.scheduled_send_at) : "";
+      // Arrival ≈ send + 7 days (Lob avg first-class transit). doSchedule
+      // computes send = arrival - 7d so this is just the inverse.
+      const arrivalDateFmt = isScheduled
+        ? fmtDate(new Date(new Date(data.scheduled_send_at).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString())
+        : "";
+
+      const kicker = isScheduled ? "SCHEDULED" : "YOUR POSTCARD";
+      const h1 = isScheduled ? "Mailing soon." : "It's in the mail.";
+      const sub = isScheduled
+        ? `To ${escapeHtml(recipient.name || "your friend")} in ${escapeHtml(recipientLabel)}`
+        : `To ${escapeHtml(recipient.name || "your friend")} in ${escapeHtml(recipientLabel)}`;
+
+      const inFlightCard = isScheduled
+        ? `
+          <div class="map-card">
+            <div class="map-header">
+              <div class="map-header-title">Mailing ${escapeHtml(sendDateFmt)}</div>
+              <div class="map-header-eta">Arrives ~${escapeHtml(arrivalDateFmt)}</div>
+            </div>
+            <div style="padding: 28px 16px; text-align: center; color: var(--muted-ink); font-style: italic; font-size: 14px;">
+              We'll drop this in the mail on ${escapeHtml(sendDateFmt)}. Come back then to watch it travel.
+            </div>
+          </div>`
+        : `
+          <div class="map-card">
+            <div class="map-header">
+              <div class="map-header-title">In flight</div>
+              <div class="map-header-eta">Arrives ${eta}</div>
+            </div>
+            ${renderMap(senderCoord, recipientCoord)}
+          </div>`;
+
+      const timelineSection = isScheduled
+        ? `
+          <div class="timeline">
+            <div class="timeline-header">Status</div>
+            <div class="timeline-row current">
+              <div class="timeline-dot"></div>
+              <div>Scheduled — mailing ${escapeHtml(sendDateFmt)}</div>
+            </div>
+          </div>`
+        : `
+          <div class="timeline">
+            <div class="timeline-header">Status</div>
+            ${(data.timeline || []).map(row => `
+              <div class="timeline-row ${row.done ? "done" : ""} ${row.current ? "current" : ""}">
+                <div class="timeline-dot"></div>
+                <div>${timelineLabel(row.event)}</div>
+              </div>
+            `).join("")}
+          </div>`;
+
+      // Postmark on a scheduled card shouldn't show today's date — pre-date
+      // it to the planned mail day instead.
+      const postmarkDate = isScheduled
+        ? new Date(data.scheduled_send_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+        : new Date(data.sent_at || Date.now()).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+
       root.innerHTML = `
-        <div class="kicker">YOUR POSTCARD</div>
-        <h1>It's in the mail.</h1>
-        <p class="sub">To ${escapeHtml(recipient.name || "your friend")} in ${escapeHtml(recipientLabel)}</p>
+        <div class="kicker">${kicker}</div>
+        <h1>${h1}</h1>
+        <p class="sub">${sub}</p>
 
         <div class="postcard" id="postcard">
           ${data.photo_url ? `<img src="${escapeHtml(data.photo_url)}" alt="Your postcard photo" />` : ""}
-          <div class="postmark">${escapeHtml((sender.city || "MAILROOM").toUpperCase())} • ${escapeHtml(new Date(data.sent_at || Date.now()).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }))}</div>
+          <div class="postmark">${escapeHtml((sender.city || "MAILROOM").toUpperCase())} • ${escapeHtml(postmarkDate)}</div>
           <div class="stamp">$0.55</div>
         </div>
         <div class="meta-line">${escapeHtml(senderLabel)} → ${escapeHtml(recipientLabel)}</div>
 
-        <div class="map-card">
-          <div class="map-header">
-            <div class="map-header-title">In flight</div>
-            <div class="map-header-eta">Arrives ${eta}</div>
-          </div>
-          ${renderMap(senderCoord, recipientCoord)}
-        </div>
+        ${inFlightCard}
 
-        <div class="timeline">
-          <div class="timeline-header">Status</div>
-          ${(data.timeline || []).map(row => `
-            <div class="timeline-row ${row.done ? "done" : ""} ${row.current ? "current" : ""}">
-              <div class="timeline-dot"></div>
-              <div>${timelineLabel(row.event)}</div>
-            </div>
-          `).join("")}
-        </div>
+        ${timelineSection}
 
         <div class="cta-row">
           <a href="sms:+14156836457&body=" class="cta cta-primary">Send another</a>

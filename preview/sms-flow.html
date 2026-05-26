@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMS flow review — Mailroom</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <style>
+    :root {
+      --ink: #11141c;
+      --muted-ink: #5b6072;
+      --dim-ink: #8e93a3;
+      --paper: #f3f0e8;
+      --paper-warm: #fdfaf1;
+      --line: #e3dccb;
+      --line-strong: #c9c2b1;
+      --postal-red: #b8483a;
+      --postal-blue: #3c6e8f;
+      --gold: #d9b46e;
+      --sms-bubble: #6cce6b;     /* iMessage SMS green */
+      --sms-bubble-text: #ffffff;
+      --user-bubble: #4d8be5;    /* user's outbound iMessage blue when sending to SMS — actually green too */
+      --imsg-blue: #007aff;
+      --ok: #2e7d4f;
+      --warn: #b8843a;
+    }
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--paper);
+      font-family: ui-serif, Georgia, "Times New Roman", serif;
+      color: var(--ink);
+    }
+    .sans { font-family: ui-sans-serif, -apple-system, system-ui, "Helvetica Neue", sans-serif; }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 56px 24px 120px;
+    }
+
+    /* HEADER */
+    header.hero {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+    .hero .kicker {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 11px; font-weight: 700; letter-spacing: 1.8px;
+      color: var(--postal-red); text-transform: uppercase;
+    }
+    .hero h1 {
+      font-size: 52px; line-height: 1.05; margin: 8px 0 12px; font-weight: 600;
+    }
+    .hero .sub {
+      font-size: 17px; color: var(--muted-ink); font-style: italic; margin: 0;
+    }
+    .hero .meta {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 12px; color: var(--dim-ink); margin-top: 14px;
+      letter-spacing: 0.4px;
+    }
+
+    /* TWO-COLUMN LAYOUT */
+    .row {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 56px;
+      margin: 56px 0;
+      align-items: start;
+    }
+    @media (max-width: 920px) {
+      .row { grid-template-columns: 1fr; gap: 32px; }
+      .phone { margin: 0 auto; }
+    }
+
+    /* IPHONE FRAME */
+    .phone {
+      width: 380px;
+      background: #1a1f2e;
+      border-radius: 44px;
+      padding: 12px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06);
+      position: sticky; top: 24px;
+    }
+    .phone-screen {
+      background: #fafaf7;
+      border-radius: 34px;
+      overflow: hidden;
+      min-height: 700px;
+      position: relative;
+    }
+    /* Notch */
+    .phone-notch {
+      position: absolute;
+      top: 0; left: 50%; transform: translateX(-50%);
+      width: 122px; height: 28px;
+      background: #1a1f2e;
+      border-radius: 0 0 18px 18px;
+      z-index: 5;
+    }
+    /* Status bar */
+    .phone-status {
+      padding: 12px 26px 6px;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 14px; font-weight: 600;
+      display: flex; justify-content: space-between;
+      color: var(--ink);
+    }
+    /* Conversation header */
+    .conv-header {
+      border-bottom: 0.5px solid #e0dfd9;
+      padding: 6px 16px 12px;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 6px;
+      background: #fafaf7;
+    }
+    .conv-avatar {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: var(--postal-red);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 22px; font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+    .conv-name {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 11px; color: var(--muted-ink); font-weight: 500;
+    }
+    .conv-name strong { color: var(--ink); font-weight: 600; font-size: 14px; display: block; }
+    /* Messages area */
+    .messages {
+      padding: 14px 12px 24px;
+      display: flex; flex-direction: column;
+      gap: 4px;
+      font-family: ui-sans-serif, -apple-system, system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.32;
+    }
+    .msg-row {
+      display: flex;
+      margin-top: 8px;
+    }
+    .msg-row.them { justify-content: flex-start; }
+    .msg-row.me { justify-content: flex-end; }
+    .msg-row.them + .msg-row.them { margin-top: 2px; }
+    .msg-row.me + .msg-row.me { margin-top: 2px; }
+    .bubble {
+      max-width: 78%;
+      padding: 8px 12px;
+      border-radius: 18px;
+      word-wrap: break-word;
+      position: relative;
+    }
+    .bubble.them {
+      background: var(--sms-bubble);
+      color: #fff;
+      border-bottom-left-radius: 6px;
+    }
+    .bubble.me {
+      background: var(--sms-bubble);
+      color: #fff;
+      border-bottom-right-radius: 6px;
+    }
+    /* Last in stack — show tail */
+    .bubble.them.tail { border-bottom-left-radius: 18px; }
+    .bubble.me.tail { border-bottom-right-radius: 18px; }
+    .bubble a { color: #fff; text-decoration: underline; }
+    .bubble.image {
+      padding: 4px;
+      max-width: 60%;
+      background: #d6d0c2;
+      overflow: hidden;
+    }
+    .bubble.image img {
+      width: 100%; height: auto; display: block;
+      border-radius: 14px;
+    }
+    .ts {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 11px; color: var(--dim-ink);
+      text-align: center;
+      margin: 16px 0 8px;
+    }
+    .ts strong { color: var(--muted-ink); font-weight: 600; }
+
+    /* RIGHT-SIDE ANALYSIS PANEL */
+    .analysis h2 {
+      font-size: 32px; margin: 0 0 8px; font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+    .analysis .lede {
+      color: var(--muted-ink); font-style: italic; font-size: 16px;
+      margin: 0 0 28px;
+    }
+
+    /* Per-step copy review cards */
+    .step {
+      border: 1px solid var(--line);
+      background: var(--paper-warm);
+      border-radius: 14px;
+      padding: 20px 22px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .step-num {
+      display: inline-block;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 11px; font-weight: 700; letter-spacing: 1.4px;
+      color: var(--postal-red); text-transform: uppercase;
+    }
+    .step h3 {
+      font-size: 19px; margin: 4px 0 12px; font-weight: 600;
+    }
+    .step .ctx {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 12px; color: var(--dim-ink);
+      margin-bottom: 8px;
+    }
+    .step .ctx strong { color: var(--muted-ink); font-weight: 600; }
+    .step .copy {
+      font-family: ui-sans-serif, -apple-system, system-ui, sans-serif;
+      font-size: 14px; color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px 14px;
+      line-height: 1.45;
+      margin: 8px 0;
+    }
+    .step .copy.user {
+      background: #f1f3f8;
+      color: var(--muted-ink);
+    }
+    .step .note {
+      font-size: 13px; color: var(--muted-ink);
+      margin-top: 12px; font-style: italic;
+      line-height: 1.5;
+    }
+    .step .note strong { color: var(--ink); font-style: normal; font-weight: 600; }
+    .pill {
+      display: inline-block;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.6px;
+      padding: 2px 8px; border-radius: 999px;
+      vertical-align: middle;
+      margin-left: 6px;
+      text-transform: uppercase;
+    }
+    .pill.ok { background: #d6efdb; color: var(--ok); }
+    .pill.warn { background: #f6e4ca; color: var(--warn); }
+
+    /* SECTION DIVIDERS */
+    section h2.section-title {
+      font-size: 36px; font-weight: 600;
+      margin: 0 0 8px; letter-spacing: -0.4px;
+    }
+    section p.section-lede {
+      color: var(--muted-ink); font-style: italic; font-size: 16px;
+      margin: 0 0 28px;
+    }
+    .divider {
+      height: 1px; background: var(--line-strong);
+      margin: 80px 0; opacity: 0.5;
+    }
+
+    /* /c/ CONFIRMATION PAGE MINI-PREVIEWS */
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 32px;
+    }
+    @media (max-width: 920px) {
+      .preview-grid { grid-template-columns: 1fr; }
+    }
+    .preview {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+    }
+    .preview-label {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 11px; font-weight: 700; letter-spacing: 1.4px;
+      color: var(--postal-red); text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .preview iframe {
+      width: 100%; height: 720px;
+      border: none; border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 0 0 1px var(--line);
+    }
+    .preview p {
+      font-size: 13px; color: var(--muted-ink); font-style: italic;
+      margin: 12px 0 0; line-height: 1.5;
+    }
+
+    /* COPY DIFF — for highlighting suggested tightenings */
+    .diff {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 12px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-top: 8px;
+      line-height: 1.55;
+    }
+    .diff .label {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.6px;
+      color: var(--dim-ink); text-transform: uppercase;
+      display: block; margin-top: 6px;
+    }
+    .diff .was { color: #a3504f; text-decoration: line-through; opacity: 0.7; }
+    .diff .now { color: var(--ok); }
+
+    /* TABLE OF CONTENTS */
+    nav.toc {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px 22px;
+      margin-bottom: 56px;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 13px;
+    }
+    nav.toc strong { display: block; margin-bottom: 8px; font-size: 11px; letter-spacing: 1.4px; color: var(--postal-red); text-transform: uppercase; }
+    nav.toc a {
+      color: var(--ink); text-decoration: none;
+      margin-right: 16px; display: inline-block; padding: 2px 0;
+    }
+    nav.toc a:hover { color: var(--postal-red); }
+
+    /* FOOTER */
+    footer {
+      margin-top: 80px;
+      padding-top: 32px;
+      border-top: 1px solid var(--line);
+      text-align: center;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 12px;
+      color: var(--dim-ink);
+    }
+
+    /* INLINE POSTCARD PREVIEW — used inside /c/ mock */
+    .pc-mock {
+      background: #F8F1E3;
+      border-radius: 14px;
+      padding: 24px 18px 32px;
+      font-family: ui-serif, Georgia, serif;
+      color: var(--ink);
+    }
+    .pc-mock .pc-kicker {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 10px; font-weight: 700; letter-spacing: 1.6px;
+      color: var(--postal-red); text-transform: uppercase;
+      text-align: center;
+    }
+    .pc-mock h2 {
+      font-size: 24px; margin: 4px 0 4px; font-weight: 600;
+      text-align: center;
+    }
+    .pc-mock .pc-sub {
+      font-size: 12px; font-style: italic; color: var(--muted-ink);
+      text-align: center; margin: 0 0 16px;
+    }
+    .pc-card {
+      width: 100%; aspect-ratio: 3/2;
+      background: linear-gradient(135deg, #7aaab8 0%, #c8d6cc 50%, #f0d77a 100%);
+      border-radius: 6px;
+      position: relative;
+      overflow: hidden;
+      transform: rotate(-1deg);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.14);
+      margin-bottom: 10px;
+    }
+    .pc-card.beach::before {
+      content: "";
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 90%, rgba(255,220,150,0.6), transparent 60%),
+        linear-gradient(180deg, #88bcd0 0%, #88bcd0 50%, #e8d7a8 50%, #e8d7a8 100%);
+    }
+    .pc-stamp {
+      position: absolute; top: 8px; right: 8px;
+      background: var(--postal-red);
+      color: #fdfaf1;
+      width: 36px; height: 44px;
+      border: 2px dashed #fdfaf1;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 9px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      transform: rotate(2deg);
+    }
+    .pc-postmark {
+      position: absolute; bottom: 8px; left: 8px;
+      font-family: "Courier New", monospace;
+      font-size: 9px; font-weight: 700;
+      color: rgba(184,72,58,0.85);
+      padding: 4px 8px;
+      border: 1.5px solid currentColor;
+      border-radius: 999px;
+      transform: rotate(-6deg);
+    }
+    .pc-meta {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 10px; color: var(--muted-ink);
+      text-align: center; margin: 8px 0 14px;
+      letter-spacing: 0.4px;
+    }
+    .pc-map {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .pc-map-header {
+      display: flex; justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+    .pc-map-title {
+      font-size: 13px; font-weight: 600;
+    }
+    .pc-map-eta {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 10px; color: var(--muted-ink);
+      letter-spacing: 0.3px;
+    }
+    .pc-map svg {
+      width: 100%; height: auto;
+    }
+    .pc-timeline {
+      margin-top: 12px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .pc-timeline-header {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+      color: var(--muted-ink); text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .pc-timeline-row {
+      display: flex; align-items: center; gap: 8px;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 11px; padding: 4px 0;
+      color: var(--dim-ink);
+    }
+    .pc-timeline-row .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--line-strong);
+    }
+    .pc-timeline-row.done { color: var(--muted-ink); }
+    .pc-timeline-row.done .dot { background: var(--ok); }
+    .pc-timeline-row.current { color: var(--ink); font-weight: 600; }
+    .pc-timeline-row.current .dot {
+      background: var(--postal-red);
+      box-shadow: 0 0 0 4px rgba(184,72,58,0.18);
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header class="hero">
+    <div class="kicker">v1.2 — SMS Flow Review</div>
+    <h1>Every step. Every word. Every screen.</h1>
+    <p class="sub">A scrollable QA artifact for the entire SMS-only postcard flow. Sample data: Scotty → Lori, beach photo, ETA Jun 3.</p>
+    <p class="meta">Generated 2026-05-26 · sender +1 (415) 683-6457 · sms-inbound v1.2</p>
+  </header>
+
+  <nav class="toc sans">
+    <strong>Jump to</strong>
+    <a href="#flow">Full flow</a>
+    <a href="#step-review">Per-step copy</a>
+    <a href="#schedule">Schedule branch</a>
+    <a href="#buy">BUY interrupt</a>
+    <a href="#empty">Out of cards</a>
+    <a href="#confirm-page">Confirmation page</a>
+    <a href="#tightening">Copy tightening</a>
+    <a href="#todo">What's left</a>
+  </nav>
+
+  <!-- ========================================================== -->
+  <!-- SECTION 1 — FULL FLOW (iPhone mock + per-step analysis)    -->
+  <!-- ========================================================== -->
+  <section id="flow">
+    <h2 class="section-title">The full flow.</h2>
+    <p class="section-lede">User opens Messages, texts a photo to <strong>+1 (415) 683-6457</strong>. Eight back-and-forth turns later, a real paper postcard is on its way to Naples.</p>
+
+    <div class="row">
+      <!-- iPhone mock -->
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="phone-status">
+            <span>9:14</span>
+            <span>•••</span>
+          </div>
+          <div class="conv-header">
+            <div class="conv-avatar">M</div>
+            <div class="conv-name">
+              <strong>Mailroom</strong>
+              +1 (415) 683-6457
+            </div>
+          </div>
+          <div class="messages">
+
+            <div class="ts"><strong>Today</strong> 9:14 AM</div>
+
+            <!-- 1. user sends photo -->
+            <div class="msg-row me">
+              <div class="bubble image me tail">
+                <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%2388bcd0'/><stop offset='0.5' stop-color='%2388bcd0'/><stop offset='0.5' stop-color='%23e8d7a8'/><stop offset='1' stop-color='%23e8d7a8'/></linearGradient><radialGradient id='sun' cx='0.5' cy='0.9' r='0.55'><stop offset='0' stop-color='%23ffddaa' stop-opacity='0.7'/><stop offset='1' stop-color='%23ffddaa' stop-opacity='0'/></radialGradient></defs><rect width='600' height='400' fill='url(%23g)'/><rect width='600' height='400' fill='url(%23sun)'/><path d='M0 198 Q150 188 300 200 T 600 198 L600 210 L0 210 Z' fill='%237aaab8' opacity='0.5'/><circle cx='460' cy='90' r='28' fill='%23ffe5a8' opacity='0.9'/></svg>" alt="beach photo" />
+              </div>
+            </div>
+
+            <!-- 2. bot greets + asks for name -->
+            <div class="msg-row them">
+              <div class="bubble them tail">Got your photo! Who's this postcard for? Reply with their name.</div>
+            </div>
+
+            <!-- 3. user: Lori -->
+            <div class="msg-row me">
+              <div class="bubble me tail">Lori</div>
+            </div>
+
+            <!-- 4. bot asks for address -->
+            <div class="msg-row them">
+              <div class="bubble them tail">Got it — to Lori. What's their full address? You can send it one line like "123 Main St, Naples FL 34101" — we'll figure it out.</div>
+            </div>
+
+            <!-- 5. user types address -->
+            <div class="msg-row me">
+              <div class="bubble me tail">456 ocean dr naples fl 34102</div>
+            </div>
+
+            <!-- 6. bot confirms address -->
+            <div class="msg-row them">
+              <div class="bubble them tail">Mailing to Lori at 456 Ocean Dr, Naples, FL 34102. Reply Y to confirm or send the correct address.</div>
+            </div>
+
+            <!-- 7. user: Y -->
+            <div class="msg-row me">
+              <div class="bubble me tail">Y</div>
+            </div>
+
+            <!-- 8. bot asks for note -->
+            <div class="msg-row them">
+              <div class="bubble them tail">What should the postcard say? Reply with your note (240 characters max).</div>
+            </div>
+
+            <!-- 9. user types message -->
+            <div class="msg-row me">
+              <div class="bubble me tail">Wish you were here. The beach is everything they said it would be — see you in two weeks.</div>
+            </div>
+
+            <!-- 10. bot asks for sender location -->
+            <div class="msg-row them">
+              <div class="bubble them tail">Last thing: where are you texting from? Just your city + state (e.g. "Bethesda, MD"). Goes on the back as your return address.</div>
+            </div>
+
+            <!-- 11. user: SF -->
+            <div class="msg-row me">
+              <div class="bubble me tail">San Francisco, CA</div>
+            </div>
+
+            <!-- 12. bot SEND prompt -->
+            <div class="msg-row them">
+              <div class="bubble them tail">Got it — from San Francisco, CA. Ready to mail to Lori: "Wish you were here. The beach is everything they said it would be — see you in two weeks." Reply SEND to mail now (first card free), schedule it (e.g. "send June 15" or "in 3 days"), or CANCEL.</div>
+            </div>
+
+            <!-- 13. user: SEND -->
+            <div class="msg-row me">
+              <div class="bubble me tail">SEND</div>
+            </div>
+
+            <!-- 14. mailed! -->
+            <div class="msg-row them">
+              <div class="bubble them tail">Mailed! 📮 Your card to Lori arrives Jun 3. See it travel: <a href="#confirm-page">app.themailroom.club/c/df4XKp…</a></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- analysis -->
+      <div class="analysis">
+        <h2>13 messages. ~90 seconds.</h2>
+        <p class="lede">A first-time sender goes from "what is this number?" to a real paper postcard mailed to a real friend without ever leaving Messages. That's the whole game.</p>
+
+        <div class="step" id="step-1">
+          <span class="step-num">Step 01 — Photo received</span>
+          <h3>Bot greets + asks for recipient name</h3>
+          <p class="ctx" >Trigger: <strong>user texts an MMS photo</strong>. State: <code>idle → awaiting_recipient_name</code>.</p>
+          <div class="copy">Got your photo! Who's this postcard for? Reply with their name.</div>
+          <p class="note"><strong>Pros:</strong> conversational, low friction, asks for the most important thing first. <strong>Cons:</strong> the exclamation is a little 2018-startup. "Postcard" appears twice ("postcard for" + the implicit context).</p>
+        </div>
+
+        <div class="step" id="step-2">
+          <span class="step-num">Step 02 — Name → address</span>
+          <h3>Bot acknowledges + asks for full address</h3>
+          <p class="ctx">Trigger: <strong>user texts a name</strong>. State: <code>awaiting_recipient_name → awaiting_recipient_address</code>.</p>
+          <div class="copy">Got it — to Lori. What's their full address? You can send it one line like "123 Main St, Naples FL 34101" — we'll figure it out.</div>
+          <p class="note"><strong>Pros:</strong> "we'll figure it out" is reassuring — the LLM parser handles messy input. <strong>Cons:</strong> two em-dashes in one message. <span class="pill warn">Voice rule violation</span></p>
+        </div>
+
+        <div class="step" id="step-3">
+          <span class="step-num">Step 03 — Address parsed</span>
+          <h3>Bot reads back the parsed address, asks Y</h3>
+          <p class="ctx">Trigger: <strong>user texts an address (any format)</strong>. State: <code>awaiting_recipient_address → awaiting_address_confirm</code>.</p>
+          <div class="copy">Mailing to Lori at 456 Ocean Dr, Naples, FL 34102. Reply Y to confirm or send the correct address.</div>
+          <p class="note"><strong>Pros:</strong> the read-back de-risks bad LLM parses. "Send the correct address" is a clear escape hatch. <strong>Cons:</strong> the Y is uppercase but the LLM accepts y/yes/ok/sure too — that's not visible to the user.</p>
+        </div>
+
+        <div class="step" id="step-4">
+          <span class="step-num">Step 04 — Confirmed</span>
+          <h3>Bot asks for the message</h3>
+          <p class="ctx">Trigger: <strong>user texts Y / yes / ok</strong>. State: <code>awaiting_address_confirm → awaiting_message</code>.</p>
+          <div class="copy">What should the postcard say? Reply with your note (240 characters max).</div>
+          <p class="note"><strong>Pros:</strong> direct ask. The 240-char limit is shown so the user can plan. <strong>Cons:</strong> "240 characters max" feels engineery. Could be "(up to 240 chars)" or just omit the limit — the LLM truncates silently anyway.</p>
+        </div>
+
+        <div class="step" id="step-5">
+          <span class="step-num">Step 05 — Note saved</span>
+          <h3>Bot asks where the user is</h3>
+          <p class="ctx">Trigger: <strong>user texts the note</strong>. State: <code>awaiting_message → awaiting_sender_location</code> (or skips to <code>awaiting_send_confirm</code> if profile has city/state).</p>
+          <div class="copy">Last thing: where are you texting from? Just your city + state (e.g. "Bethesda, MD"). Goes on the back as your return address.</div>
+          <p class="note"><strong>Pros:</strong> "last thing" signals end is near (reduces drop-off). The example sets expectations cleanly. <strong>Cons:</strong> "goes on the back as your return address" buries the lede — the REAL reason we ask is to power the live delivery map on the /c/ confirmation page. Could say so.</p>
+        </div>
+
+        <div class="step" id="step-6">
+          <span class="step-num">Step 06 — Location captured</span>
+          <h3>Bot summarizes + asks to SEND, schedule, or CANCEL</h3>
+          <p class="ctx">Trigger: <strong>user texts "Bethesda MD" / "SF" / etc</strong>. State: <code>awaiting_sender_location → awaiting_send_confirm</code>.</p>
+          <div class="copy">Got it — from San Francisco, CA. Ready to mail to Lori: "Wish you were here. The beach is everything they said it would be — see you in two weeks." Reply SEND to mail now (first card free), schedule it (e.g. "send June 15" or "in 3 days"), or CANCEL.</div>
+          <p class="note"><strong>Pros:</strong> the full readback (recipient + note) is a final sanity check. Three options laid out clearly. <strong>Cons:</strong> 318 chars — uses 2 SMS segments. Could split into two SMS bubbles (more bubbles = feels more conversational, less wall-of-text). Also "(first card free)" should only show for new users.</p>
+        </div>
+
+        <div class="step" id="step-7">
+          <span class="step-num">Step 07 — SEND</span>
+          <h3>Mailed! 📮 confirmation with live tracking URL</h3>
+          <p class="ctx">Trigger: <strong>user texts SEND / yes / ship it / go / 🚀</strong>. State: <code>awaiting_send_confirm → idle</code> (postcard row created, Lob handoff complete).</p>
+          <div class="copy">Mailed! 📮 Your card to Lori arrives Jun 3. See it travel: app.themailroom.club/c/df4XKp…</div>
+          <p class="note"><strong>Pros:</strong> 📮 is great. ETA upfront. The /c/ URL is unguessable — token IS the credential. Last-card BUY nudge appended automatically when remaining ≤ 2. <strong>Cons:</strong> none flagged. This is the magic moment.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ========================================================== -->
+  <!-- SECTION 2 — SCHEDULE BRANCH                                -->
+  <!-- ========================================================== -->
+  <section id="schedule">
+    <h2 class="section-title">Branch: schedule for later.</h2>
+    <p class="section-lede">Same flow through step 6. At SEND, instead of "send" the user types a future date — "send June 15", "in 3 days", "for her birthday Aug 14", "next Tuesday". GPT-4o-mini parses it. We mail it 7 days before arrival.</p>
+
+    <div class="row">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="phone-status">
+            <span>9:14</span>
+            <span>•••</span>
+          </div>
+          <div class="conv-header">
+            <div class="conv-avatar">M</div>
+            <div class="conv-name">
+              <strong>Mailroom</strong>
+              +1 (415) 683-6457
+            </div>
+          </div>
+          <div class="messages">
+            <div class="ts"><strong>Today</strong> 9:14 AM</div>
+
+            <div class="msg-row them">
+              <div class="bubble them tail">Got it — from San Francisco, CA. Ready to mail to Lori: "Happy birthday from the beach 🏖️". Reply SEND to mail now (first card free), schedule it (e.g. "send June 15" or "in 3 days"), or CANCEL.</div>
+            </div>
+
+            <div class="msg-row me">
+              <div class="bubble me tail">for her birthday June 15</div>
+            </div>
+
+            <div class="msg-row them">
+              <div class="bubble them tail">Scheduled. We'll mail your card to Lori on Jun 8 so it arrives around Jun 15. Save your link: <a href="#confirm-page">app.themailroom.club/c/df4XKp…</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="analysis">
+        <h2>"For her birthday June 15."</h2>
+        <p class="lede">The model resolves three things at once: that the user is scheduling (not asking a question), what date they mean, and that a future-arrival date implies a 7-day-earlier send date. We back-solve Lob's first-class transit.</p>
+
+        <div class="step">
+          <span class="step-num">Parse</span>
+          <h3>Schedule intent → arrival ISO</h3>
+          <p class="ctx">Trigger: <strong>user texts schedule phrase</strong> at <code>awaiting_send_confirm</code>.</p>
+          <div class="copy user">"for her birthday June 15"<br>"send in 3 days"<br>"mail it next Tuesday"<br>"send on the 15th"<br>"schedule June 15"</div>
+          <p class="note">All resolve to a single <code>arrival_iso</code> via gpt-4o-mini with <em>today</em> in the system prompt. Then we subtract 7 days to get <code>scheduled_send_at</code>. Past dates → "too close, try later or SEND now."</p>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Confirm</span>
+          <h3>"We'll mail it on X so it arrives around Y."</h3>
+          <div class="copy">Scheduled. We'll mail your card to Lori on Jun 8 so it arrives around Jun 15. Save your link: app.themailroom.club/c/df4XKp…</div>
+          <p class="note"><strong>Pros:</strong> the two dates remove ambiguity. The /c/ link works immediately (renders the "Mailing soon" state). <strong>Cons:</strong> "around Jun 15" is honest but slightly hedgy — Lob can vary. Could say "by Jun 15" for premium feel, but honest beats premium.</p>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Cron</span>
+          <h3>Daily 14:00 UTC, pg_cron fires Lob</h3>
+          <p class="ctx">pg_cron → pg_net HTTP POST → fire-scheduled-postcards Edge Function → <code>list_due_scheduled_postcards</code> RPC → atomic claim (status flip scheduled→queued) → Lob → status='sent'. On Lob failure: revert to scheduled, next tick retries.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ========================================================== -->
+  <!-- SECTION 3 — BUY INTERRUPT                                  -->
+  <!-- ========================================================== -->
+  <section id="buy">
+    <h2 class="section-title">Branch: BUY interrupt.</h2>
+    <p class="section-lede">Repeat sender types BUY (with optional pack size) from any step. We hand back a Stripe Checkout URL without touching their in-progress draft. They pay, the webhook credits them, they reply SEND.</p>
+
+    <div class="row">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="phone-status">
+            <span>9:14</span>
+            <span>•••</span>
+          </div>
+          <div class="conv-header">
+            <div class="conv-avatar">M</div>
+            <div class="conv-name">
+              <strong>Mailroom</strong>
+              +1 (415) 683-6457
+            </div>
+          </div>
+          <div class="messages">
+            <div class="ts"><strong>Today</strong> 9:14 AM</div>
+
+            <div class="msg-row them">
+              <div class="bubble them tail">Couldn't mail your card. You're out of cards. Reply BUY 5 ($5), BUY 25 ($20), or BUY 50 ($35) to top up. Then reply SEND to mail this card.</div>
+            </div>
+
+            <div class="msg-row me">
+              <div class="bubble me tail">BUY 25</div>
+            </div>
+
+            <div class="msg-row them">
+              <div class="bubble them tail">Tap to buy 25 cards ($20): <a href="https://checkout.stripe.com/c/pay/cs_live_a1QQvCzOmetgGpro9vgD9CbSpmelC0fypQFoBAH7LDUuZE8t…">checkout.stripe.com/c/pay/cs_live…</a><br><br>Link expires in 1 hour. Other packs: reply BUY 5, BUY 25, or BUY 50.</div>
+            </div>
+
+            <div class="ts">— user pays in Stripe Checkout —</div>
+
+            <div class="msg-row me">
+              <div class="bubble me tail">SEND</div>
+            </div>
+
+            <div class="msg-row them">
+              <div class="bubble them tail">Mailed! 📮 Your card to Lori arrives Jun 3. See it travel: app.themailroom.club/c/df4XKp…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="analysis">
+        <h2>BUY · BUY 5 · BUY 25 · BUY 50</h2>
+        <p class="lede">A regex match in sms-inbound short-circuits before the state machine. <strong>State is preserved.</strong> The user finishes their in-progress card after topping up.</p>
+
+        <div class="step">
+          <span class="step-num">Pack matrix</span>
+          <h3>Three options. Sub-USPS per stamp at the featured pack.</h3>
+          <div class="copy">
+            <strong>BUY 5</strong> → 5 cards / $5 / $1.00 per<br>
+            <strong>BUY</strong> or <strong>BUY 25</strong> → 25 cards / $20 / <span style="color: var(--ok); font-weight: 600;">$0.80 per — less than a USPS stamp</span><br>
+            <strong>BUY 50</strong> → 50 cards / $35 / $0.70 per
+          </div>
+          <p class="note">Bare "BUY" defaults to p25 — the featured value pack at sub-stamp pricing. Anchored regex: "i want to BUY" doesn't match (intentional — let the user type the keyword explicitly).</p>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Pipeline</span>
+          <h3>Stripe Checkout → webhook → credits</h3>
+          <p class="ctx">sms-inbound regex match → sms-buy-checkout (internal secret gate) → finds/creates profile + Stripe customer by phone → creates Checkout Session with metadata → returns hosted URL.</p>
+          <p class="note">Same webhook (<code>stripe-webhook</code>) that handles iOS PaymentSheet purchases credits the user — same RPC <code>apply_stripe_credit_purchase</code>. One credit pipeline, two surfaces.</p>
+        </div>
+
+        <div class="step">
+          <span class="step-num">Nudges</span>
+          <h3>Three places we surface BUY</h3>
+          <p class="ctx">
+            <strong>1. Insufficient credits on SEND:</strong> "You're out of cards. Reply BUY 5 ($5)…"<br>
+            <strong>2. Last-card-sent post-mail:</strong> "Mailed! 📮 … <span style="color: var(--postal-red); font-weight: 600;">That was your last card — reply BUY 5 ($5)…</span>"<br>
+            <strong>3. Returning user idle:</strong> "You're out of cards. Reply BUY 5…"
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ========================================================== -->
+  <!-- SECTION 4 — EMPTY STATES                                   -->
+  <!-- ========================================================== -->
+  <section id="empty">
+    <h2 class="section-title">Empty states + edge cases.</h2>
+    <p class="section-lede">Six things a user might text that aren't a photo. We branch on whether they have a profile, whether they have credits, and what kind of restart command they're using.</p>
+
+    <div class="preview-grid" style="grid-template-columns: repeat(2, 1fr);">
+
+      <div class="step">
+        <span class="step-num">First-time idle</span>
+        <h3>No profile yet · texts "hi"</h3>
+        <div class="copy">Send a photo to get started. We'll turn it into a real paper postcard — first one's free.</div>
+        <p class="note">Most common entry. The "first one's free" carries the entire CAC argument.</p>
+      </div>
+
+      <div class="step">
+        <span class="step-num">Returning idle · has credits</span>
+        <h3>Profile exists · credits > 0 · texts "hi"</h3>
+        <div class="copy">You have 4 cards left. Text a photo to start a new one.</div>
+        <p class="note">No friction. Tells them what's in the bank and what to do next.</p>
+      </div>
+
+      <div class="step">
+        <span class="step-num">Returning idle · 0 credits</span>
+        <h3>Profile exists · credits = 0 · texts "hi"</h3>
+        <div class="copy">You're out of cards. Reply BUY 5 ($5), BUY 25 ($20), or BUY 50 ($35) to top up, then text a photo to send a card.</div>
+        <p class="note">Conversion moment. Three price points, all under $1/stamp at the featured pack.</p>
+      </div>
+
+      <div class="step">
+        <span class="step-num">Restart commands</span>
+        <h3>CANCEL · STOP · RESTART · "nevermind"</h3>
+        <div class="copy">Cancelled. Text a new photo when you're ready to start over.</div>
+        <p class="note"><strong>Note:</strong> "cancel" here means "abandon the current draft." A draft-card cancel flow doesn't exist yet (would need to disambiguate which scheduled card). Worth thinking about post-A2P. <span class="pill warn">Open question</span></p>
+      </div>
+
+      <div class="step">
+        <span class="step-num">New photo mid-flow</span>
+        <h3>User texts a 2nd photo at any step</h3>
+        <div class="copy">Got your photo! Who's this postcard for? Reply with their name.</div>
+        <p class="note">Global short-circuit: a new photo always restarts. Previous draft is abandoned (no double-confirm). Reasonable for now — users who change their mind shouldn't have to type CANCEL first.</p>
+      </div>
+
+      <div class="step">
+        <span class="step-num">Address parse failure</span>
+        <h3>User texts something we can't parse</h3>
+        <div class="copy">I had trouble with that address. Try again with street, city, state, and ZIP — e.g., "123 Main St, Naples FL 34101".</div>
+        <p class="note">Triggered when LLM confidence < 0.7 or fields are blank. State doesn't advance — user can retry in place. <span class="pill warn">Em-dash + "I had trouble"</span></p>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ========================================================== -->
+  <!-- SECTION 5 — CONFIRMATION PAGE STATES                       -->
+  <!-- ========================================================== -->
+  <section id="confirm-page">
+    <h2 class="section-title">The /c/&lt;token&gt; confirmation page.</h2>
+    <p class="section-lede">Tapping the URL opens this. Same page for all three states — branches on <code>status</code>. Polls every 30s for Lob webhook updates.</p>
+
+    <div class="preview-grid">
+
+      <!-- IN FLIGHT -->
+      <div class="preview">
+        <div class="preview-label">State 01 — In flight</div>
+        <div class="pc-mock">
+          <div class="pc-kicker">YOUR POSTCARD</div>
+          <h2>It's in the mail.</h2>
+          <p class="pc-sub">To Lori in Naples, FL</p>
+          <div class="pc-card beach">
+            <div class="pc-stamp">$0.55</div>
+            <div class="pc-postmark">SAN FRANCISCO • MAY 26, 2026</div>
+          </div>
+          <div class="pc-meta">San Francisco, CA → Naples, FL</div>
+          <div class="pc-map">
+            <div class="pc-map-header">
+              <div class="pc-map-title">In flight</div>
+              <div class="pc-map-eta">Arrives Jun 3</div>
+            </div>
+            <svg viewBox="0 0 280 130" xmlns="http://www.w3.org/2000/svg">
+              <!-- US map outline (simplified) -->
+              <path d="M20,40 Q30,30 50,32 L70,30 Q100,28 130,30 L180,32 Q220,34 250,40 L260,55 Q258,75 245,85 L210,95 Q170,100 130,98 L80,95 Q50,90 30,80 Q15,65 20,40 Z" fill="#f0eadb" stroke="#c9c2b1" stroke-width="0.5"/>
+              <!-- sender pin SF -->
+              <circle cx="40" cy="60" r="4" fill="#b8483a"/>
+              <circle cx="40" cy="60" r="9" fill="#b8483a" opacity="0.2"/>
+              <!-- recipient pin Naples -->
+              <circle cx="220" cy="85" r="4" fill="#3c6e8f"/>
+              <circle cx="220" cy="85" r="9" fill="#3c6e8f" opacity="0.2"/>
+              <!-- arc -->
+              <path d="M40,60 Q130,15 220,85" stroke="#b8483a" stroke-width="1.5" stroke-dasharray="3 3" fill="none" opacity="0.7"/>
+              <!-- labels -->
+              <text x="40" y="76" font-family="ui-sans-serif" font-size="6" fill="#5b6072" text-anchor="middle">SF</text>
+              <text x="220" y="101" font-family="ui-sans-serif" font-size="6" fill="#5b6072" text-anchor="middle">NAPLES</text>
+            </svg>
+          </div>
+          <div class="pc-timeline">
+            <div class="pc-timeline-header">Status</div>
+            <div class="pc-timeline-row done"><div class="dot"></div><div>Queued</div></div>
+            <div class="pc-timeline-row done"><div class="dot"></div><div>Received by Lob</div></div>
+            <div class="pc-timeline-row current"><div class="dot"></div><div>In production</div></div>
+            <div class="pc-timeline-row"><div class="dot"></div><div>Mailed</div></div>
+            <div class="pc-timeline-row"><div class="dot"></div><div>In transit</div></div>
+            <div class="pc-timeline-row"><div class="dot"></div><div>Out for delivery</div></div>
+            <div class="pc-timeline-row"><div class="dot"></div><div>Delivered</div></div>
+          </div>
+        </div>
+        <p>Sent today, currently being printed at Lob. ETA Jun 3.</p>
+      </div>
+
+      <!-- SCHEDULED -->
+      <div class="preview">
+        <div class="preview-label">State 02 — Scheduled</div>
+        <div class="pc-mock">
+          <div class="pc-kicker">SCHEDULED</div>
+          <h2>Mailing soon.</h2>
+          <p class="pc-sub">To Lori in Naples, FL</p>
+          <div class="pc-card beach">
+            <div class="pc-stamp">$0.55</div>
+            <div class="pc-postmark">SAN FRANCISCO • JUN 8, 2026</div>
+          </div>
+          <div class="pc-meta">San Francisco, CA → Naples, FL</div>
+          <div class="pc-map">
+            <div class="pc-map-header">
+              <div class="pc-map-title">Mailing Jun 8</div>
+              <div class="pc-map-eta">Arrives ~Jun 15</div>
+            </div>
+            <div style="padding: 28px 16px; text-align: center; color: var(--muted-ink); font-style: italic; font-size: 12px; font-family: ui-serif, Georgia, serif;">
+              We'll drop this in the mail on Jun 8. Come back then to watch it travel.
+            </div>
+          </div>
+          <div class="pc-timeline">
+            <div class="pc-timeline-header">Status</div>
+            <div class="pc-timeline-row current"><div class="dot"></div><div>Scheduled — mailing Jun 8</div></div>
+          </div>
+        </div>
+        <p>Same /c/ URL works immediately — branches on <code>status === 'scheduled'</code>.</p>
+      </div>
+
+      <!-- DELIVERED -->
+      <div class="preview">
+        <div class="preview-label">State 03 — Delivered</div>
+        <div class="pc-mock">
+          <div class="pc-kicker">DELIVERED</div>
+          <h2>It's in the mail.</h2>
+          <p class="pc-sub">To Lori in Naples, FL</p>
+          <div class="pc-card beach" style="transform: rotate(0.5deg);">
+            <div class="pc-stamp">$0.55</div>
+            <div class="pc-postmark">SAN FRANCISCO • MAY 26, 2026</div>
+          </div>
+          <div class="pc-meta">San Francisco, CA → Naples, FL</div>
+          <div class="pc-map">
+            <div class="pc-map-header">
+              <div class="pc-map-title">Delivered</div>
+              <div class="pc-map-eta">Jun 3</div>
+            </div>
+            <svg viewBox="0 0 280 130" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20,40 Q30,30 50,32 L70,30 Q100,28 130,30 L180,32 Q220,34 250,40 L260,55 Q258,75 245,85 L210,95 Q170,100 130,98 L80,95 Q50,90 30,80 Q15,65 20,40 Z" fill="#f0eadb" stroke="#c9c2b1" stroke-width="0.5"/>
+              <circle cx="40" cy="60" r="4" fill="#5b6072"/>
+              <circle cx="220" cy="85" r="6" fill="#2e7d4f"/>
+              <circle cx="220" cy="85" r="12" fill="#2e7d4f" opacity="0.18"/>
+              <path d="M40,60 Q130,15 220,85" stroke="#2e7d4f" stroke-width="1.5" fill="none" opacity="0.6"/>
+              <text x="40" y="76" font-family="ui-sans-serif" font-size="6" fill="#5b6072" text-anchor="middle">SF</text>
+              <text x="220" y="101" font-family="ui-sans-serif" font-size="6" fill="#2e7d4f" font-weight="600" text-anchor="middle">DELIVERED</text>
+            </svg>
+          </div>
+          <div class="pc-timeline">
+            <div class="pc-timeline-header">Status</div>
+            <div class="pc-timeline-row done"><div class="dot"></div><div>Queued</div></div>
+            <div class="pc-timeline-row done"><div class="dot"></div><div>Received by Lob</div></div>
+            <div class="pc-timeline-row done"><div class="dot"></div><div>In production</div></div>
+            <div class="pc-timeline-row done"><div class="dot"></div><div>Mailed</div></div>
+            <div class="pc-timeline-row done"><div class="dot"></div><div>In transit</div></div>
+            <div class="pc-timeline-row done"><div class="dot"></div><div>Out for delivery</div></div>
+            <div class="pc-timeline-row current"><div class="dot"></div><div>Delivered ✓</div></div>
+          </div>
+        </div>
+        <p>Lob webhook flipped <code>lob_status</code> to delivered. Timeline fills in.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ========================================================== -->
+  <!-- SECTION 6 — COPY TIGHTENING                                -->
+  <!-- ========================================================== -->
+  <section id="tightening">
+    <h2 class="section-title">Copy tightening — proposed.</h2>
+    <p class="section-lede">Self-review against gstack voice principles. Em-dashes out. Engineery phrasing out. Make the bot sound like a person who ships, not a person who reads docs.</p>
+
+    <div class="step">
+      <span class="step-num">Step 02</span>
+      <h3>Acknowledge name + ask address</h3>
+      <div class="diff">
+        <span class="label">Current</span>
+        <span class="was">Got it — to Lori. What's their full address? You can send it one line like "123 Main St, Naples FL 34101" — we'll figure it out.</span>
+        <span class="label">Proposed</span>
+        <span class="now">Got it, to Lori. What's their full address? One line works: "123 Main St, Naples FL 34101". We'll figure it out.</span>
+        <span class="label">Why</span>
+        Removes two em-dashes. "One line works" is more direct than "You can send it one line like."
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-num">Step 04</span>
+      <h3>Ask for the message</h3>
+      <div class="diff">
+        <span class="label">Current</span>
+        <span class="was">What should the postcard say? Reply with your note (240 characters max).</span>
+        <span class="label">Proposed</span>
+        <span class="now">What should the card say? Reply with your note. (Up to 240 chars.)</span>
+        <span class="label">Why</span>
+        "Card" (not "postcard") — already implicit. Parenthetical is less engineery than "characters max."
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-num">Step 05</span>
+      <h3>Ask for sender location</h3>
+      <div class="diff">
+        <span class="label">Current</span>
+        <span class="was">Last thing: where are you texting from? Just your city + state (e.g. "Bethesda, MD"). Goes on the back as your return address.</span>
+        <span class="label">Proposed</span>
+        <span class="now">Last thing: where are you texting from? City + state, like "Bethesda, MD". Goes on the back AND powers the live delivery map.</span>
+        <span class="label">Why</span>
+        Sells the map as the payoff. "Just your" is filler. The return-address explanation buries the actual reason we ask.
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-num">Step 06</span>
+      <h3>SEND prompt</h3>
+      <div class="diff">
+        <span class="label">Current (split into 2 SMS as 318 chars)</span>
+        <span class="was">Got it — from San Francisco, CA. Ready to mail to Lori: "Wish you were here..." Reply SEND to mail now (first card free), schedule it (e.g. "send June 15" or "in 3 days"), or CANCEL.</span>
+        <span class="label">Proposed (kept under 160 chars + adaptive)</span>
+        <span class="now">From SF, CA → Lori in Naples, FL. Note: "Wish you were here..." Reply SEND, schedule ("June 15" or "in 3 days"), or CANCEL.<br><br><em>First-time senders get "(first one's free)" appended; repeat senders see "(uses 1 of N cards)."</em></span>
+        <span class="label">Why</span>
+        Arrow visual makes the recipient pop. Adaptive context — don't say "first card free" to repeat senders.
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-num">Address-parse fail</span>
+      <h3>Couldn't parse</h3>
+      <div class="diff">
+        <span class="label">Current</span>
+        <span class="was">I had trouble with that address. Try again with street, city, state, and ZIP — e.g., "123 Main St, Naples FL 34101".</span>
+        <span class="label">Proposed</span>
+        <span class="now">Couldn't parse that. Try street, city, state, ZIP. Example: "123 Main St, Naples FL 34101".</span>
+        <span class="label">Why</span>
+        "I had trouble" sounds like a bot. "Couldn't parse" is direct and matches our other copy.
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-num">Insufficient credits</span>
+      <h3>Out of cards on SEND</h3>
+      <div class="diff">
+        <span class="label">Current</span>
+        <span class="was">You're out of cards. Reply BUY 5 ($5), BUY 25 ($20), or BUY 50 ($35) to top up. Then reply SEND to mail this card.</span>
+        <span class="label">Proposed</span>
+        <span class="now">You're out of cards. Top up: BUY 5 ($5), BUY 25 ($20), or BUY 50 ($35). Then SEND to mail this one.</span>
+        <span class="label">Why</span>
+        Shorter. "BUY 25" featured first visually since it's our best per-stamp value. "This one" feels more like a person.
+      </div>
+    </div>
+
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ========================================================== -->
+  <!-- SECTION 7 — TODO                                            -->
+  <!-- ========================================================== -->
+  <section id="todo">
+    <h2 class="section-title">What's left.</h2>
+    <p class="section-lede">Open work as of this review. SMS-side is shipped end-to-end. iOS, A2P approval, and a handful of polish items remain.</p>
+
+    <div class="step">
+      <span class="step-num">Blocked on external</span>
+      <h3>A2P 10DLC carrier approval (1-3 days)</h3>
+      <p class="note">Brand REGISTERED. Campaign IN_PROGRESS. Phone linked. Carriers are vetting — until they're done, outbound SMS gets 30034 errors at the carrier. Sneak-test path: read what the bot WOULD have sent in Twilio Console outbound logs.</p>
+    </div>
+
+    <div class="step">
+      <span class="step-num">User action</span>
+      <h3>Rotate three secrets</h3>
+      <p class="note">OpenAI API key, Twilio Auth Token, and Lob credentials were pasted in chat earlier this session. All three need to be rotated. Same drill: regenerate in the dashboard, <code>supabase secrets set</code>, redeploy affected functions.</p>
+    </div>
+
+    <div class="step">
+      <span class="step-num">Polish</span>
+      <h3>iOS app date picker for scheduled sending</h3>
+      <p class="note">The RPC accepts <code>p_scheduled_send_at</code> already. The compose screen needs a "Schedule for later" toggle + date picker that passes the ISO timestamp. Same downstream code path as the SMS schedule branch.</p>
+    </div>
+
+    <div class="step">
+      <span class="step-num">Polish</span>
+      <h3>Apple Messages for Business application</h3>
+      <p class="note">Once approved, Mailroom's SMS replies come back as iMessage-style blue bubbles. Series.so-tier vibe. Application takes 1-3 weeks. User is working on this in parallel.</p>
+    </div>
+
+    <div class="step">
+      <span class="step-num">Polish</span>
+      <h3>Copy tightening (this doc)</h3>
+      <p class="note">Six proposed edits in <a href="#tightening">section above</a>. If approved, single sms-inbound deploy. Em-dashes out, engineery phrasing out.</p>
+    </div>
+
+    <div class="step">
+      <span class="step-num">Future</span>
+      <h3>Cancel a scheduled card</h3>
+      <p class="note">Right now CANCEL only abandons the in-progress draft. A user can't say "cancel the one I scheduled for June 15" because we don't have a disambiguation flow. Worth designing post-A2P. Could be a separate /c/ page action ("Cancel this scheduled card?") rather than SMS.</p>
+    </div>
+
+  </section>
+
+  <footer>
+    <p>Mailroom · SMS flow QA artifact · generated 2026-05-26 · <a href="/" style="color: var(--muted-ink);">themailroom.club</a></p>
+  </footer>
+
+</div>
+</body>
+</html>
