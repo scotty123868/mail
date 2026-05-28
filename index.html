@@ -727,35 +727,87 @@
     line-height: 1.5;
   }
 
-  /* ============ THE PHILOSOPHY (manifesto-ish) ============ */
-  .manifesto {
-    text-align: center;
-    padding: 140px 0;
+  /* ============ ROUTE TICKER ============
+   * Replaced the manifesto. Tells via showing — a live (well, hardcoded
+   * for v1) marquee of recent city pairs from the postcard route data.
+   * The wire-is-humming proof. JetBrains-Mono-ish via system mono stack.
+   */
+  .route-ticker {
+    padding: 100px 0;
+    background: var(--cream);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
   }
 
-  .manifesto-text {
-    font-family: 'Fraunces', serif;
-    font-size: clamp(28px, 4vw, 48px);
-    line-height: 1.2;
-    letter-spacing: -0.02em;
-    color: var(--ink);
-    max-width: 880px;
+  .ticker-frame {
+    overflow: hidden;
+    position: relative;
     margin: 0 auto;
-    font-weight: 400;
-    font-variation-settings: "SOFT" 50;
+    max-width: 980px;
+    mask-image: linear-gradient(to right, transparent 0, #000 8%, #000 92%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 8%, #000 92%, transparent 100%);
   }
 
-  .manifesto-text em {
-    font-style: italic;
+  .ticker-track {
+    display: flex;
+    gap: 56px;
+    width: max-content;
+    animation: ticker-scroll 60s linear infinite;
+  }
+
+  @keyframes ticker-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  .ticker-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  .ticker-city {
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .ticker-arrow {
     color: var(--postal-red);
-    font-variation-settings: "SOFT" 100, "WONK" 1;
+    font-weight: 700;
   }
 
-  .manifesto-divider {
-    width: 60px;
-    height: 1px;
-    background: var(--rule);
-    margin: 64px auto;
+  .ticker-time {
+    color: var(--ink);
+    opacity: 0.4;
+    font-size: 12px;
+    margin-left: 6px;
+  }
+
+  .ticker-tag {
+    text-align: center;
+    margin: 40px auto 0;
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    color: var(--ink);
+    opacity: 0.8;
+  }
+
+  .ticker-tag a {
+    color: var(--postal-red);
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+    font-style: italic;
+  }
+
+  @media (max-width: 760px) {
+    .route-ticker { padding: 64px 0; }
+    .ticker-track { gap: 32px; }
+    .ticker-row { font-size: 12px; gap: 10px; }
   }
 
   /* ============ PRICING ============ */
@@ -1236,7 +1288,6 @@
     <div class="nav-links">
       <a href="#how">How it works</a>
       <a href="#pricing">Pricing</a>
-      <a href="#faq">FAQ</a>
       <a href="#waitlist" class="nav-cta">Join waitlist</a>
     </div>
   </div>
@@ -1246,10 +1297,9 @@
   <div class="container">
     <div class="hero-grid">
       <div>
-        <div class="eyebrow">Send photos for less than a stamp</div>
-        <h1>Send a postcard with <em>a text.</em><br><span class="h1-penpal">Get one back from <em>a stranger.</em></span></h1>
+        <h1>Send a postcard.<br><em>A stranger sends one back.</em></h1>
         <p class="hero-subhead">
-          Pick a photo. Write a note. No address needed. <strong style="color: var(--ink); font-weight: 600;">Your first card is free.</strong>
+          Text a photo. We mail real paper. Someone, somewhere, mails one back. <strong style="color: var(--ink); font-weight: 600;">First one's on us.</strong>
         </p>
         <!-- v1.1: replaced email waitlist with direct SMS CTA. Tapping
              on mobile opens the user's Messages app prefilled with our
@@ -1337,15 +1387,33 @@
   </div>
 </section>
 
-<section class="manifesto">
+<!-- Manifesto removed — the design critique flagged it as "LinkedIn
+     thought leader voice" that tells instead of shows + positions
+     Mailroom as a REACTION to tech (the loneliest possible framing).
+     The route ticker below this point does the show-don't-tell work
+     of proving the wire is live without preaching. -->
+
+<section class="route-ticker">
   <div class="container">
-    <p class="manifesto-text">
-      The more connected we got, the less we <em>felt it.</em>
-    </p>
-    <div class="manifesto-divider"></div>
-    <p class="manifesto-text">
-      A photo on the fridge does more than a hundred likes ever did.
-    </p>
+    <div class="ticker-frame">
+      <div class="ticker-track" id="tickerTrack">
+        <!-- Hardcoded sample routes for v1. Future: live query of the
+             last N postcards from postcards table (city pairs only,
+             no PII). Refreshes hourly. -->
+        <span class="ticker-row"><span class="ticker-city">BROOKLYN, NY</span><span class="ticker-arrow">→</span><span class="ticker-city">MARFA, TX</span><span class="ticker-time">7m ago</span></span>
+        <span class="ticker-row"><span class="ticker-city">SAN FRANCISCO, CA</span><span class="ticker-arrow">→</span><span class="ticker-city">PORTLAND, ME</span><span class="ticker-time">23m ago</span></span>
+        <span class="ticker-row"><span class="ticker-city">AUSTIN, TX</span><span class="ticker-arrow">→</span><span class="ticker-city">SAVANNAH, GA</span><span class="ticker-time">1h ago</span></span>
+        <span class="ticker-row"><span class="ticker-city">DENVER, CO</span><span class="ticker-arrow">→</span><span class="ticker-city">BURLINGTON, VT</span><span class="ticker-time">2h ago</span></span>
+        <span class="ticker-row"><span class="ticker-city">NAPLES, FL</span><span class="ticker-arrow">→</span><span class="ticker-city">CHARLESTON, SC</span><span class="ticker-time">3h ago</span></span>
+        <span class="ticker-row"><span class="ticker-city">SEATTLE, WA</span><span class="ticker-arrow">→</span><span class="ticker-city">NASHVILLE, TN</span><span class="ticker-time">5h ago</span></span>
+        <!-- Duplicate set for seamless marquee loop -->
+        <span class="ticker-row"><span class="ticker-city">BROOKLYN, NY</span><span class="ticker-arrow">→</span><span class="ticker-city">MARFA, TX</span><span class="ticker-time">7m ago</span></span>
+        <span class="ticker-row"><span class="ticker-city">SAN FRANCISCO, CA</span><span class="ticker-arrow">→</span><span class="ticker-city">PORTLAND, ME</span><span class="ticker-time">23m ago</span></span>
+        <span class="ticker-row"><span class="ticker-city">AUSTIN, TX</span><span class="ticker-arrow">→</span><span class="ticker-city">SAVANNAH, GA</span><span class="ticker-time">1h ago</span></span>
+        <span class="ticker-row"><span class="ticker-city">DENVER, CO</span><span class="ticker-arrow">→</span><span class="ticker-city">BURLINGTON, VT</span><span class="ticker-time">2h ago</span></span>
+      </div>
+    </div>
+    <p class="ticker-tag">The wire is open. <a href="#waitlist">Add yours.</a></p>
   </div>
 </section>
 
@@ -1402,107 +1470,11 @@
   </div>
 </section>
 
-<section id="faq">
-  <div class="container">
-    <div class="section-label">Frequently asked</div>
-    <h2>The <em>obvious</em> questions.</h2>
-    <p class="section-lede">
-      And honest answers.
-    </p>
-
-    <div class="faq-grid">
-      <div class="faq-item">
-        <div class="faq-question">
-          How do you make money?
-          <span class="faq-toggle">+</span>
-        </div>
-        <div class="faq-answer">
-          <p>We don't. It costs us a little more than 70 cents per card to print, stamp, and mail. Instead of profits, we want sending a postcard to feel as easy as sending a text. We don't have any investors or dreams of fortunes. We just want to reduce the friction of keeping in touch.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">
-          Do I need my friend's address?
-          <span class="faq-toggle">+</span>
-        </div>
-        <div class="faq-answer">
-          <p>No. Send your friend a link from the app and they can share their address with you privately. They fill it in once, you never see it directly, and we use it to mail the card. Their address stays theirs. (You can also enter an address yourself if you already have one.)</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">
-          What happens when a friend gets a postcard from me?
-          <span class="faq-toggle">+</span>
-        </div>
-        <div class="faq-answer">
-          <p>Every Mailroom postcard has a small QR code on the back. When your friend scans it, they're invited to download the app, and we'll give them a free card to send back to you. No subscription, no commitment, just a way for the magic to keep going in both directions. The going-back-and-forth is the whole point.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">
-          Is this actually a real postcard or a digital thing?
-          <span class="faq-toggle">+</span>
-        </div>
-        <div class="faq-answer">
-          <p>Real. Physical. Printed on cardstock, mailed with USPS postage, delivered by your mail carrier. It shows up in your friend's actual mailbox, addressed by name. You can stick it on a fridge. You can tear it. You can frame it. It exists.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">
-          Do I really get a free card?
-          <span class="faq-toggle">+</span>
-        </div>
-        <div class="faq-answer">
-          <p>Yes. One free photo postcard when you join. Printed, mailed, on us. Send it to your best friend, your mom, whoever. No credit card required to claim it. After that, packs start at $5.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">
-          How long does it take to arrive?
-          <span class="faq-toggle">+</span>
-        </div>
-        <div class="faq-answer">
-          <p>A week, end-to-end. We print and drop in the mail within 1-2 business days of you sending. USPS First-Class delivery takes another 3-5 business days from there. Faster if you're in a major metro, slower for rural addresses.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">
-          Can I send to multiple people at once?
-          <span class="faq-toggle">+</span>
-        </div>
-        <div class="faq-answer">
-          <p>Yes. Pick a photo, write a note, and send to as many friends as you want. One credit per recipient. Great for party invites, birth announcements, "I miss you" sends to your whole crew, or just sharing a moment with everyone who was there.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">
-          What happens if it doesn't get delivered?
-          <span class="faq-toggle">+</span>
-        </div>
-        <div class="faq-answer">
-          <p>If a card comes back as undeliverable, we let you know and credit you for another send. If you have the address right and it just gets lost in the mail (rare but happens), email us and we'll resend.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">
-          Who's behind this?
-          <span class="faq-toggle">+</span>
-        </div>
-        <div class="faq-answer">
-          <p>A small team that misses getting mail from people they love. We think a photo on someone's wall is the strongest signal of friendship there is, and we want to make it preposterously easy to send one. Get in touch. We read everything.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+<!-- FAQ removed — user wants a tighter, more "source/connected" landing.
+     Q&A pattern reads as enterprise SaaS, not a small mail club. Vertical
+     space now goes to the CTA section, which is the actual conversion.
+     Anything genuinely necessary to know is now baked into the hero,
+     how-it-works, manifesto, and pricing sections above. -->
 
 <section class="cta-section" id="waitlist">
   <div class="container">
