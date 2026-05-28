@@ -189,21 +189,21 @@
 
   .eyebrow {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.18em;
     color: var(--postal-red);
     margin-bottom: 32px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
   }
 
   .eyebrow::before {
     content: '';
-    width: 24px;
-    height: 1px;
+    width: 32px;
+    height: 1.5px;
     background: var(--postal-red);
   }
 
@@ -888,21 +888,9 @@
     border-color: #f4be8a;
   }
 
-  .price-card.featured::before {
-    content: 'For the regulars';
-    position: absolute;
-    top: -1px;
-    right: 24px;
-    background: #f4be8a;
-    color: var(--ink);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 6px 12px;
-    border-radius: 0 0 4px 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-  }
+  /* Featured pack ribbon removed — visual treatment (background tint +
+     border color) is enough to mark the pack as featured without a
+     "Most Popular"-style label. */
 
   .price-card-label {
     font-family: 'JetBrains Mono', monospace;
@@ -1396,8 +1384,8 @@
           <path d="M16 28C16 21.4 21.4 16 28 16C34.6 16 40 21.4 40 28C40 34.6 34.6 40 28 40H22L16 44V28Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
           <path d="M24 28H32M28 24V32" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
-        <h3>Send a private link</h3>
-        <p>Don't have your friend's address? Send them a Mailroom link by text or DM. They fill it in once, privately. You never see it. We use it to mail their card.</p>
+        <h3>Tell us who</h3>
+        <p>Reply with a friend's name and address, or just say "penpal" to send to someone you've never met. We handle the rest.</p>
       </div>
 
       <div class="step fade-up">
@@ -1408,7 +1396,7 @@
           <path d="M41 42L43 44L47 40" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <h3>We mail it</h3>
-        <p>Printed on real cardstock and mailed with USPS postage within two business days. It lands in their mailbox about a week later.</p>
+        <p>Printed on real cardstock, USPS-stamped, in their mailbox within a week. For penpals, a card finds its way back to you.</p>
       </div>
     </div>
   </div>
@@ -1446,7 +1434,6 @@
 
 <section class="pricing" id="pricing">
   <div class="container">
-    <div class="section-label">Membership</div>
     <h2>Join <em>the club.</em></h2>
     <p class="section-lede">
       Credits never expire. Pick a pack, send when the moment finds you.
@@ -1486,7 +1473,6 @@
           <li>30 photo postcards</li>
           <li>Mailed anywhere in the US</li>
           <li>Credits never expire</li>
-          <li>For the regulars</li>
         </ul>
       </div>
     </div>
