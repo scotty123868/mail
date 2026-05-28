@@ -762,18 +762,31 @@
 
   .ticker-row {
     display: inline-flex;
-    align-items: center;
+    align-items: baseline;
     gap: 14px;
     font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-    font-size: 14px;
-    letter-spacing: 0.06em;
+    font-size: 15px;
+    letter-spacing: 0.04em;
     color: var(--ink);
     white-space: nowrap;
   }
 
-  .ticker-city {
-    text-transform: uppercase;
+  /* Primary: lat/lng coordinates — the mystery layer. People squint,
+     realize it's coords, decode, feel clever. Engagement via puzzle. */
+  .ticker-coords {
     font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Secondary: actual city, tiny + low contrast, for the curious who
+     hover or zoom. Don't lead with this. */
+  .ticker-city {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--ink);
+    opacity: 0.35;
+    margin-left: 6px;
   }
 
   .ticker-arrow {
@@ -783,9 +796,10 @@
 
   .ticker-time {
     color: var(--ink);
-    opacity: 0.4;
-    font-size: 12px;
-    margin-left: 6px;
+    opacity: 0.35;
+    font-size: 11px;
+    margin-left: 10px;
+    font-variant-numeric: tabular-nums;
   }
 
   .ticker-tag {
@@ -794,7 +808,8 @@
     font-family: 'Fraunces', serif;
     font-size: 18px;
     color: var(--ink);
-    opacity: 0.8;
+    opacity: 0.7;
+    font-style: italic;
   }
 
   .ticker-tag a {
@@ -1297,9 +1312,9 @@
   <div class="container">
     <div class="hero-grid">
       <div>
-        <h1>Send a postcard.<br><em>A stranger sends one back.</em></h1>
+        <h1>send a postcard.<br><em>a stranger sends one back.</em></h1>
         <p class="hero-subhead">
-          Text a photo. We mail real paper. Someone, somewhere, mails one back. <strong style="color: var(--ink); font-weight: 600;">First one's on us.</strong>
+          text a photo. real paper, in the mail. <strong style="color: var(--ink); font-weight: 600;">first one's on us.</strong>
         </p>
         <!-- v1.1: replaced email waitlist with direct SMS CTA. Tapping
              on mobile opens the user's Messages app prefilled with our
@@ -1397,20 +1412,20 @@
   <div class="container">
     <div class="ticker-frame">
       <div class="ticker-track" id="tickerTrack">
-        <!-- Hardcoded sample routes for v1. Future: live query of the
-             last N postcards from postcards table (city pairs only,
-             no PII). Refreshes hourly. -->
-        <span class="ticker-row"><span class="ticker-city">BROOKLYN, NY</span><span class="ticker-arrow">→</span><span class="ticker-city">MARFA, TX</span><span class="ticker-time">7m ago</span></span>
-        <span class="ticker-row"><span class="ticker-city">SAN FRANCISCO, CA</span><span class="ticker-arrow">→</span><span class="ticker-city">PORTLAND, ME</span><span class="ticker-time">23m ago</span></span>
-        <span class="ticker-row"><span class="ticker-city">AUSTIN, TX</span><span class="ticker-arrow">→</span><span class="ticker-city">SAVANNAH, GA</span><span class="ticker-time">1h ago</span></span>
-        <span class="ticker-row"><span class="ticker-city">DENVER, CO</span><span class="ticker-arrow">→</span><span class="ticker-city">BURLINGTON, VT</span><span class="ticker-time">2h ago</span></span>
-        <span class="ticker-row"><span class="ticker-city">NAPLES, FL</span><span class="ticker-arrow">→</span><span class="ticker-city">CHARLESTON, SC</span><span class="ticker-time">3h ago</span></span>
-        <span class="ticker-row"><span class="ticker-city">SEATTLE, WA</span><span class="ticker-arrow">→</span><span class="ticker-city">NASHVILLE, TN</span><span class="ticker-time">5h ago</span></span>
+        <!-- Coordinates first (the mystery), tiny city pair second (the
+             answer for the curious who hover/squint). Hardcoded for v1.
+             Future: live query of last N postcards from postcards table. -->
+        <span class="ticker-row"><span class="ticker-coords">40.7° -73.9°</span><span class="ticker-arrow">→</span><span class="ticker-coords">30.3° -103.9°</span><span class="ticker-city">bk → marfa</span><span class="ticker-time">7m</span></span>
+        <span class="ticker-row"><span class="ticker-coords">37.8° -122.4°</span><span class="ticker-arrow">→</span><span class="ticker-coords">43.7° -70.3°</span><span class="ticker-city">sf → portland</span><span class="ticker-time">23m</span></span>
+        <span class="ticker-row"><span class="ticker-coords">30.3° -97.7°</span><span class="ticker-arrow">→</span><span class="ticker-coords">32.1° -81.1°</span><span class="ticker-city">austin → savannah</span><span class="ticker-time">1h</span></span>
+        <span class="ticker-row"><span class="ticker-coords">39.7° -105.0°</span><span class="ticker-arrow">→</span><span class="ticker-coords">44.5° -73.2°</span><span class="ticker-city">denver → burlington</span><span class="ticker-time">2h</span></span>
+        <span class="ticker-row"><span class="ticker-coords">26.1° -81.8°</span><span class="ticker-arrow">→</span><span class="ticker-coords">32.8° -79.9°</span><span class="ticker-city">naples → charleston</span><span class="ticker-time">3h</span></span>
+        <span class="ticker-row"><span class="ticker-coords">47.6° -122.3°</span><span class="ticker-arrow">→</span><span class="ticker-coords">36.2° -86.8°</span><span class="ticker-city">seattle → nashville</span><span class="ticker-time">5h</span></span>
         <!-- Duplicate set for seamless marquee loop -->
-        <span class="ticker-row"><span class="ticker-city">BROOKLYN, NY</span><span class="ticker-arrow">→</span><span class="ticker-city">MARFA, TX</span><span class="ticker-time">7m ago</span></span>
-        <span class="ticker-row"><span class="ticker-city">SAN FRANCISCO, CA</span><span class="ticker-arrow">→</span><span class="ticker-city">PORTLAND, ME</span><span class="ticker-time">23m ago</span></span>
-        <span class="ticker-row"><span class="ticker-city">AUSTIN, TX</span><span class="ticker-arrow">→</span><span class="ticker-city">SAVANNAH, GA</span><span class="ticker-time">1h ago</span></span>
-        <span class="ticker-row"><span class="ticker-city">DENVER, CO</span><span class="ticker-arrow">→</span><span class="ticker-city">BURLINGTON, VT</span><span class="ticker-time">2h ago</span></span>
+        <span class="ticker-row"><span class="ticker-coords">40.7° -73.9°</span><span class="ticker-arrow">→</span><span class="ticker-coords">30.3° -103.9°</span><span class="ticker-city">bk → marfa</span><span class="ticker-time">7m</span></span>
+        <span class="ticker-row"><span class="ticker-coords">37.8° -122.4°</span><span class="ticker-arrow">→</span><span class="ticker-coords">43.7° -70.3°</span><span class="ticker-city">sf → portland</span><span class="ticker-time">23m</span></span>
+        <span class="ticker-row"><span class="ticker-coords">30.3° -97.7°</span><span class="ticker-arrow">→</span><span class="ticker-coords">32.1° -81.1°</span><span class="ticker-city">austin → savannah</span><span class="ticker-time">1h</span></span>
+        <span class="ticker-row"><span class="ticker-coords">39.7° -105.0°</span><span class="ticker-arrow">→</span><span class="ticker-coords">44.5° -73.2°</span><span class="ticker-city">denver → burlington</span><span class="ticker-time">2h</span></span>
       </div>
     </div>
     <p class="ticker-tag">The wire is open. <a href="#waitlist">Add yours.</a></p>
