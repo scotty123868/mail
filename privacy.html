@@ -228,7 +228,7 @@
     <p>We don't sell recipient addresses. We don't share them with anyone except our printing vendor (Lob) for fulfillment. We delete them on request from either you or the recipient.</p>
 
     <h2>SMS messaging specifically</h2>
-    <p>Mailroom can be used entirely via text message — you text us a photo to start, we walk you through composing the postcard via SMS, and we text you a confirmation when the card is mailed. A few things to know about how that works:</p>
+    <p>Mailroom can be used entirely via text message. you text us a photo to start, we walk you through composing the postcard via SMS, and we text you a confirmation when the card is mailed. A few things to know about how that works:</p>
     <ul>
       <li><strong>Opt-in:</strong> Texting a photo or message to our toll-free number constitutes opt-in to receive transactional SMS from Mailroom.</li>
       <li><strong>Opt-out:</strong> Reply <strong>STOP</strong>, <strong>CANCEL</strong>, or <strong>UNSUBSCRIBE</strong> at any time to opt out. We'll send one confirmation message, then stop. We delete your phone number from active messaging within 24 hours.</li>
@@ -250,17 +250,17 @@
     <h2>Sub-processors</h2>
     <p>To run Mailroom, we use a handful of vendors who handle specific slices of your data. Each is contractually bound to handle it only on our behalf:</p>
     <ul>
-      <li><strong>Lob</strong> — our printing and USPS fulfillment partner. Receives the photo, message, sender return address, and recipient mailing address needed to physically produce and mail your card. Lob is HIPAA + SOC 2 compliant.</li>
-      <li><strong>Twilio</strong> — our SMS and MMS provider. Routes your inbound texts to us and our outbound replies back to you. Sees your phone number and message content for the brief moment it's in transit.</li>
-      <li><strong>OpenAI</strong> — when you text us a messy address ("123 main st naples FL 34101"), we send that text fragment to OpenAI's GPT-4o-mini model to parse it into a structured mailing address. We send only the fragment, not your phone number, name, or any other identifying info. OpenAI's API terms prohibit using API inputs for model training (per their March 2023 policy). We don't send your photos to OpenAI.</li>
-      <li><strong>Stripe</strong> — processes payments. Sees your card details, never us.</li>
-      <li><strong>Supabase</strong> — our database and backend infrastructure provider. Stores all account, postcard, and conversation data. SOC 2 Type 2 compliant.</li>
-      <li><strong>Apple App Store</strong> — handles iOS app distribution and (if applicable) in-app purchases.</li>
-      <li><strong>Google Places</strong> — autocomplete suggestions when entering recipient addresses in the web compose flow. Address fragments sent during typing; not tied to your identity.</li>
+      <li><strong>Lob</strong>. our printing and USPS fulfillment partner. Receives the photo, message, sender return address, and recipient mailing address needed to physically produce and mail your card. Lob is HIPAA + SOC 2 compliant.</li>
+      <li><strong>Twilio</strong>. our SMS and MMS provider. Routes your inbound texts to us and our outbound replies back to you. Sees your phone number and message content for the brief moment it's in transit.</li>
+      <li><strong>OpenAI</strong>. when you text us a messy address ("123 main st naples FL 34101"), we send that text fragment to OpenAI's GPT-4o-mini model to parse it into a structured mailing address. We send only the fragment, not your phone number, name, or any other identifying info. OpenAI's API terms prohibit using API inputs for model training (per their March 2023 policy). We don't send your photos to OpenAI.</li>
+      <li><strong>Stripe</strong>. processes payments. Sees your card details, never us.</li>
+      <li><strong>Supabase</strong>. our database and backend infrastructure provider. Stores all account, postcard, and conversation data. SOC 2 Type 2 compliant.</li>
+      <li><strong>Apple App Store</strong>. handles iOS app distribution and (if applicable) in-app purchases.</li>
+      <li><strong>Google Places</strong>. autocomplete suggestions when entering recipient addresses in the web compose flow. Address fragments sent during typing; not tied to your identity.</li>
     </ul>
 
     <h2>Your rights</h2>
-    <p>You can request a copy of your data, ask us to delete your account and everything associated with it, or correct anything we have wrong. Email <a href="mailto:hello@mailroomclub.io">hello@mailroomclub.io</a> and we'll handle it within 30 days. If you're a California, EU, or UK resident, you have additional rights under CCPA, GDPR, and UK GDPR — same email reaches us either way.</p>
+    <p>You can request a copy of your data, ask us to delete your account and everything associated with it, or correct anything we have wrong. Email <a href="mailto:hello@mailroomclub.io">hello@mailroomclub.io</a> and we'll handle it within 30 days. If you're a California, EU, or UK resident, you have additional rights under CCPA, GDPR, and UK GDPR. same email reaches us either way.</p>
 
     <h2>Cookies and tracking</h2>
     <p>The Mailroom website uses minimal cookies, primarily for the session and for understanding aggregate site traffic. We don't use advertising trackers. The Mailroom app uses standard Apple analytics frameworks (which respect your iOS privacy settings).</p>

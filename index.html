@@ -6,7 +6,7 @@
 <title>Mailroom · Send a postcard. Get one back.</title>
 <meta name="description" content="Send a postcard with a text. Get one back from a stranger. Pick a photo, write a note, we mail the paper. First one's free.">
 <meta property="og:title" content="Mailroom · Send a postcard. Get one back.">
-<meta property="og:description" content="Text us a photo, we mail a real paper card — to a friend, or a stranger somewhere new. A card comes back. First one's on us.">
+<meta property="og:description" content="Text us a photo, we mail a real paper card to a friend, or to a stranger somewhere new. A card comes back. First one's on us.">
 <meta property="og:image" content="https://app.themailroom.club/og-card.svg">
 <meta property="og:type" content="website">
 <link rel="icon" type="image/png" href="/favicon.png">
@@ -224,7 +224,7 @@
     color: var(--postal-red);
   }
 
-  /* Subtagline — the pen-pal half of the hero hook, now its own line
+  /* Subtagline. the pen-pal half of the hero hook, now its own line
      between H1 and the description. Italic Fraunces, blue accent, sized
      between the H1 and the body subhead so the visual hierarchy reads:
      headline -> promise -> instructions. */
@@ -368,7 +368,7 @@
       0 56px 96px -18px rgba(26, 22, 18, 0.28);
   }
 
-  /* Photo front — the brand recraft illustration as the entire hero element. */
+  /* Photo front. the brand recraft illustration as the entire hero element. */
   .postcard-front {
     transform: rotate(-2.5deg) rotateX(4deg) rotateY(-2deg);
     transform-style: preserve-3d;
@@ -398,7 +398,7 @@
     z-index: 5;
   }
 
-  /* Paper grain — fiber noise overlay on top of all card content */
+  /* Paper grain. fiber noise overlay on top of all card content */
   .paper-grain {
     position: absolute;
     inset: 0;
@@ -409,12 +409,12 @@
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 320 320' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.06 0 0 0 0.18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     background-size: 260px 260px;
   }
-  /* Photo card grain has slightly different character — print emulsion, not paper fiber */
+  /* Photo card grain has slightly different character. print emulsion, not paper fiber */
   .postcard-front .paper-grain {
     opacity: 0.4;
     mix-blend-mode: overlay;
   }
-  /* Subtle directional edge — suggests cardstock thickness on top + left */
+  /* Subtle directional edge. suggests cardstock thickness on top + left */
   .paper-edge {
     position: absolute;
     inset: 0;
@@ -428,7 +428,7 @@
     border-radius: inherit;
   }
 
-  /* === Postcard back — peeks from BEHIND the photo front === */
+  /* === Postcard back. peeks from BEHIND the photo front === */
   .postcard-back {
     bottom: 0;
     left: 0;
@@ -475,7 +475,7 @@
     z-index: 6;
   }
 
-  /* Return address — tiny detail top-left of back card */
+  /* Return address. tiny detail top-left of back card */
   .return-address {
     position: absolute;
     top: 12px;
@@ -516,7 +516,7 @@
     position: relative;
     display: inline-block;
   }
-  /* Hand-drawn underline beneath the closer — natural ink stroke */
+  /* Hand-drawn underline beneath the closer. natural ink stroke */
   .handwriting .line-b::after {
     content: '';
     position: absolute;
@@ -534,7 +534,7 @@
     transform: rotate(-0.6deg) translateY(2px);
     border-radius: 50%;
   }
-  /* Tiny hand-drawn heart doodle — small mark of the kind people add without thinking */
+  /* Tiny hand-drawn heart doodle. small mark of the kind people add without thinking */
   .handwriting .hand-doodle {
     display: block;
     width: 26px;
@@ -601,7 +601,7 @@
     margin-top: 5px;
   }
 
-  /* === Float animation — single postcard breathes === */
+  /* === Float animation. single postcard breathes === */
   .postcard-front { animation: float-solo 8s ease-in-out infinite; }
   @keyframes float-solo {
     0%, 100% { transform: rotate(-2.5deg) rotateX(4deg) rotateY(-2deg) translateY(0); }
@@ -739,7 +739,7 @@
   }
 
   /* ============ ROUTE TICKER ============
-   * Replaced the manifesto. Tells via showing — a live (well, hardcoded
+   * Replaced the manifesto. Tells via showing. a live (well, hardcoded
    * for v1) marquee of recent city pairs from the postcard route data.
    * The wire-is-humming proof. JetBrains-Mono-ish via system mono stack.
    */
@@ -782,7 +782,7 @@
     white-space: nowrap;
   }
 
-  /* Primary: lat/lng coordinates — the mystery layer. People squint,
+  /* Primary: lat/lng coordinates. the mystery layer. People squint,
      realize it's coords, decode, feel clever. Engagement via puzzle. */
   .ticker-coords {
     font-weight: 600;
@@ -1241,7 +1241,7 @@
   .hero-waitlist-success.visible { display: block; }
   .hero-waitlist-form.submitted { display: none; }
 
-  /* v1.1: SMS CTA — replaces email waitlist as the hero call-to-action.
+  /* v1.1: SMS CTA. replaces email waitlist as the hero call-to-action.
      Tapping on mobile opens the user's Messages app prefilled with our
      toll-free number. */
   .hero-cta-sms {
@@ -1337,7 +1337,7 @@
         <a href="sms:+14156836457&body=Hi%20Mailroom%21%20Send%20me%20a%20photo%20to%20get%20started%2E"
            class="btn-primary hero-cta-sms"
            id="heroCtaSms">
-          Text us — send a free card
+          Text us. send a free card
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path d="M3 7H11M11 7L7 3M11 7L7 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -1367,7 +1367,7 @@
     <div class="section-label">How it works</div>
     <h2>Pick. Write. <em>Send.</em></h2>
     <p class="section-lede">
-      Text us a photo. Write a note. We pair you with a stranger somewhere across the country — or send to a friend, your call. Either way, a real paper card lands in someone's mailbox in about a week. And one comes back to you.
+      Text us a photo. Write a note. We pair you with a stranger somewhere across the country. or send to a friend, your call. Either way, a real paper card lands in someone's mailbox in about a week. And one comes back to you.
     </p>
 
     <div class="steps">
@@ -1414,7 +1414,7 @@
   </div>
 </section>
 
-<!-- Manifesto removed — the design critique flagged it as "LinkedIn
+<!-- Manifesto removed. the design critique flagged it as "LinkedIn
      thought leader voice" that tells instead of shows + positions
      Mailroom as a REACTION to tech (the loneliest possible framing).
      The route ticker below this point does the show-don't-tell work
@@ -1493,14 +1493,14 @@
   </div>
 </section>
 
-<!-- FAQ removed — user wants a tighter, more "source/connected" landing.
+<!-- FAQ removed. user wants a tighter, more "source/connected" landing.
      Q&A pattern reads as enterprise SaaS, not a small mail club. Vertical
      space now goes to the CTA section, which is the actual conversion.
      Anything genuinely necessary to know is now baked into the hero,
      how-it-works, manifesto, and pricing sections above. -->
 
 <!-- Replaced the waitlist with a closing SMS invitation. Mailroom is a
-     club, not a launch event — no need for "be first in line" email
+     club, not a launch event. no need for "be first in line" email
      gating. The phone number IS the door. -->
 <section class="cta-section" id="join">
   <div class="container">
@@ -1587,7 +1587,7 @@
 
   document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-  // Waitlist form — handles both the hero inline form and the bottom CTA form
+  // Waitlist form. handles both the hero inline form and the bottom CTA form
   function handleWaitlist(event) {
     event.preventDefault();
     const form = event.currentTarget;
