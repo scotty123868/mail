@@ -1303,7 +1303,6 @@
     <div class="nav-links">
       <a href="#how">How it works</a>
       <a href="#pricing">Pricing</a>
-      <a href="#waitlist" class="nav-cta">Join waitlist</a>
     </div>
   </div>
 </nav>
@@ -1312,9 +1311,10 @@
   <div class="container">
     <div class="hero-grid">
       <div>
-        <h1>send a postcard.<br><em>a stranger sends one back.</em></h1>
+        <div class="eyebrow">A magical mail club</div>
+        <h1>Send a postcard with <em>a text.</em><br>Get one back from <em>a stranger.</em></h1>
         <p class="hero-subhead">
-          text a photo. real paper, in the mail. <strong style="color: var(--ink); font-weight: 600;">first one's on us.</strong>
+          Pick a photo. Write a note. <strong style="color: var(--ink); font-weight: 600;">First card on us.</strong>
         </p>
         <!-- v1.1: replaced email waitlist with direct SMS CTA. Tapping
              on mobile opens the user's Messages app prefilled with our
@@ -1428,26 +1428,26 @@
         <span class="ticker-row"><span class="ticker-coords">39.7° -105.0°</span><span class="ticker-arrow">→</span><span class="ticker-coords">44.5° -73.2°</span><span class="ticker-city">denver → burlington</span><span class="ticker-time">2h</span></span>
       </div>
     </div>
-    <p class="ticker-tag">The wire is open. <a href="#waitlist">Add yours.</a></p>
+    <p class="ticker-tag">The wire is open. <a href="#join">Add yours.</a></p>
   </div>
 </section>
 
 <section class="pricing" id="pricing">
   <div class="container">
-    <div class="section-label">Pricing</div>
-    <h2>Pay <em>per pack.</em><br>No subscription.</h2>
+    <div class="section-label">Membership</div>
+    <h2>Join <em>the club.</em></h2>
     <p class="section-lede">
-      Credits never expire. Buy a pack, send when you feel like it. The bigger the pack, the cheaper the card.
+      Credits never expire. Pick a pack, send when the moment finds you.
     </p>
 
     <div class="pricing-grid">
       <div class="price-card">
         <div class="price-card-label">Trial pack</div>
         <div class="price-amount">$5</div>
-        <div class="price-unit">for 5 cards</div>
-        <div class="price-per">$1.00 / card</div>
+        <div class="price-unit">for 4 cards</div>
+        <div class="price-per">$1.25 / card</div>
         <ul class="price-features">
-          <li>5 photo postcards</li>
+          <li>4 photo postcards</li>
           <li>Mailed anywhere in the US</li>
           <li>Credits never expire</li>
         </ul>
@@ -1455,11 +1455,11 @@
 
       <div class="price-card">
         <div class="price-card-label">Standard pack</div>
-        <div class="price-amount">$20</div>
-        <div class="price-unit">for 25 cards</div>
-        <div class="price-per">$0.80 / card</div>
+        <div class="price-amount">$10</div>
+        <div class="price-unit">for 10 cards</div>
+        <div class="price-per">$1.00 / card</div>
         <ul class="price-features">
-          <li>25 photo postcards</li>
+          <li>10 photo postcards</li>
           <li>Mailed anywhere in the US</li>
           <li>Credits never expire</li>
         </ul>
@@ -1467,21 +1467,17 @@
 
       <div class="price-card featured">
         <div class="price-card-label">Founder pack</div>
-        <div class="price-amount">$35</div>
-        <div class="price-unit">for 50 cards</div>
-        <div class="price-per">$0.70 / card</div>
+        <div class="price-amount">$25</div>
+        <div class="price-unit">for 30 cards</div>
+        <div class="price-per">$0.83 / card</div>
         <ul class="price-features">
-          <li>50 photo postcards</li>
+          <li>30 photo postcards</li>
           <li>Mailed anywhere in the US</li>
           <li>Credits never expire</li>
-          <li>Less than a stamp<sup style="font-size: 10px; opacity: 0.7;">*</sup></li>
+          <li>For the regulars</li>
         </ul>
       </div>
     </div>
-
-    <p class="pricing-note">
-      <sup>*</sup> A First-Class Forever stamp currently costs $0.73. The Founder Pack works out to $0.70 per card, postage included.
-    </p>
   </div>
 </section>
 
@@ -1491,26 +1487,26 @@
      Anything genuinely necessary to know is now baked into the hero,
      how-it-works, manifesto, and pricing sections above. -->
 
-<section class="cta-section" id="waitlist">
+<!-- Replaced the waitlist with a closing SMS invitation. Mailroom is a
+     club, not a launch event — no need for "be first in line" email
+     gating. The phone number IS the door. -->
+<section class="cta-section" id="join">
   <div class="container">
-    <div class="section-label" style="justify-content: center;">Waitlist</div>
-    <h2>Be <em>first in line.</em></h2>
+    <div class="section-label" style="justify-content: center;">Send one</div>
+    <h2>The door's <em>right here.</em></h2>
     <p class="section-lede">
-      Mailroom is launching on iOS soon. Drop your email and we'll let you know the day it's ready. Your first card is on us when you're in.
+      Text any photo. We'll do the rest.
     </p>
-    <form class="waitlist-form" id="waitlistForm" onsubmit="handleWaitlist(event)">
-      <input type="email" required placeholder="you@example.com" name="email" class="waitlist-input" autocomplete="email" />
-      <button type="submit" class="btn-primary">
-        Join waitlist
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <path d="M3 7H11M11 7L7 3M11 7L7 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </form>
-    <p class="waitlist-success" id="waitlistSuccess">
-      You're on the list. We'll be in touch.
+    <a href="sms:+14156836457&body=Hi%20Mailroom%21%20Send%20me%20a%20photo%20to%20get%20started%2E"
+       class="btn-primary hero-cta-sms">
+      Text us, send a free card
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M3 7H11M11 7L7 3M11 7L7 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+    <p class="hero-cta-number" style="margin-top: 18px;">
+      Or text any photo to <a href="sms:+14156836457" style="color: var(--ink); font-weight: 600; text-decoration: none; border-bottom: 1px solid currentColor;">+1 (415) 683-6457</a>
     </p>
-    <p class="waitlist-meta">No spam · Unsubscribe anytime</p>
   </div>
 </section>
 
@@ -1519,15 +1515,14 @@
     <div class="footer-grid">
       <div>
         <div class="footer-brand">Mailroom</div>
-        <p class="footer-tagline">For the fridge, not the feed. Real photo postcards to real friends, for less than a stamp.</p>
+        <p class="footer-tagline">A magical mail club. Real photos on real paper, in real mailboxes.</p>
       </div>
 
       <div class="footer-col">
         <h4>Product</h4>
         <a href="#how">How it works</a>
         <a href="#pricing">Pricing</a>
-        <a href="#faq">FAQ</a>
-        <a href="#waitlist">Waitlist</a>
+        <a href="#join">Send one</a>
       </div>
 
       <div class="footer-col">
