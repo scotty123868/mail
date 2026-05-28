@@ -173,16 +173,18 @@
   @media (max-width: 640px) {
     .hero-grid { gap: 20px; }
     .hero { padding: 32px 0 48px; }
-    /* The hero column has H1 + subhead + form. The .postcard-stack is its
-       sibling. Use flex order to slot the postcard after H1 but before subhead. */
+    /* Mobile reorder: eyebrow -> h1 -> subtagline -> postcard -> subhead -> CTA.
+       The postcard still slots between the verbal hook and the instructions
+       so the visual moment lands at the right beat in the scroll. */
     .hero-grid > div:first-child { display: contents; }
     .hero-grid { display: flex; flex-direction: column; }
     .hero-grid .eyebrow { order: 1; }
     .hero-grid h1 { order: 2; }
-    .hero-grid .postcard-stack { order: 3; margin: 4px 0 8px; max-width: 100%; }
-    .hero-grid .hero-subhead { order: 4; }
-    .hero-grid .hero-waitlist-form { order: 5; }
-    .hero-grid .hero-waitlist-success { order: 6; }
+    .hero-grid .hero-subtagline { order: 3; }
+    .hero-grid .postcard-stack { order: 4; margin: 4px 0 8px; max-width: 100%; }
+    .hero-grid .hero-subhead { order: 5; }
+    .hero-grid .hero-cta-sms { order: 6; }
+    .hero-grid .hero-cta-number { order: 7; }
   }
 
   .eyebrow {
@@ -222,31 +224,40 @@
     color: var(--postal-red);
   }
 
-  /* Pen pal line — second half of the hero hook. Slightly smaller +
-     softer ink so it reads as a continuation, not a competing headline. */
-  .h1-penpal {
-    display: inline-block;
-    font-size: 0.82em;
+  /* Subtagline — the pen-pal half of the hero hook, now its own line
+     between H1 and the description. Italic Fraunces, blue accent, sized
+     between the H1 and the body subhead so the visual hierarchy reads:
+     headline -> promise -> instructions. */
+  .hero-subtagline {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: clamp(26px, 3.6vw, 44px);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
     color: var(--ink-soft);
-    margin-top: 0.18em;
-    letter-spacing: -0.03em;
+    margin: 4px 0 28px;
+    max-width: 540px;
+    font-weight: 400;
+    font-variation-settings: "SOFT" 80;
   }
-  .h1-penpal em {
+  .hero-subtagline em {
     color: var(--postal-blue);
+    font-style: italic;
+    font-variation-settings: "SOFT" 100, "WONK" 1;
   }
   @media (max-width: 640px) {
-    .h1-penpal { font-size: 0.78em; }
+    .hero-subtagline { font-size: 22px; margin: 4px 0 18px; }
   }
 
   .hero-subhead {
-    font-size: 20px;
+    font-size: 18px;
     color: var(--ink-soft);
     line-height: 1.5;
     max-width: 480px;
     margin-bottom: 40px;
   }
   @media (max-width: 640px) {
-    .hero-subhead { font-size: 17px; margin-bottom: 20px; max-width: 100%; }
+    .hero-subhead { font-size: 16px; margin-bottom: 20px; max-width: 100%; }
   }
 
   .hero-cta-row {
@@ -1312,7 +1323,8 @@
     <div class="hero-grid">
       <div>
         <div class="eyebrow">A magical mail club</div>
-        <h1>Send a postcard with <em>a text.</em><br>Get one back from <em>a stranger.</em></h1>
+        <h1>Send a postcard with <em>a text.</em></h1>
+        <p class="hero-subtagline">Get one back from <em>a stranger.</em></p>
         <p class="hero-subhead">
           Pick a photo. Write a note. <strong style="color: var(--ink); font-weight: 600;">First card on us.</strong>
         </p>
