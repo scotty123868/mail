@@ -3,10 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mailroom · Send a postcard with a text</title>
-<meta name="description" content="Send a postcard with a text. Pick a photo. Write a note. No address needed. Your first card is free. For the fridge, not the feed.">
-<meta property="og:title" content="Mailroom · Send a postcard with a text">
-<meta property="og:description" content="Text us a photo. We mail a real postcard to anyone. First one's free.">
+<title>Mailroom · Send a postcard. Get one back.</title>
+<meta name="description" content="Send a postcard with a text. Get one back from a stranger. Pick a photo, write a note, we mail the paper. First one's free.">
+<meta property="og:title" content="Mailroom · Send a postcard. Get one back.">
+<meta property="og:description" content="Text us a photo, we mail a real paper card — to a friend, or a stranger somewhere new. A card comes back. First one's on us.">
+<meta property="og:image" content="https://app.themailroom.club/og-card.svg">
+<meta property="og:type" content="website">
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/favicon.png">
 
@@ -218,6 +220,22 @@
     font-style: italic;
     font-variation-settings: "SOFT" 100, "WONK" 1;
     color: var(--postal-red);
+  }
+
+  /* Pen pal line — second half of the hero hook. Slightly smaller +
+     softer ink so it reads as a continuation, not a competing headline. */
+  .h1-penpal {
+    display: inline-block;
+    font-size: 0.82em;
+    color: var(--ink-soft);
+    margin-top: 0.18em;
+    letter-spacing: -0.03em;
+  }
+  .h1-penpal em {
+    color: var(--postal-blue);
+  }
+  @media (max-width: 640px) {
+    .h1-penpal { font-size: 0.78em; }
   }
 
   .hero-subhead {
@@ -1229,7 +1247,7 @@
     <div class="hero-grid">
       <div>
         <div class="eyebrow">Send photos for less than a stamp</div>
-        <h1>Send a postcard with <em>a text.</em></h1>
+        <h1>Send a postcard with <em>a text.</em><br><span class="h1-penpal">Get one back from <em>a stranger.</em></span></h1>
         <p class="hero-subhead">
           Pick a photo. Write a note. No address needed. <strong style="color: var(--ink); font-weight: 600;">Your first card is free.</strong>
         </p>
@@ -1272,7 +1290,7 @@
     <div class="section-label">How it works</div>
     <h2>Pick. Write. <em>Send.</em></h2>
     <p class="section-lede">
-      Pick a photo. Pick a friend. Write a note. We print it, stamp it, and drop it in the mail. It arrives at their door in about a week.
+      Text us a photo. Write a note. We pair you with a stranger somewhere across the country — or send to a friend, your call. Either way, a real paper card lands in someone's mailbox in about a week. And one comes back to you.
     </p>
 
     <div class="steps">
