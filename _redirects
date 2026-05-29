@@ -1,0 +1,18 @@
+# Cloudflare Pages redirects. Equivalent of vercel.json "rewrites".
+# Syntax: <source> <destination> <status>
+#
+# Status 200 = rewrite (URL stays, file served). Equivalent to Vercel's
+# "rewrites" array (NOT "redirects" which would 301/302 + change URL).
+#
+# Migration: when DNS points app.themailroom.club at Pages, this file
+# replaces vercel.json's rewrite logic. The /.well-known/apple-app-site-association
+# Content-Type header is handled separately via _headers below.
+
+/claim                /claim/index.html         200
+/welcome-mail/*       /welcome-mail/index.html  200
+/r/*                  /welcome-mail/index.html  200
+/u/*                  /u/index.html             200
+/privacy              /privacy.html             200
+/terms                /terms.html               200
+/compose/*            /compose/index.html       200
+/c/*                  /c/index.html             200

@@ -1,0 +1,9 @@
+# Cloudflare Pages headers. Equivalent of vercel.json "headers".
+# Syntax: paths followed by header key/value pairs (one per line, indented).
+#
+# Apple App Site Association needs application/json content type so iOS
+# Universal Links resolve properly. The file itself has no extension so
+# Cloudflare wouldn't infer the type without this.
+
+/.well-known/apple-app-site-association
+  Content-Type: application/json
