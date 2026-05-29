@@ -1573,6 +1573,57 @@
 
   document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
+  // Live route ticker: replace hardcoded city pairs with the last 6+
+  // mailed postcards from the recent-routes Edge function. Falls back
+  // to the static markup if the fetch fails (no flash of empty marquee).
+  // Anonymized: city names + coords only, no senders or recipients.
+  (function liveRouteTicker() {
+    const track = document.getElementById('tickerTrack');
+    if (!track) return;
+    const endpoint = 'https://nlwnmgwylmmnaemdnzlq.supabase.co/functions/v1/recent-routes';
+    fetch(endpoint, { cache: 'default' })
+      .then((r) => r.ok ? r.json() : Promise.reject(r.status))
+      .then((data) => {
+        const routes = Array.isArray(data?.routes) ? data.routes : [];
+        if (routes.length < 2) return; // keep static fallback
+        const fmtAge = (m) => {
+          if (m < 60) return `${m}m`;
+          const h = Math.floor(m / 60);
+          if (h < 24) return `${h}h`;
+          return `${Math.floor(h / 24)}d`;
+        };
+        const fmtCoord = (n) => {
+          if (n === undefined || n === null) return '—';
+          return `${n.toFixed(1)}°`;
+        };
+        const fmtCity = (c, s) => {
+          if (!c) return '';
+          return `${c.toLowerCase()}${s ? ' → ' + (s.toLowerCase()) : ''}`.trim();
+        };
+        const rowHtml = (r) => {
+          const fromLat = fmtCoord(r.from_lat);
+          const fromLng = fmtCoord(r.from_lng);
+          const toLat = fmtCoord(r.to_lat);
+          const toLng = fmtCoord(r.to_lng);
+          const cityLine = `${(r.from_city || '').toLowerCase()} → ${(r.to_city || '').toLowerCase()}`;
+          return `<span class="ticker-row">` +
+            `<span class="ticker-coords">${fromLat} ${fromLng}</span>` +
+            `<span class="ticker-arrow">→</span>` +
+            `<span class="ticker-coords">${toLat} ${toLng}</span>` +
+            `<span class="ticker-city">${cityLine}</span>` +
+            `<span class="ticker-time">${fmtAge(r.age_minutes)}</span>` +
+            `</span>`;
+        };
+        const html = routes.map(rowHtml).join('');
+        // Double the content for seamless marquee loop
+        track.innerHTML = html + html;
+      })
+      .catch((err) => {
+        // Silent fallback to static markup
+        console.warn('[ticker] fetch failed, keeping fallback', err);
+      });
+  })();
+
   // Waitlist form. handles both the hero inline form and the bottom CTA form
   function handleWaitlist(event) {
     event.preventDefault();
