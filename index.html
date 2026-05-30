@@ -1349,6 +1349,32 @@
   </div>
 </section>
 
+<!-- Live route ticker sits directly under the hero: the first proof,
+     right after the pitch, that real cards are moving on the wire. -->
+<section class="route-ticker">
+  <div class="container">
+    <div class="ticker-frame">
+      <div class="ticker-track" id="tickerTrack">
+        <!-- Coordinates first (the mystery), tiny city pair second (the
+             answer for the curious who hover/squint). Hardcoded for v1.
+             Future: live query of last N postcards from postcards table. -->
+        <span class="ticker-row"><span class="ticker-coords">40.7° -73.9°</span><span class="ticker-arrow">→</span><span class="ticker-coords">30.3° -103.9°</span><span class="ticker-city">bk → marfa</span><span class="ticker-time">7m</span></span>
+        <span class="ticker-row"><span class="ticker-coords">37.8° -122.4°</span><span class="ticker-arrow">→</span><span class="ticker-coords">43.7° -70.3°</span><span class="ticker-city">sf → portland</span><span class="ticker-time">23m</span></span>
+        <span class="ticker-row"><span class="ticker-coords">30.3° -97.7°</span><span class="ticker-arrow">→</span><span class="ticker-coords">32.1° -81.1°</span><span class="ticker-city">austin → savannah</span><span class="ticker-time">1h</span></span>
+        <span class="ticker-row"><span class="ticker-coords">39.7° -105.0°</span><span class="ticker-arrow">→</span><span class="ticker-coords">44.5° -73.2°</span><span class="ticker-city">denver → burlington</span><span class="ticker-time">2h</span></span>
+        <span class="ticker-row"><span class="ticker-coords">26.1° -81.8°</span><span class="ticker-arrow">→</span><span class="ticker-coords">32.8° -79.9°</span><span class="ticker-city">naples → charleston</span><span class="ticker-time">3h</span></span>
+        <span class="ticker-row"><span class="ticker-coords">47.6° -122.3°</span><span class="ticker-arrow">→</span><span class="ticker-coords">36.2° -86.8°</span><span class="ticker-city">seattle → nashville</span><span class="ticker-time">5h</span></span>
+        <!-- Duplicate set for seamless marquee loop -->
+        <span class="ticker-row"><span class="ticker-coords">40.7° -73.9°</span><span class="ticker-arrow">→</span><span class="ticker-coords">30.3° -103.9°</span><span class="ticker-city">bk → marfa</span><span class="ticker-time">7m</span></span>
+        <span class="ticker-row"><span class="ticker-coords">37.8° -122.4°</span><span class="ticker-arrow">→</span><span class="ticker-coords">43.7° -70.3°</span><span class="ticker-city">sf → portland</span><span class="ticker-time">23m</span></span>
+        <span class="ticker-row"><span class="ticker-coords">30.3° -97.7°</span><span class="ticker-arrow">→</span><span class="ticker-coords">32.1° -81.1°</span><span class="ticker-city">austin → savannah</span><span class="ticker-time">1h</span></span>
+        <span class="ticker-row"><span class="ticker-coords">39.7° -105.0°</span><span class="ticker-arrow">→</span><span class="ticker-coords">44.5° -73.2°</span><span class="ticker-city">denver → burlington</span><span class="ticker-time">2h</span></span>
+      </div>
+    </div>
+    <p class="ticker-tag">The wire is open. <a href="#join">Add yours.</a></p>
+  </div>
+</section>
+
 <section class="how-it-works" id="how">
   <div class="container">
     <div class="section-label">How it works</div>
@@ -1404,32 +1430,8 @@
 <!-- Manifesto removed. the design critique flagged it as "LinkedIn
      thought leader voice" that tells instead of shows + positions
      Mailroom as a REACTION to tech (the loneliest possible framing).
-     The route ticker below this point does the show-don't-tell work
-     of proving the wire is live without preaching. -->
-
-<section class="route-ticker">
-  <div class="container">
-    <div class="ticker-frame">
-      <div class="ticker-track" id="tickerTrack">
-        <!-- Coordinates first (the mystery), tiny city pair second (the
-             answer for the curious who hover/squint). Hardcoded for v1.
-             Future: live query of last N postcards from postcards table. -->
-        <span class="ticker-row"><span class="ticker-coords">40.7° -73.9°</span><span class="ticker-arrow">→</span><span class="ticker-coords">30.3° -103.9°</span><span class="ticker-city">bk → marfa</span><span class="ticker-time">7m</span></span>
-        <span class="ticker-row"><span class="ticker-coords">37.8° -122.4°</span><span class="ticker-arrow">→</span><span class="ticker-coords">43.7° -70.3°</span><span class="ticker-city">sf → portland</span><span class="ticker-time">23m</span></span>
-        <span class="ticker-row"><span class="ticker-coords">30.3° -97.7°</span><span class="ticker-arrow">→</span><span class="ticker-coords">32.1° -81.1°</span><span class="ticker-city">austin → savannah</span><span class="ticker-time">1h</span></span>
-        <span class="ticker-row"><span class="ticker-coords">39.7° -105.0°</span><span class="ticker-arrow">→</span><span class="ticker-coords">44.5° -73.2°</span><span class="ticker-city">denver → burlington</span><span class="ticker-time">2h</span></span>
-        <span class="ticker-row"><span class="ticker-coords">26.1° -81.8°</span><span class="ticker-arrow">→</span><span class="ticker-coords">32.8° -79.9°</span><span class="ticker-city">naples → charleston</span><span class="ticker-time">3h</span></span>
-        <span class="ticker-row"><span class="ticker-coords">47.6° -122.3°</span><span class="ticker-arrow">→</span><span class="ticker-coords">36.2° -86.8°</span><span class="ticker-city">seattle → nashville</span><span class="ticker-time">5h</span></span>
-        <!-- Duplicate set for seamless marquee loop -->
-        <span class="ticker-row"><span class="ticker-coords">40.7° -73.9°</span><span class="ticker-arrow">→</span><span class="ticker-coords">30.3° -103.9°</span><span class="ticker-city">bk → marfa</span><span class="ticker-time">7m</span></span>
-        <span class="ticker-row"><span class="ticker-coords">37.8° -122.4°</span><span class="ticker-arrow">→</span><span class="ticker-coords">43.7° -70.3°</span><span class="ticker-city">sf → portland</span><span class="ticker-time">23m</span></span>
-        <span class="ticker-row"><span class="ticker-coords">30.3° -97.7°</span><span class="ticker-arrow">→</span><span class="ticker-coords">32.1° -81.1°</span><span class="ticker-city">austin → savannah</span><span class="ticker-time">1h</span></span>
-        <span class="ticker-row"><span class="ticker-coords">39.7° -105.0°</span><span class="ticker-arrow">→</span><span class="ticker-coords">44.5° -73.2°</span><span class="ticker-city">denver → burlington</span><span class="ticker-time">2h</span></span>
-      </div>
-    </div>
-    <p class="ticker-tag">The wire is open. <a href="#join">Add yours.</a></p>
-  </div>
-</section>
+     The route ticker (moved directly under the hero) does the
+     show-don't-tell work of proving the wire is live without preaching. -->
 
 <section class="pricing" id="pricing">
   <div class="container">
