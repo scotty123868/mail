@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Finish your postcard — Mailroom</title>
+  <title>Finish your postcard · Mailroom</title>
   <meta name="description" content="Your photo's ready. Add a note and send it to anyone, anywhere." />
   <link rel="icon" href="/favicon.png" />
   <!-- Google Places autocomplete for the address step. Same key as the
@@ -98,7 +98,7 @@
       0% { background-position: 200% 0; }
       100% { background-position: -200% 0; }
     }
-    /* Back-of-postcard preview — paper, divider line, handwritten note
+    /* Back-of-postcard preview. paper, divider line, handwritten note
        on the left, address area on the right (greyed placeholder until
        recipient is entered). */
     .postcard-back {
@@ -322,7 +322,7 @@
     <div class="stage" id="stage">
       <div class="kicker">YOUR POSTCARD</div>
       <h1>Loading your photo…</h1>
-      <p class="sub">One sec — pulling it from the message you sent.</p>
+      <p class="sub">One sec, pulling it from the message you sent.</p>
       <div class="postcard-front skeleton"></div>
     </div>
   </main>
@@ -339,7 +339,7 @@
      *   5. confirmation   → "Mailed!" + download-app CTA
      *
      * State machine: single `state` object holds everything. Each step
-     * renders to #root by replacing innerHTML. No framework — keeps the
+     * renders to #root by replacing innerHTML. No framework. keeps the
      * page <1KB compressed JS so it loads instantly on a 3G phone.
      */
     const SUPABASE_URL = "https://nlwnmgwylmmnaemdnzlq.supabase.co";
@@ -405,7 +405,7 @@
     /* -- Step renderers ----------------------------------------------- */
     function html(strings, ...values) {
       // Tiny template-tag with no escaping (callers must escape user
-      // input themselves — easy here, all values are state we control).
+      // input themselves. easy here, all values are state we control).
       return strings.reduce((acc, s, i) => acc + s + (values[i] ?? ""), "");
     }
 
@@ -416,10 +416,10 @@
     function renderStep() {
       const stepLabel = document.getElementById("step-label");
       const stages = {
-        photo: "Step 1 of 4 — Your photo",
-        message: "Step 2 of 4 — Your note",
-        recipient: "Step 3 of 4 — Who's it for",
-        phone: "Step 4 of 4 — Confirm your number",
+        photo: "Step 1 of 4 · Your photo",
+        message: "Step 2 of 4 · Your note",
+        recipient: "Step 3 of 4 · Who's it for",
+        phone: "Step 4 of 4 · Confirm your number",
         submitting: "Sending your card…",
         done: "Mailed!",
         error: "Hmm.",
@@ -452,7 +452,7 @@
         return `
           <div class="kicker">YOUR POSTCARD</div>
           <h1>Loading your photo…</h1>
-          <p class="sub">One sec — pulling it from the message you sent.</p>
+          <p class="sub">One sec, pulling it from the message you sent.</p>
           <div class="postcard-front skeleton"></div>
         `;
       }
@@ -481,7 +481,7 @@
       return html`
         <div class="kicker">WRITE A NOTE</div>
         <h1>What's on the back?</h1>
-        <p class="sub">A line or two. Keep it short — postcard space is tight.</p>
+        <p class="sub">A line or two. Keep it short, postcard space is tight.</p>
         <div class="postcard-back" id="back-preview" aria-label="Postcard back preview">
           <div class="pc-message ${state.message ? "" : "empty"}" id="pc-message">${msgEsc || "Your note goes here…"}</div>
           <div class="pc-address empty">${addressShown}</div>
@@ -510,8 +510,8 @@
         </div>
         <div class="field">
           <label for="r-line1">Street address</label>
-          <input id="r-line1" type="text" autocomplete="off" placeholder="Start typing — we'll find it" value="${escapeHtml(r.line1)}" />
-          <div class="hint">Powered by Google Places — we'll fill the rest.</div>
+          <input id="r-line1" type="text" autocomplete="off" placeholder="Start typing, we'll find it" value="${escapeHtml(r.line1)}" />
+          <div class="hint">Powered by Google Places, we'll fill the rest.</div>
         </div>
         <div class="field">
           <label for="r-line2">Apt / Suite (optional)</label>

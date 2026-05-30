@@ -6,7 +6,7 @@
   <title>Add to Mailroom</title>
   <meta name="description" content="A friend wants to share their Mailroom card with you. Open the app or get Mailroom to add them and start sending real postcards." />
   <link rel="icon" href="/favicon.ico" />
-  <!-- Smart App Banner: tells iOS Safari "this URL has a corresponding app" — Safari shows a top banner offering to open in app or install. -->
+  <!-- Smart App Banner: tells iOS Safari "this URL has a corresponding app". Safari shows a top banner offering to open in app or install. -->
   <meta name="apple-itunes-app" content="app-id=6747802432, app-clip-bundle-id=com.mailrooms.app.Clip" />
   <style>
     :root {
@@ -181,7 +181,7 @@
     <p class="city" id="city">Somewhere</p>
     <p class="body">
       They've shared their Mailroom card with you. Open the app to add them
-      to your rolodex — then you can send real paper postcards to their door
+      to your rolodex, then you can send real paper postcards to their door
       without ever seeing their address.
     </p>
 
@@ -242,7 +242,7 @@
       document.getElementById("avatar").textContent = POOL[hash(userId) % POOL.length];
     }
 
-    // "Open in Mailroom" — uses the current URL. iOS will intercept via
+    // "Open in Mailroom". uses the current URL. iOS will intercept via
     // Universal Links (AASA covers /u/*) when the app is installed.
     // We rebuild the URL to preserve query params so the in-app handler
     // gets name/city for the confirm screen.

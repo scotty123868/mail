@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>You have mail — Mailroom</title>
+  <title>You have mail · Mailroom</title>
   <meta name="description" content="Someone sent you a postcard. Enter your address and we'll mail it." />
   <link rel="icon" href="/favicon.ico" />
   <style>
@@ -315,16 +315,16 @@
 
   <script>
     /**
-     * Mailroom claim flow — web fallback.
+     * Mailroom claim flow. web fallback.
      *
      * Flow:
      *   1. Page loads, shows spinner.
-     *   2. GET /claim?t=TOKEN with Accept: application/json — checks token
+     *   2. GET /claim?t=TOKEN with Accept: application/json. checks token
      *      state BEFORE showing the form. If it's already claimed,
      *      expired, or not found, we show the appropriate state instead
      *      of letting the user fill out the form and fail.
      *   3. If valid: show the form with sender name + message preview.
-     *   4. Google Places autocomplete on Street Address — matches the app.
+     *   4. Google Places autocomplete on Street Address. matches the app.
      *   5. Submit POSTs to the same /claim endpoint and shows success.
      *
      * iOS 14+ with the App Clip available: tapping a /claim?t=TOKEN link
@@ -380,7 +380,7 @@
       })
       .then(function (r) {
         if (r.body && r.body.ok) {
-          // Valid token — show the form, prefill sender info + message.
+          // Valid token. show the form, prefill sender info + message.
           var senderName = r.body.sender_name || 'Someone';
           var fromTag = senderName.split(' ')[0] || 'Someone';
           var senderCity = r.body.sender_city || '';

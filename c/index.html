@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Your postcard is on its way 📮 — Mailroom</title>
+  <title>Your postcard is on its way 📮 · Mailroom</title>
   <meta name="description" content="Real paper postcards by text. Watch yours travel." />
   <meta name="theme-color" content="#f3efe2" />
 
   <!-- ============================================================== -->
-  <!-- OpenGraph + Twitter — used by iMessage, Slack, Twitter, etc.  -->
+  <!-- OpenGraph + Twitter. used by iMessage, Slack, Twitter, etc.  -->
   <!-- to render this URL as a large rich preview card. Without these -->
   <!-- iMessage shows a tiny favicon hyperlink. With them, the link   -->
   <!-- expands into an in-thread card so the recipient never has to   -->
@@ -28,7 +28,7 @@
   <meta name="twitter:description" content="Real paper postcards by text. Track yours live." />
   <meta name="twitter:image" content="https://app.themailroom.club/og-card.png" />
 
-  <!-- Smart App Banner — iOS Safari shows a 'Get the app' bar at the top. -->
+  <!-- Smart App Banner. iOS Safari shows a 'Get the app' bar at the top. -->
   <meta name="apple-itunes-app" content="app-id=6768460855" />
   <link rel="icon" href="/favicon.png" />
   <!-- Apple MapKit JS. Loads asynchronously; calls window.initMapKit() when ready. -->
@@ -197,7 +197,7 @@
     }
 
     /* ============================================================== */
-    /*  POSTCARD — with click-to-flip                                 */
+    /*  POSTCARD. with click-to-flip                                 */
     /* ============================================================== */
     .postcard-stage {
       perspective: 1400px;
@@ -269,8 +269,8 @@
     }
     .postcard:hover .flip-hint { opacity: 0.95; }
 
-    /* Stamp — perforated edge, multi-color, illustration inside. */
-    /* Stamp sits quietly in place — no flying-in choreography. Restraint over drama. */
+    /* Stamp. perforated edge, multi-color, illustration inside. */
+    /* Stamp sits quietly in place. no flying-in choreography. Restraint over drama. */
     .stamp {
       position: absolute;
       top: 14px; right: 14px;
@@ -283,7 +283,7 @@
     }
     .stamp svg { width: 100%; height: 100%; display: block; }
 
-    /* Postmark — circular ink stamp with city + date around the arc. */
+    /* Postmark. circular ink stamp with city + date around the arc. */
     .postmark {
       position: absolute;
       top: 22px; right: 78px;
@@ -297,7 +297,7 @@
     .postmark[style*="opacity:1"], .postmark { /* settled state opacity */ }
     .postmark svg { width: 100%; height: 100%; }
 
-    /* Postcard BACK — postal-standard layout: divider, message left, address right. */
+    /* Postcard BACK. postal-standard layout: divider, message left, address right. */
     .postcard-back {
       transform: rotateY(180deg);
       background: linear-gradient(180deg, var(--paper-warm) 0%, #f5ecd5 100%);
@@ -726,7 +726,7 @@
     }
 
     // ============================================================
-    //  MAP — Apple MapKit JS primary, SVG fallback.
+    //  MAP. Apple MapKit JS primary, SVG fallback.
     // ============================================================
     let _mapkitReady = false;
     const MK_PENDING = [];
@@ -828,7 +828,7 @@
           new mapkit.CoordinateSpan(2.5, 2.5));
       }
 
-      // Indiana Jones — curved arc that draws across the map, point by
+      // Indiana Jones. curved arc that draws across the map, point by
       // point. Bezier between sender + recipient with control point
       // pushed perpendicular for a nice arc. Polyline grows over ~1.5s.
       if (senderCoord && recipientCoord) {
@@ -898,7 +898,7 @@
       }, delayMs);
     }
 
-    // Small dot pin — matches the original SVG style: filled disc, faint
+    // Small dot pin. matches the original SVG style: filled disc, faint
     // outer halo. Sized so it doesn't block the underlying city label.
     function makeDotPin(role, delayMs) {
       const fill = role === "sender" ? "#b8483a" : "#3c6e8f";
@@ -1072,7 +1072,7 @@
 
       // Timeline rows (scheduled state has a single 'scheduled' row)
       const timelineRows = isScheduled
-        ? [{ event: "scheduled", label: `Scheduled — mailing ${sendDateFmt}`, current: true, done: false }]
+        ? [{ event: "scheduled", label: `Scheduled, mailing ${sendDateFmt}`, current: true, done: false }]
         : (data.timeline || []).map((row) => ({
             event: row.event, label: timelineLabel(row.event),
             current: row.current, done: row.done,
@@ -1112,7 +1112,7 @@
             <div class="postcard-side postcard-back">
               <div class="pc-message">
                 ${escapeHtml(messagePreview)}
-                <div class="pc-message-sig">— ${escapeHtml((senderLabel.split(",")[0]) || "Mailroom")}</div>
+                <div class="pc-message-sig">From ${escapeHtml((senderLabel.split(",")[0]) || "Mailroom")}</div>
               </div>
               <div class="pc-divider"></div>
               <div class="pc-address">
