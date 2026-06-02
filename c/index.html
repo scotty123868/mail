@@ -1107,7 +1107,7 @@
               ${data.photo_url ? `<img src="${escapeHtml(data.photo_url)}" alt="Your postcard photo" loading="eager" />` : ""}
               <div class="postmark">${postmarkSvg(sender.city || "MAILROOM", postmarkDate)}</div>
               <div class="stamp">${stampSvg(stampLabel)}</div>
-              <div class="flip-hint">Tap to flip ↻</div>
+              <div class="flip-hint">Drag to flip ↻</div>
             </div>
             <div class="postcard-side postcard-back">
               <div class="pc-message">
@@ -1160,10 +1160,52 @@
       const pc = document.getElementById("postcard");
       if (pc) {
         const flip = () => pc.classList.toggle("flipped");
-        pc.addEventListener("click", flip);
+        const isFlipped = () => pc.classList.contains("flipped");
+
+        // Keyboard (accessible): Enter / Space toggles.
         pc.addEventListener("keydown", (e) => {
           if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flip(); }
         });
+
+        // Drag-to-flip: the card follows the finger/cursor in real time and
+        // snaps to the nearest face on release. A pointer that barely moves
+        // counts as a tap (toggle). Pure pointer events cover mouse + touch +
+        // pen with one path, so there's no separate click handler to double-fire.
+        let dragging = false, startX = 0, moved = false;
+        pc.addEventListener("pointerdown", (e) => {
+          dragging = true; moved = false; startX = e.clientX;
+          pc.style.transition = "none";              // follow 1:1, no easing
+          try { pc.setPointerCapture(e.pointerId); } catch (_) {}
+        });
+        pc.addEventListener("pointermove", (e) => {
+          if (!dragging) return;
+          const dx = e.clientX - startX;
+          if (Math.abs(dx) > 4) moved = true;
+          const start = isFlipped() ? 180 : 0;
+          const tilt = isFlipped() ? 1 : -1.2;
+          let a = Math.max(0, Math.min(180, start + (dx / pc.offsetWidth) * 180));
+          pc.style.transform = `rotate(${tilt}deg) rotateY(${a}deg)`;
+        });
+        const endDrag = (e, cancelled) => {
+          if (!dragging) return;
+          dragging = false;
+          let target = isFlipped();
+          if (!cancelled) {
+            if (!moved) {
+              target = !isFlipped();                 // tap → toggle
+            } else {
+              const dx = e.clientX - startX;
+              const start = isFlipped() ? 180 : 0;
+              const a = Math.max(0, Math.min(180, start + (dx / pc.offsetWidth) * 180));
+              target = a >= 90;                       // snap to nearest face
+            }
+          }
+          pc.style.transition = "";                  // restore the eased snap
+          pc.style.transform = "";                   // hand back to the class
+          pc.classList.toggle("flipped", target);
+        };
+        pc.addEventListener("pointerup", (e) => endDrag(e, false));
+        pc.addEventListener("pointercancel", (e) => endDrag(e, true));
       }
     }
 
