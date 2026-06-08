@@ -545,7 +545,7 @@
       const bypass = shouldBypassOtp();
       return html`
         <div class="kicker">${bypass ? "CONFIRM YOUR NUMBER" : state.otpSent ? "ENTER YOUR CODE" : "CONFIRM YOUR NUMBER"}</div>
-        <h1>${bypass ? "Almost there." : state.otpSent ? "Check your texts." : "Your free card is almost out."}</h1>
+        <h1>${bypass ? "Almost there." : state.otpSent ? "Check your texts." : "Your card is almost ready."}</h1>
         <p class="sub">${bypass
           ? "Enter the phone you texted us from. Tap to mail your card."
           : state.otpSent
@@ -867,7 +867,7 @@
         phone_mismatch: "Use the same phone you texted the photo from.",
         already_consumed: "This card is already on its way.",
         draft_not_found: "Link not recognized. Text us a new photo.",
-        out_of_credits: "You're out of free credits. Card packs coming soon.",
+        out_of_credits: "You're out of cards. Text the bot \"buy\" to add a pack (3 for $5).",
         lob_failed: "The print queue rejected your card. We refunded your credit. Try again.",
         send_failed: "Couldn't send the card. We refunded your credit. Try again.",
         photo_sign_failed: "Couldn't access your photo. Text us a new one.",
