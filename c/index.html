@@ -778,9 +778,32 @@
       });
     }
 
-    function renderMapKit(container, senderCoord, recipientCoord, senderCity, recipientCity) {
+    // Geocode a "City, State"-ish string to [lat, lng] via MapKit. Resolves
+    // null on any failure so the caller degrades gracefully.
+    function geocodeCity(query) {
+      return new Promise((resolve) => {
+        if (typeof mapkit === "undefined" || !mapkit.Geocoder) { resolve(null); return; }
+        try {
+          new mapkit.Geocoder({ getsUserLocation: false, language: "en-US" })
+            .lookup(query + ", USA", (err, data) => {
+              const r = data && data.results && data.results[0];
+              resolve(err || !r ? null : [r.coordinate.latitude, r.coordinate.longitude]);
+            });
+        } catch (e) { resolve(null); }
+      });
+    }
+
+    async function renderMapKit(container, senderCoord, recipientCoord, senderCity, recipientCity) {
       if (container._mkMap) { try { container._mkMap.destroy(); } catch {} container._mkMap = null; }
       container.innerHTML = "";
+
+      // The static CITY_COORDS table only knows major cities, so small towns
+      // (e.g. Chevy Chase, MD) came back null -> blank ocean map. Geocode any
+      // missing coord so a pin still drops. Sender stays null until the user
+      // gives their address; once their city is saved it geocodes too and the
+      // full route appears on the next load.
+      if (!senderCoord && senderCity) senderCoord = await geocodeCity(senderCity);
+      if (!recipientCoord && recipientCity) recipientCoord = await geocodeCity(recipientCity);
 
       const map = new mapkit.Map(container, {
         mapType: mapkit.Map.MapTypes.MutedStandard,
